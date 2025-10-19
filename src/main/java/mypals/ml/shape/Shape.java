@@ -5,6 +5,7 @@ import mypals.ml.shapeManagers.ShapeManager;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.function.BiConsumer;
 
@@ -18,6 +19,7 @@ public abstract class Shape {
     public final BiConsumer<MatrixStack, Shape> transform;
     public boolean seeThrough;
     public boolean isGroupedShape = false;
+    public Vec3d centerPoint = Vec3d.ZERO;
 
     protected Shape(RenderingType type, BiConsumer<MatrixStack, Shape> transform) {
         this.type = type;

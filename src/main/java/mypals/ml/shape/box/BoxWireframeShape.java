@@ -25,6 +25,7 @@ public class BoxWireframeShape extends mypals.ml.shape.Shape implements BoxLikeS
         this.max = max;
         this.edgeWidth = edgeWidth;
         this.seeThrough = seeThrough;
+        this.centerPoint = getCenter();
     }
     public BoxWireframeShape(RenderingType type, Vec3d min, Vec3d max,
                              Color edgeputColor, float edgeWidth, boolean seeThrough) {

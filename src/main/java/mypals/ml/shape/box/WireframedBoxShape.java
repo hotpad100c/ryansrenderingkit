@@ -37,6 +37,7 @@ public class WireframedBoxShape extends Shape implements BoxLikeShape {
         this.edgeWidth = edgeWidth;
         this.lineSeeThrough = lineSeeThrough;
         this.isGroupedShape = true;
+        this.centerPoint = getCenter();
     }
     public WireframedBoxShape(RenderingType type,
                               Vec3d min,

@@ -12,10 +12,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
+
+import static mypals.ml.shapeManagers.ShapeManager.SHAPE_ORDER_COMPARATOR;
 
 public class BuilderManager {
     public String id;
@@ -68,17 +68,23 @@ public class BuilderManager {
         seeThroughBuilderGroup.drawVBO(cameraPos);
         normalBuilderGroup.drawVBO(cameraPos);
     }
-    public void rebuildVBO(Set<Map.Entry<Identifier,Shape>> shapeList, boolean seeThrough){
+    public void rebuildVBO(Collection<Shape> shapeList, boolean seeThrough){
         if(seeThrough)seeThroughBuilderGroup.bufferedShapeBuilder.rebuild(renderMethod,builder->{
-            System.out.println("Rebuilding seeThrough VBO...");
-            for(Map.Entry<Identifier,Shape> entry: shapeList){
-                entry.getValue().draw(builder);
+
+            List<Shape> sortedShapes = new ArrayList<>(shapeList);
+            sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
+
+            for(Shape shape: sortedShapes){
+                shape.draw(builder);
             }
         });
         else normalBuilderGroup.bufferedShapeBuilder.rebuild(renderMethod,builder->{
-            System.out.println("Rebuilding normal VBO...");
-            for(Map.Entry<Identifier,Shape> entry: shapeList){
-                entry.getValue().draw(builder);
+
+            List<Shape> sortedShapes = new ArrayList<>(shapeList);
+            sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
+
+            for(Shape shape: sortedShapes){
+                shape.draw(builder);
             }
         });
     }

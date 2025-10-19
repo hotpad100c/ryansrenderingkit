@@ -86,7 +86,6 @@ public class BufferedShapeBuilder extends ShapeBuilder {
         setUpRendererSystem(null);
         RenderSystem.setShader(bufferedRenderMethod.shader());
 
-        MinecraftClient.getInstance().worldRenderer.getEntityOutlinesFramebuffer().beginWrite(false);
         this.vertexBuffer.draw(RenderSystem.getModelViewStack(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
         VertexBuffer.unbind();
 

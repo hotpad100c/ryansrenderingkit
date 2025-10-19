@@ -23,7 +23,7 @@ public class Tester {
     public static void init(){
         ClientTickEvents.START_WORLD_TICK.register((client)->{
             if(added)return;
-            ShapeManagers.addShape(Identifier.of(MOD_ID,"test_shape1batch"),new WireframedBoxShape(
+            /*ShapeManagers.addShape(Identifier.of(MOD_ID,"test_shape1batch"),new WireframedBoxShape(
                             WireframedBoxShape.RenderingType.IMMEDIATE,
                             Tester::rotate,
                             new Vec3d(9,9,9),
@@ -34,17 +34,28 @@ public class Tester {
                             true,
                             false
                     )
-            );
-            for(int i=0;i<100;i++){
-                ShapeManagers.addShape(Identifier.of(MOD_ID,"test_shape1buffer_"+i),new BoxShape(
-                                BoxShape.RenderingType.BUFFERED,
-                                new Vec3d(-5-i*2,-5-i*2,-5-i*2),
-                                new Vec3d(1-i*2,1-i*2,1-i*2),
-                                new Color(100 + i, (23 * i) % 100, i, 164),
-                                false
-                        )
-                );
+            );*/
+            float spacing = 3.5f;
+            for (int x = 0; x < 10; x++) {
+                for (int y = 0; y < 10; y++) {
+                    for (int z = 0; z < 10; z++) {
+                        float hue = (float) (x + y * 10 + z * 100) / (10 * 10 * 10);
+                        Color color = Color.getHSBColor(hue, 1f, 1f);
+                        boolean see = x <5;
+                        ShapeManagers.addShape(
+                                Identifier.of(MOD_ID, "grid_cube_" + x + "_" + y + "_" + z),
+                                new BoxShape(
+                                        BoxShape.RenderingType.BUFFERED,
+                                        new Vec3d(x * spacing + 10, y * spacing + 10, z * spacing + 10),
+                                        new Vec3d(x * spacing + 11, y * spacing + 11, z * spacing + 11),
+                                        new Color(color.getRed(), color.getGreen(), color.getBlue(), 80),
+                                        see
+                                )
+                        );
+                    }
+                }
             }
+
            /*ShapeManagers.addShape(Identifier.of(MOD_ID,"test_shape2buffered"),
                     new WireframedBoxShape(
                             WireframedBoxShape.RenderingType.BUFFERED,
@@ -73,7 +84,7 @@ public class Tester {
                         false
                 )
         );*/
-        ShapeManagers.addShape(new WireframedBoxShape(
+        /*ShapeManagers.addShape(new WireframedBoxShape(
                 Shape.RenderingType.BATCH,
                         new Vec3d(-10,-9,-10),
                         new Vec3d(-5,-3,-5),
@@ -83,7 +94,7 @@ public class Tester {
                         false,
                         true
                 )
-        );
+        );*/
     }
     public static void rotate(MatrixStack matrixStack, Shape shape){
         double centerX,centerY,centerZ;

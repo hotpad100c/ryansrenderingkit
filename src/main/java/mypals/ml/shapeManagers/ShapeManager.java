@@ -5,9 +5,9 @@ import mypals.ml.builderManager.BuilderManager;
 import mypals.ml.shape.Shape;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static mypals.ml.Helpers.generateUniqueId;
 import static mypals.ml.shapeManagers.ShapeManagers.TEMP_HEADER;
@@ -18,6 +18,13 @@ public class ShapeManager {
     public ShapeGroup batchShapeGroup;
     public ShapeGroup bufferedShapeGroup;
     public BuilderManager builderManager;
+    public static Comparator<Shape> SHAPE_ORDER_COMPARATOR = (s1, s2) -> {
+        Vec3d shape1Pos = s1.centerPoint;
+        Vec3d shape2Pos = s2.centerPoint;
+        double distance1 = shape1Pos.lengthSquared(); // Square of distance for efficiency
+        double distance2 = shape2Pos.lengthSquared();
+        return Double.compare(distance2, distance1);
+    };
     public ShapeManager(BuilderManager builderManager, String id){
         this.id = id;
         immediateShapeGroup = new ShapeGroup();
@@ -32,12 +39,12 @@ public class ShapeManager {
             case BUFFERED -> {
                 if(identifier.getPath().startsWith(TEMP_HEADER)) throw new UnsupportedOperationException("Buffered shapes cant be temporary, use IMMEDIATE or BATCH types for temporary shapes.");
                 bufferedShapeGroup.addShape(identifier,shape);
-                System.out.println("Added" + (shape.seeThrough?"seeThrough":"nonSeeThrough") + " shape {" + identifier + "} to ShapeManager: " + this.id);
+                //System.out.println("Added" + (shape.seeThrough?"seeThrough":"nonSeeThrough") + " shape {" + identifier + "} to ShapeManager: " + this.id);
                 builderManager.rebuildVBO(
                         shape.seeThrough?
-                                bufferedShapeGroup.seeThroughShapeMap.entrySet()
+                                bufferedShapeGroup.seeThroughShapeMap.values()
                                 :
-                                bufferedShapeGroup.normalShapeMap.entrySet()
+                                bufferedShapeGroup.normalShapeMap.values()
                         , shape.seeThrough);
                 }
         }
@@ -53,26 +60,12 @@ public class ShapeManager {
         bufferedShapeGroup.clearTemp();
     }
     public static class ShapeGroup{
-        public Map<Identifier, Shape> normalShapeMap = new HashMap<Identifier,Shape>(){
-            @Override
-            public Shape remove(Object key) {
-                Shape value = super.remove(key);
-                if (value != null) {
-                    onRemove(key, value);
-                }
-                return value;
-            }
-
-            private void onRemove(Object key, Object value) {
-                if(!((Identifier)key).getPath().startsWith(TEMP_HEADER)){
-                    System.out.println("Removed shape to ShapeManager: " + ((Identifier)key).toString());
-                }
-            }
-        };
-        public Map<Identifier, Shape> seeThroughShapeMap = new HashMap<>();
+        public LinkedHashMap<Identifier, Shape> normalShapeMap = new LinkedHashMap<>(){};
+        public LinkedHashMap<Identifier, Shape> seeThroughShapeMap = new LinkedHashMap<>();
         public void addShape(Identifier id,Shape shape){
             if(shape.seeThrough){
                 seeThroughShapeMap.put(id,shape);
+
             }else{
                 normalShapeMap.put(id,shape);
             }
@@ -88,14 +81,20 @@ public class ShapeManager {
         }
         public void drawImmediate(BuilderManager builderManager, MatrixStack matrixStack){
             if(!normalShapeMap.isEmpty()) {
-                for (Shape shape : normalShapeMap.values()) {
+                List<Shape> sortedShapes = new ArrayList<>(normalShapeMap.values());
+                sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
+
+                for (Shape shape : sortedShapes) {
                     builderManager.drawImmediate(shape, builder -> {
                         shape.draw(builder, matrixStack);
                     });
                 }
             }
             if(!seeThroughShapeMap.isEmpty()) {
-                for (Shape shape : seeThroughShapeMap.values()) {
+                List<Shape> sortedShapes = new ArrayList<>(seeThroughShapeMap.values());
+                sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
+
+                for (Shape shape : sortedShapes) {
                     builderManager.drawImmediate(shape, builder -> {
                         shape.draw(builder, matrixStack);
                     });
@@ -105,14 +104,20 @@ public class ShapeManager {
         public void drawBatched(BuilderManager builderManager, MatrixStack matrixStack){
             if(!normalShapeMap.isEmpty()) {
                 builderManager.drawBatch(builder -> {
-                    for (Shape shape : normalShapeMap.values()) {
+                    List<Shape> sortedShapes = new ArrayList<>(normalShapeMap.values());
+                    sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
+
+                    for (Shape shape : sortedShapes) {
                         shape.draw(builder, matrixStack);
                     }
                 }, false);
             }
             if(!seeThroughShapeMap.isEmpty()) {
                 builderManager.drawBatch(builder -> {
-                    for (Shape shape : seeThroughShapeMap.values()) {
+                    List<Shape> sortedShapes = new ArrayList<>(seeThroughShapeMap.values());
+                    sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
+
+                    for (Shape shape : sortedShapes) {
                         shape.draw(builder, matrixStack);
                     }
                 }, true);

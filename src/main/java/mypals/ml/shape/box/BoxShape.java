@@ -29,6 +29,7 @@ public class BoxShape extends mypals.ml.shape.Shape implements QuadLikeShape, Bo
         this.min = new Vec3d(Math.min(min.x, max.x), Math.min(min.y, max.y), Math.min(min.z, max.z));
         this.max = new Vec3d(Math.max(min.x, max.x), Math.max(min.y, max.y), Math.max(min.z, max.z));
         this.faceputColor = faceputColor;
+        this.centerPoint = getCenter();
     }
     public BoxShape(RenderingType type,
                     Vec3d min,
@@ -89,8 +90,4 @@ public class BoxShape extends mypals.ml.shape.Shape implements QuadLikeShape, Bo
         return max;
     }
 
-    @Override
-    public Vec3d getCenter() {
-        return null;
-    }
 }
