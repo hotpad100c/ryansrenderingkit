@@ -13,22 +13,32 @@ import java.util.function.Consumer;
 
 public class BufferedShapeBuilder extends ShapeBuilder {
     private VertexBuffer vertexBuffer;
-    private boolean seeThrough;
     private boolean isBuilding = false;
 
-    public BufferedShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough) {
-        super(modelViewMatrix);
-        this.seeThrough = seeThrough;
+    private RenderMethod bufferedRenderMethod = null;
+
+    public BufferedShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough, boolean cullFace, RenderMethod renderMethod) {
+        super(modelViewMatrix, seeThrough, cullFace);
+        this.bufferedRenderMethod = renderMethod;
+    }
+
+    public void rebuild(RenderMethod renderMethod, Consumer<BufferedShapeBuilder> builder) {
+        start(renderMethod);
+        push(builder);
+        end();
     }
 
     public void start(RenderMethod renderMethod) {
+        if(this.vertexBuffer != null){
+            close();
+        }
         this.vertexBuffer = new VertexBuffer(GlUsage.DYNAMIC_WRITE);
         begin(renderMethod);
-        RenderSystem.setShader(renderMethod.shader());
+        this.bufferedRenderMethod = renderMethod;
         isBuilding = true;
     }
 
-    public void push(Consumer<ShapeBuilder> builder) {
+    public void push(Consumer<BufferedShapeBuilder> builder) {
         if (isBuilding) {
             builder.accept(this);
         }
@@ -61,14 +71,8 @@ public class BufferedShapeBuilder extends ShapeBuilder {
     }
 
     public void draw(Vec3d cameraPos) {
-        if (vertexBuffer == null) {
+        if (vertexBuffer == null || bufferedRenderMethod == null) {
             return;
-        }
-
-        if (seeThrough) {
-            RenderSystem.disableDepthTest();
-        } else {
-            RenderSystem.enableDepthTest();
         }
 
         this.vertexBuffer.bind();
@@ -79,12 +83,14 @@ public class BufferedShapeBuilder extends ShapeBuilder {
                 (float) -cameraPos.z
         );
 
+        setUpRendererSystem(null);
+        RenderSystem.setShader(bufferedRenderMethod.shader());
+
         MinecraftClient.getInstance().worldRenderer.getEntityOutlinesFramebuffer().beginWrite(false);
-
         this.vertexBuffer.draw(RenderSystem.getModelViewStack(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
-
         VertexBuffer.unbind();
+
+        restoreRendererSystem();
         RenderSystem.getModelViewStack().popMatrix();
-        RenderSystem.enableDepthTest();
     }
 }

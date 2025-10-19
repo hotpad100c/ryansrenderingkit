@@ -10,12 +10,9 @@ import org.joml.Matrix4f;
 import java.util.function.Consumer;
 
 public class BatchShapeBuilder extends ShapeBuilder {
-    private boolean seeThrough;
     private boolean isBuilding = false;
-
-    public BatchShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough) {
-        super(modelViewMatrix);
-        this.seeThrough = seeThrough;
+    public BatchShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough,boolean cullFace) {
+        super(modelViewMatrix,seeThrough,cullFace);
     }
 
     public void beginBatch(RenderMethod renderMethod) {
@@ -27,6 +24,8 @@ public class BatchShapeBuilder extends ShapeBuilder {
     public void push(Consumer<ShapeBuilder> builder) {
         if (isBuilding) {
             builder.accept(this);
+        }else{
+            throw new IllegalStateException("BatchShapeBuilder is not building. Call beginBatch() before pushing shapes.");
         }
     }
 
@@ -41,21 +40,13 @@ public class BatchShapeBuilder extends ShapeBuilder {
             return;
         }
 
-        if (seeThrough) {
-            RenderSystem.disableDepthTest();
-        } else {
-            RenderSystem.enableDepthTest();
-        }
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        setUpRendererSystem(null);
 
         BuiltBuffer builtBuffer = this.getBufferBuilder().end();
-        //this.bufferBuilder = null;
-        if (builtBuffer == null) {
-            isBuilding = false;
-            return;
-        }
         BufferRenderer.drawWithGlobalProgram(builtBuffer);
-        RenderSystem.enableDepthTest();
+
+        restoreRendererSystem();
+
         isBuilding = false;
     }
 }

@@ -1,9 +1,9 @@
-package mypals.ml.shape;
+package mypals.ml.shape.box;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import mypals.ml.render.RenderMethod;
 import mypals.ml.builders.ShapeBuilder;
-import net.minecraft.client.gl.VertexBuffer;
+import mypals.ml.shape.Shape;
+import mypals.ml.shape.basics.BoxLikeShape;
+import mypals.ml.shape.basics.core.QuadLikeShape;
 
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -13,7 +13,7 @@ import java.awt.*;
 import java.util.function.BiConsumer;
 
 
-public class BoxShape extends Shape {
+public class BoxShape extends mypals.ml.shape.Shape implements QuadLikeShape, BoxLikeShape {
 
     public final Vec3d min;
     public final Vec3d max;
@@ -40,7 +40,7 @@ public class BoxShape extends Shape {
     }
     @Override
     public void draw(ShapeBuilder builder) {
-        builder.draw(this, this::renderFaces, RenderMethod.QUADS);
+        this.renderFaces(builder);
     }
 
     private void renderFaces(ShapeBuilder shapeBuilder) {
@@ -79,5 +79,18 @@ public class BoxShape extends Shape {
     }
 
 
+    @Override
+    public Vec3d getMin() {
+        return min;
+    }
 
+    @Override
+    public Vec3d getMax() {
+        return max;
+    }
+
+    @Override
+    public Vec3d getCenter() {
+        return null;
+    }
 }

@@ -1,6 +1,8 @@
-package mypals.ml.shape;
+package mypals.ml.shape.box;
 
 import mypals.ml.builders.ShapeBuilder;
+import mypals.ml.shape.Shape;
+import mypals.ml.shape.basics.BoxLikeShape;
 import mypals.ml.shapeManagers.ShapeManagers;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
@@ -9,7 +11,7 @@ import net.minecraft.util.math.Vec3d;
 import java.awt.*;
 import java.util.function.BiConsumer;
 
-public class WireframedBoxShape extends Shape {
+public class WireframedBoxShape extends Shape implements BoxLikeShape {
     public final Vec3d min;
     public final Vec3d max;
     public final Color faceputColor;
@@ -61,8 +63,7 @@ public class WireframedBoxShape extends Shape {
                         this.edgeWidth
                 )
         );
-
-        /*ShapeManagers.QUADS_SHAPE_MANAGER.addShape(
+        ShapeManagers.QUADS_SHAPE_MANAGER.addShape(
                 identifier,
                 new BoxShape(
                     this.type,
@@ -72,10 +73,16 @@ public class WireframedBoxShape extends Shape {
                     this.faceputColor,
                     this.seeThrough
                 )
-        );*/
+        );
     }
-    @Override
-    public void draw(ShapeBuilder builder) {
 
+    @Override
+    public Vec3d getMin() {
+        return this.min;
+    }
+
+    @Override
+    public Vec3d getMax() {
+        return this.max;
     }
 }

@@ -33,16 +33,15 @@ public abstract class Shape {
         matrixStack.push();
         this.transform.accept(matrixStack,this);
         builder.setPositionMatrix(matrixStack.peek().getPositionMatrix());
-        System.out.println("Drawing shape with matrix: " + matrixStack.peek().getPositionMatrix());
         draw(builder);
-        System.out.println("Finished drawing shape.");
         matrixStack.pop();
     }
-    void draw(ShapeBuilder builder) {
+    public void draw(ShapeBuilder builder) {
         if(this.isGroupedShape) throw new UnsupportedOperationException("Grouped cant be rendered directly, use addGroup to extract it.");
     }
     public void addGroup(Identifier identifier) {
         if(this.isGroupedShape) throw new UnsupportedOperationException("This is not a grouped shape, use draw to render it.");
     }
+
 }
 

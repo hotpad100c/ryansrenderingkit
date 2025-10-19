@@ -29,16 +29,28 @@ public class ShapeManager {
         switch (shape.type){
             case IMMEDIATE -> immediateShapeGroup.addShape(identifier,shape);
             case BATCH -> batchShapeGroup.addShape(identifier,shape);
-            case BUFFERED -> bufferedShapeGroup.addShape(identifier,shape);
+            case BUFFERED -> {
+                if(identifier.getPath().startsWith(TEMP_HEADER)) throw new UnsupportedOperationException("Buffered shapes cant be temporary, use IMMEDIATE or BATCH types for temporary shapes.");
+                bufferedShapeGroup.addShape(identifier,shape);
+                System.out.println("Added" + (shape.seeThrough?"seeThrough":"nonSeeThrough") + " shape {" + identifier + "} to ShapeManager: " + this.id);
+                builderManager.rebuildVBO(
+                        shape.seeThrough?
+                                bufferedShapeGroup.seeThroughShapeMap.entrySet()
+                                :
+                                bufferedShapeGroup.normalShapeMap.entrySet()
+                        , shape.seeThrough);
+                }
         }
     }
     public void draw(MatrixStack matrixStack){
-        immediateShapeGroup.drawImmediate(this.builderManager,matrixStack);
         batchShapeGroup.drawBatched(this.builderManager,matrixStack);
+        immediateShapeGroup.drawImmediate(this.builderManager,matrixStack);
+        bufferedShapeGroup.drawBuffered(this.builderManager);
     }
     public void clearTempAfterRender(){
         immediateShapeGroup.clearTemp();
         batchShapeGroup.clearTemp();
+        bufferedShapeGroup.clearTemp();
     }
     public static class ShapeGroup{
         public Map<Identifier, Shape> normalShapeMap = new HashMap<Identifier,Shape>(){
@@ -105,6 +117,9 @@ public class ShapeManager {
                     }
                 }, true);
             }
+        }
+        public void drawBuffered(BuilderManager builderManager){
+            builderManager.drawVBO();
         }
     }
 }

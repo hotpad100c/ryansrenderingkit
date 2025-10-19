@@ -10,30 +10,21 @@ import org.joml.Matrix4f;
 import java.util.function.Consumer;
 
 public class ImmediateShapeBuilder extends ShapeBuilder {
-    private boolean seeThrough;
 
-    public ImmediateShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough) {
-        super(modelViewMatrix);
-        this.seeThrough = seeThrough;
+    public ImmediateShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough,boolean cullFace) {
+        super(modelViewMatrix, seeThrough, cullFace);
     }
 
     public void draw(Shape shape, Consumer<ShapeBuilder> builder, RenderMethod renderMethod) {
         begin(renderMethod);
         RenderSystem.setShader(renderMethod.shader());
         builder.accept(this);
-        if (seeThrough) {
-            RenderSystem.disableDepthTest();
-        } else {
-            RenderSystem.enableDepthTest();
-        }
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        setUpRendererSystem(shape);
 
         BuiltBuffer builtBuffer = this.getBufferBuilder().end();
-        //this.bufferBuilder = null;
-        if (builtBuffer == null) {
-            return;
-        }
         BufferRenderer.drawWithGlobalProgram(builtBuffer);
-        RenderSystem.enableDepthTest();
+
+        restoreRendererSystem();
     }
 }

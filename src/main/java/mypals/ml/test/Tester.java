@@ -1,9 +1,13 @@
 package mypals.ml.test;
 
-import mypals.ml.shape.BoxShape;
+import mypals.ml.shape.box.BoxShape;
+import mypals.ml.shape.box.BoxWireframeShape;
 import mypals.ml.shape.Shape;
-import mypals.ml.shape.WireframedBoxShape;
+import mypals.ml.shape.box.WireframedBoxShape;
 import mypals.ml.shapeManagers.ShapeManagers;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientWorldEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
@@ -15,31 +19,46 @@ import java.awt.*;
 import static mypals.ml.RyansRenderingKit.MOD_ID;
 
 public class Tester {
+    public static boolean added =false;
     public static void init(){
-        ShapeManagers.addShape(Identifier.of(MOD_ID,"test_shape1batch"),new WireframedBoxShape(
-                        WireframedBoxShape.RenderingType.BATCH,
-                        Tester::rotate,
-                        new Vec3d(9,9,9),
-                        new Vec3d(7,7,7),
-                        new Color(81, 23, 194, 164),
-                        new Color(0,0,200,200),
-                        3f,
-                        true,
-                        false
-                )
-        );
-       /*ShapeManagers.addShape(Identifier.of(MOD_ID,"test_shape2"),
-                new WireframedBoxShape(
-                        WireframedBoxShape.RenderingType.IMMEDIATE,
-                        new Vec3d(-3,-3,-3),
-                        new Vec3d(-1,-1,-1),
-                        Color.BLUE,
-                        new Color(0,200,0,200),
-                        0.3f,
-                        false,
-                        true
-                )
-       );*/
+        ClientTickEvents.START_WORLD_TICK.register((client)->{
+            if(added)return;
+            ShapeManagers.addShape(Identifier.of(MOD_ID,"test_shape1batch"),new WireframedBoxShape(
+                            WireframedBoxShape.RenderingType.IMMEDIATE,
+                            Tester::rotate,
+                            new Vec3d(9,9,9),
+                            new Vec3d(7,7,7),
+                            new Color(81, 23, 194, 164),
+                            new Color(0,0,200,200),
+                            3f,
+                            true,
+                            false
+                    )
+            );
+            for(int i=0;i<100;i++){
+                ShapeManagers.addShape(Identifier.of(MOD_ID,"test_shape1buffer_"+i),new BoxShape(
+                                BoxShape.RenderingType.BUFFERED,
+                                new Vec3d(-5-i*2,-5-i*2,-5-i*2),
+                                new Vec3d(1-i*2,1-i*2,1-i*2),
+                                new Color(100 + i, (23 * i) % 100, i, 164),
+                                false
+                        )
+                );
+            }
+           /*ShapeManagers.addShape(Identifier.of(MOD_ID,"test_shape2buffered"),
+                    new WireframedBoxShape(
+                            WireframedBoxShape.RenderingType.BUFFERED,
+                            new Vec3d(-3,-3,-3),
+                            new Vec3d(-1,-1,-1),
+                            Color.BLUE,
+                            new Color(0,200,0,200),
+                            9f,
+                            false,
+                            true
+                    )
+           );*/
+           added = true;
+        });
     }
     public static void renderTick(MatrixStack matrixStack){
         /*ShapeManagers.addShape(new WireframedBoxShape(
@@ -54,23 +73,32 @@ public class Tester {
                         false
                 )
         );*/
-        /*ShapeManagers.addShape(new WireframedBoxShape(
-                        WireframedBoxShape.RenderingType.IMMEDIATE,
-                        new Vec3d(-9,-9,-9),
-                        new Vec3d(-7,-7,-7),
-                        Color.BLUE,
-                        new Color(0,0,200,200),
-                        0.3f,
+        ShapeManagers.addShape(new WireframedBoxShape(
+                Shape.RenderingType.BATCH,
+                        new Vec3d(-10,-9,-10),
+                        new Vec3d(-5,-3,-5),
+                        new Color(23, 194, 148, 98),
+                        new Color(200,0, 0,200),
+                        5f,
                         false,
-                        false
+                        true
                 )
-        );*/
+        );
     }
     public static void rotate(MatrixStack matrixStack, Shape shape){
-        if(!(shape instanceof BoxShape boxShape)) return;
-        double centerX = (boxShape.min.getX() + boxShape.max.getX()) / 2.0;
-        double centerY = (boxShape.min.getY() + boxShape.max.getY()) / 2.0;
-        double centerZ = (boxShape.min.getZ() + boxShape.max.getZ()) / 2.0;
+        double centerX,centerY,centerZ;
+
+        if(shape instanceof BoxShape boxShape){
+            centerX = (boxShape.min.getX() + boxShape.max.getX()) / 2.0;
+            centerY = (boxShape.min.getY() + boxShape.max.getY()) / 2.0;
+            centerZ = (boxShape.min.getZ() + boxShape.max.getZ()) / 2.0;
+        } else if (shape instanceof BoxWireframeShape boxWireframeShape) {
+            centerX = (boxWireframeShape.min.getX() + boxWireframeShape.max.getX()) / 2.0;
+            centerY = (boxWireframeShape.min.getY() + boxWireframeShape.max.getY()) / 2.0;
+            centerZ = (boxWireframeShape.min.getZ() + boxWireframeShape.max.getZ()) / 2.0;
+        }else {
+            return;
+        }
 
         matrixStack.translate(centerX, centerY, centerZ);
 
@@ -80,6 +108,5 @@ public class Tester {
 
         matrixStack.translate(-centerX, -centerY, -centerZ);
 
-        System.out.println("Modified matrix: " + matrixStack.peek().getPositionMatrix());
     }
 }

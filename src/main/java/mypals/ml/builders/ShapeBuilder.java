@@ -1,11 +1,14 @@
 package mypals.ml.builders;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.render.RenderMethod;
 import mypals.ml.shape.Shape;
+import mypals.ml.shape.basics.core.LineLikeShape;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -16,9 +19,17 @@ public abstract class ShapeBuilder {
     protected Matrix4f positionMatrix;
     protected BufferBuilder bufferBuilder;
     protected float a = 1f, r = 1f, g = 1f, b = 1f;
+    protected boolean seeThrough = false;
+    public boolean cullFace = true;
 
     public ShapeBuilder(Matrix4f modelViewMatrix) {
         this.positionMatrix = modelViewMatrix;
+    }
+
+    public ShapeBuilder(Matrix4f modelViewMatrix,boolean seeThrough,boolean cullFace) {
+        this.positionMatrix = modelViewMatrix;
+        this.seeThrough = seeThrough;
+        this.cullFace = cullFace;
     }
 
     public void setPositionMatrix(Matrix4f modelViewMatrix) {
@@ -116,5 +127,28 @@ public abstract class ShapeBuilder {
         putVertex(new Vector3f(x, y, z), new Vector3f(nx, ny, nz));
     }
     public void draw(Shape shape, Consumer<ShapeBuilder> builder, RenderMethod renderMethod) {
+    }
+    public void setUpRendererSystem(@Nullable Shape shape) {
+        if ((shape != null && shape.seeThrough) || seeThrough) {
+            RenderSystem.disableDepthTest();
+        } else {
+            RenderSystem.enableDepthTest();
+        }
+
+        if(shape instanceof LineLikeShape || !this.cullFace) {
+            RenderSystem.disableCull();
+        }else{
+            RenderSystem.enableCull();
+        }
+        RenderSystem.enablePolygonOffset();
+        RenderSystem.polygonOffset(-1.0f, -1.0f);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+    public void restoreRendererSystem() {
+        RenderSystem.enableDepthTest();
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.lineWidth(1.0f);
+        RenderSystem.disablePolygonOffset();
+        RenderSystem.enableCull();
     }
 }

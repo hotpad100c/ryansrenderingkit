@@ -26,7 +26,7 @@ public class BuilderManagers {
         }
     }
     public static BuilderManager register(Matrix4f matrix4f, RenderMethod renderMethod,String id){
-        BuilderManager builderManager = new BuilderManager(matrix4f,renderMethod,id);
+        BuilderManager builderManager = new BuilderManager(matrix4f,renderMethod,id,renderMethod.cullFace());
         builders.add(builderManager);
         return builderManager;
     }

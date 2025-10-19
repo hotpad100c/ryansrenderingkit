@@ -1,7 +1,7 @@
 package mypals.ml.shapeManagers;
 
-import mypals.ml.shape.BoxShape;
-import mypals.ml.shape.BoxWireframeShape;
+import mypals.ml.shape.box.BoxShape;
+import mypals.ml.shape.box.BoxWireframeShape;
 import mypals.ml.shape.Shape;
 
 import java.util.HashMap;
