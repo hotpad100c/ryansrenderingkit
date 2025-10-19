@@ -16,14 +16,13 @@ public class InformationRender {
             matrixStack.push();
             matrixStack.translate(-camera.getPos().x, -camera.getPos().y, -camera.getPos().z);
 
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
             RenderSystem.depthMask(false);
+            RenderSystem.enableBlend();
 
             Matrix4f pose = matrixStack.peek().getPositionMatrix();
             BuilderManagers.updateMatrix(pose);
 
-            Tester.renderTick(matrixStack);
+            Tester.renderTick(matrixStack);//------
 
             ShapeManagers.renderAll(matrixStack);
 
