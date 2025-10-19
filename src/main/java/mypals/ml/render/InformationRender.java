@@ -18,6 +18,7 @@ public class InformationRender {
 
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
+            RenderSystem.depthMask(false);
 
             Matrix4f pose = matrixStack.peek().getPositionMatrix();
             BuilderManagers.updateMatrix(pose);
@@ -25,6 +26,9 @@ public class InformationRender {
             Tester.renderTick(matrixStack);
 
             ShapeManagers.renderAll(matrixStack);
+
+            RenderSystem.depthMask(true);
+            RenderSystem.disableBlend();
 
             matrixStack.pop();
 
