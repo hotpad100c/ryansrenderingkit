@@ -1,5 +1,5 @@
 package mypals.ml.shapeManagers;
-import mypals.ml.shape.core.ExtractableShape;
+import mypals.ml.shape.basics.core.ExtractableShape;
 import mypals.ml.builderManager.BuilderManager;
 import mypals.ml.builderManager.BuilderManagers;
 import mypals.ml.shape.Shape;
