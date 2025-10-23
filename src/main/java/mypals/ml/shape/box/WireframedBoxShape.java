@@ -3,7 +3,7 @@ package mypals.ml.shape.box;
 import mypals.ml.builders.ShapeBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.BoxLikeShape;
-import mypals.ml.shape.core.ExtractableShape;
+import mypals.ml.shape.basics.core.ExtractableShape;
 import mypals.ml.shapeManagers.ShapeManagers;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
