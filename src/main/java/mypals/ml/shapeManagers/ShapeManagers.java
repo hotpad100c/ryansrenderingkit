@@ -1,5 +1,5 @@
 package mypals.ml.shapeManagers;
-
+import mypals.ml.shape.core.ExtractableShape;
 import mypals.ml.builderManager.BuilderManager;
 import mypals.ml.builderManager.BuilderManagers;
 import mypals.ml.shape.Shape;
@@ -37,8 +37,8 @@ public class ShapeManagers {
         return shapeManager;
     }
     public static void addShape(Identifier identifier, Shape shape){
-        if(shape.isGroupedShape){
-            shape.addGroup(identifier);
+        if(shape instanceof ExtractableShape exts){
+            exts.addGroup(identifier);
             return;
         }
         ShapeBuilderGetter.getBuilderManager(shape).addShape(identifier,shape);
