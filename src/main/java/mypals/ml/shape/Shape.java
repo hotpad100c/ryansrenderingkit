@@ -41,9 +41,5 @@ public abstract class Shape {
     public void draw(ShapeBuilder builder) {
         if(this.isGroupedShape) throw new UnsupportedOperationException("Grouped cant be rendered directly, use addGroup to extract it.");
     }
-    public void addGroup(Identifier identifier) {
-        if(this.isGroupedShape) throw new UnsupportedOperationException("This is not a grouped shape, use draw to render it.");
-    }
-
 }
 
