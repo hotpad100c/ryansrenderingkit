@@ -1,5 +1,5 @@
 package mypals.ml.shapeManagers;
-import mypals.ml.shape.basics.core.ExtractableShape;
+import mypals.ml.shape.basics.drawTypes.ExtractableShape;
 import mypals.ml.builderManager.BuilderManager;
 import mypals.ml.builderManager.BuilderManagers;
 import mypals.ml.shape.Shape;
@@ -24,10 +24,10 @@ public class ShapeManagers {
         LINES_SHAPE_MANAGER = register(BuilderManagers.LINES_BUILDER_MANAGER,"lines_shape_manager");
         TRIANGLES_SHAPE_MANAGER = register(BuilderManagers.TRIANGLES_BUILDER_MANAGER,"triangles_shape_manager");
     }
-    public static void renderAll(MatrixStack matrixStack){
+    public static void renderAll(MatrixStack matrixStack, float tickDelta){
         for(ShapeManager manager : managers
         ){
-            manager.draw(matrixStack);
+            manager.draw(matrixStack, tickDelta);
             manager.clearTempAfterRender();
         }
     }
@@ -36,12 +36,33 @@ public class ShapeManagers {
         managers.add(shapeManager);
         return shapeManager;
     }
+    public static void removeShape(Identifier identifier){
+        managers.forEach(
+                (shapeManager) ->   {
+                    shapeManager.removeShape(identifier);
+                }
+        );
+    }
+    public static void removeShapes(Identifier root){
+        managers.forEach(
+                (shapeManager) ->{
+                    shapeManager.removeShapes(root);
+                }
+        );
+    }
+
     public static void addShape(Identifier identifier, Shape shape){
+        shape.setId(identifier);
         if(shape instanceof ExtractableShape exts){
             exts.addGroup(identifier);
             return;
         }
         ShapeBuilderGetter.getBuilderManager(shape).addShape(identifier,shape);
+    }
+    public static void syncShapeTransform(){
+        for(ShapeManager manager : managers){
+            manager.syncShapeTransform();
+        }
     }
     public static void addShape(Shape shape){
         addShape(generateUniqueId(TEMP_HEADER),shape);

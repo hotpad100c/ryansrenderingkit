@@ -1,14 +1,56 @@
 package mypals.ml.shape.basics;
 
+import mypals.ml.shape.Shape;
+import mypals.ml.transform.Vec3dTransformer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
 
 public interface BoxLikeShape {
     Vec3d getMin();
     Vec3d getMax();
-    default Vec3d getCenter() {
+    void setMin(Vec3d min);
+    void setMax(Vec3d max);
+    void setDimensions(Vec3d dimensions);
+    default Vec3d getShapeCenterPos() {
         double centerX = (getMin().x + getMax().x) / 2.0;
         double centerY = (getMin().y + getMax().y) / 2.0;
         double centerZ = (getMin().z + getMax().z) / 2.0;
         return new Vec3d(centerX, centerY, centerZ);
+    }
+    public static class BoxTransformer extends Shape.DefaultTransformer {
+        public BoxTransformer(Shape managedShape) {
+            super(managedShape);
+        }
+        public Vec3dTransformer maxPosTransformer = new Vec3dTransformer();
+        public Vec3dTransformer minPosTransformer = new Vec3dTransformer();
+        public Vec3dTransformer dimensionTransformer = new Vec3dTransformer();
+        public void setDimension(Vec3d dimension) {
+            this.dimensionTransformer.setTargetVector(dimension);
+        }
+        public void setMin(Vec3d min) {
+            this.minPosTransformer.setTargetVector(min);
+        }
+        public void setMax(Vec3d max) {
+            this.maxPosTransformer.setTargetVector(max);
+        }
+        @Override
+        public void applyTransformations(MatrixStack matrixStack){
+            super.applyTransformations(matrixStack);
+            float deltaTime = getTickDelta();
+            if(this.managedShape instanceof BoxLikeShape boxLikeShape) {
+                maxPosTransformer.updateVector(boxLikeShape::setMax, deltaTime);
+                minPosTransformer.updateVector(boxLikeShape::setMin, deltaTime);
+                dimensionTransformer.updateVector(boxLikeShape::setDimensions, deltaTime);
+            }
+        }
+        public void syncLastToTarget(){
+            this.maxPosTransformer.syncLastToTarget();
+            this.minPosTransformer.syncLastToTarget();
+            this.dimensionTransformer.syncLastToTarget();
+            super.syncLastToTarget();
+        }
+    }
+    default void normalizeBounds() {
+
     }
 }

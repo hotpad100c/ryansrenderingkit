@@ -3,10 +3,9 @@ package mypals.ml.builders;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.render.RenderMethod;
 import mypals.ml.shape.Shape;
-import mypals.ml.shape.basics.core.LineLikeShape;
+import mypals.ml.shape.basics.drawTypes.DrawableLine;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -135,7 +134,7 @@ public abstract class ShapeBuilder {
             RenderSystem.enableDepthTest();
         }
 
-        if(shape instanceof LineLikeShape || !this.cullFace) {
+        if(shape instanceof DrawableLine || !this.cullFace) {
             RenderSystem.disableCull();
         }else{
             RenderSystem.enableCull();

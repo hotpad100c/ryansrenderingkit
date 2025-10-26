@@ -10,7 +10,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
 
 public class InformationRender {
-    public static void render(MatrixStack matrixStack, Camera camera){
+    public static void render(MatrixStack matrixStack, Camera camera, float tickDelta) {
         if(MinecraftClient.getInstance().player == null || !camera.isReady()) return;
         try {
             matrixStack.push();
@@ -24,7 +24,7 @@ public class InformationRender {
 
             Tester.renderTick(matrixStack);//------
 
-            ShapeManagers.renderAll(matrixStack);
+            ShapeManagers.renderAll(matrixStack, tickDelta);
 
             RenderSystem.depthMask(true);
             RenderSystem.disableBlend();

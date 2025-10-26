@@ -8,8 +8,12 @@ import mypals.ml.shapeManagers.ShapeManagers;
 import mypals.ml.test.Tester;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientWorldEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +35,7 @@ public class RyansRenderingKit implements ModInitializer {
 		ShapeBuilderGetter.init();
 		WorldRenderEvents.AFTER_TRANSLUCENT.register(this::handleRenderFabulous);
 		WorldRenderEvents.LAST.register(this::handleRenderLast);
+		ClientTickEvents.END_WORLD_TICK.register(c-> ShapeManagers.syncShapeTransform());
 
 		Tester.init();
 
@@ -38,11 +43,11 @@ public class RyansRenderingKit implements ModInitializer {
 	}
 	private void handleRenderFabulous(WorldRenderContext ctx) {
 		if (!ctx.advancedTranslucency()) return;
-		InformationRender.render(ctx.matrixStack(), ctx.camera());
+		InformationRender.render(ctx.matrixStack(), ctx.camera(),ctx.tickCounter().getTickDelta(true));
 	}
 
 	private void handleRenderLast(WorldRenderContext ctx) {
 		if (ctx.advancedTranslucency()) return;
-		InformationRender.render(ctx.matrixStack(), ctx.camera());
+		InformationRender.render(ctx.matrixStack(), ctx.camera(),ctx.tickCounter().getTickDelta(true));
 	}
 }
