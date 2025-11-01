@@ -11,8 +11,8 @@ import java.util.function.Consumer;
 
 public class ImmediateShapeBuilder extends ShapeBuilder {
 
-    public ImmediateShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough,boolean cullFace) {
-        super(modelViewMatrix, seeThrough, cullFace);
+    public ImmediateShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough) {
+        super(modelViewMatrix, seeThrough);
     }
 
     public void draw(Shape shape, Consumer<ShapeBuilder> builder, RenderMethod renderMethod) {

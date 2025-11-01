@@ -1,7 +1,7 @@
 package mypals.ml.shape;
 
 import mypals.ml.builders.ShapeBuilder;
-import mypals.ml.shape.basics.drawTypes.ExtractableShape;
+import mypals.ml.shape.basics.tags.ExtractableShape;
 import mypals.ml.shapeManagers.ShapeManagers;
 import mypals.ml.transform.Vec3dTransformer;
 import mypals.ml.transform.QuaternionTransformer;
@@ -23,7 +23,7 @@ public abstract class Shape {
     public final RenderingType type;
     public BiConsumer<DefaultTransformer,Shape> transformFunction;
     public DefaultTransformer transformer;
-    public boolean seeThrough;
+    public boolean seeThrough = false;
     public Vec3d centerPoint = Vec3d.ZERO;
 
     protected Shape(RenderingType type,BiConsumer<? super DefaultTransformer, Shape> transform) {

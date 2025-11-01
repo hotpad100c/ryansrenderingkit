@@ -22,20 +22,20 @@ public class BuilderManager {
     public BuilderGroup seeThroughBuilderGroup;
     public BuilderGroup normalBuilderGroup;
     public RenderMethod renderMethod = null;
-    public BuilderManager(Matrix4f matrix4f,RenderMethod renderMethod,String id,boolean cullFace){
+    public BuilderManager(Matrix4f matrix4f,RenderMethod renderMethod,String id){
         this.id = id;
-        seeThroughBuilderGroup = new BuilderGroup(matrix4f,true,cullFace, renderMethod);
-        normalBuilderGroup = new BuilderGroup(matrix4f,false,cullFace, renderMethod);
+        seeThroughBuilderGroup = new BuilderGroup(matrix4f,true, renderMethod);
+        normalBuilderGroup = new BuilderGroup(matrix4f,false, renderMethod);
         this.renderMethod = renderMethod;
     }
     public static class BuilderGroup{
         public ImmediateShapeBuilder immediateShapeBuilder;
         public BatchShapeBuilder batchShapeBuilder;
         public BufferedShapeBuilder bufferedShapeBuilder;
-        public BuilderGroup(Matrix4f matrix,boolean seeThrough,boolean cullFace,RenderMethod renderMethodForBufferedShapeBuilder){
-            this.immediateShapeBuilder = new ImmediateShapeBuilder(matrix,seeThrough,cullFace);
-            this.batchShapeBuilder = new BatchShapeBuilder(matrix,seeThrough,cullFace);
-            this.bufferedShapeBuilder = new BufferedShapeBuilder(matrix,seeThrough,cullFace, renderMethodForBufferedShapeBuilder);
+        public BuilderGroup(Matrix4f matrix,boolean seeThrough,RenderMethod renderMethodForBufferedShapeBuilder){
+            this.immediateShapeBuilder = new ImmediateShapeBuilder(matrix,seeThrough);
+            this.batchShapeBuilder = new BatchShapeBuilder(matrix,seeThrough);
+            this.bufferedShapeBuilder = new BufferedShapeBuilder(matrix,seeThrough, renderMethodForBufferedShapeBuilder);
         }
         public void drawBatch(Consumer<BatchShapeBuilder> builder,RenderMethod renderMethod){
             batchShapeBuilder.beginBatch(renderMethod);

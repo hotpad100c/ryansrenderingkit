@@ -2,7 +2,7 @@ package mypals.ml.shape.box;
 
 import mypals.ml.builders.ShapeBuilder;
 import mypals.ml.shape.Shape;
-import mypals.ml.shape.basics.drawTypes.DrawableQuad;
+import mypals.ml.shape.basics.tags.DrawableQuad;
 
 import net.minecraft.util.math.Vec3d;
 

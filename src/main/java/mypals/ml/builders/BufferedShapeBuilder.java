@@ -17,8 +17,8 @@ public class BufferedShapeBuilder extends ShapeBuilder {
 
     private RenderMethod bufferedRenderMethod = null;
 
-    public BufferedShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough, boolean cullFace, RenderMethod renderMethod) {
-        super(modelViewMatrix, seeThrough, cullFace);
+    public BufferedShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough, RenderMethod renderMethod) {
+        super(modelViewMatrix, seeThrough);
         this.bufferedRenderMethod = renderMethod;
     }
 

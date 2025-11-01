@@ -11,8 +11,8 @@ import java.util.function.Consumer;
 
 public class BatchShapeBuilder extends ShapeBuilder {
     private boolean isBuilding = false;
-    public BatchShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough,boolean cullFace) {
-        super(modelViewMatrix,seeThrough,cullFace);
+    public BatchShapeBuilder(Matrix4f modelViewMatrix, boolean seeThrough) {
+        super(modelViewMatrix,seeThrough);
     }
 
     public void beginBatch(RenderMethod renderMethod) {

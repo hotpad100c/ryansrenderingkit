@@ -3,7 +3,7 @@ package mypals.ml.shape.box;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.builders.ShapeBuilder;
 import mypals.ml.shape.Shape;
-import mypals.ml.shape.basics.drawTypes.DrawableLine;
+import mypals.ml.shape.basics.tags.DrawableLine;
 import net.minecraft.util.math.Vec3d;
 
 import java.awt.*;

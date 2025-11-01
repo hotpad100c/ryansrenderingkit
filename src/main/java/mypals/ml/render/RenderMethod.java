@@ -42,4 +42,22 @@ public record RenderMethod(
             VertexFormats.POSITION_COLOR,
             true
     );
+    public static final RenderMethod TRIANGLES_STRIP = new RenderMethod(
+            ShaderProgramKeys.POSITION_COLOR,
+            VertexFormat.DrawMode.TRIANGLE_STRIP,
+            VertexFormats.POSITION_COLOR,
+            true
+    );
+    public static final RenderMethod TRIANGLES_FAN = new RenderMethod(
+            ShaderProgramKeys.POSITION_COLOR,
+            VertexFormat.DrawMode.TRIANGLE_FAN,
+            VertexFormats.POSITION_COLOR,
+            true
+    );
+    public static final RenderMethod TEXT = new RenderMethod(
+            ShaderProgramKeys.RENDERTYPE_TEXT,
+            VertexFormat.DrawMode.QUADS,
+            VertexFormats.POSITION_TEXTURE_LIGHT_COLOR,
+            true
+    );
 }

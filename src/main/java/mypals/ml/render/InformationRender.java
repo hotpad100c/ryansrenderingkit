@@ -34,6 +34,7 @@ public class InformationRender {
         }catch (Exception e){
             System.out.println("Error during InformationRender.render:");
             System.err.println(e.getMessage());
+            throw e;
         }
     }
 

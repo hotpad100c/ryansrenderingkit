@@ -1,7 +1,7 @@
 package mypals.ml.shape.box;
 
 import mypals.ml.shape.Shape;
-import mypals.ml.shape.basics.drawTypes.ExtractableShape;
+import mypals.ml.shape.basics.tags.ExtractableShape;
 import mypals.ml.shapeManagers.ShapeManagers;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;

@@ -3,7 +3,6 @@ package mypals.ml.builders;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.render.RenderMethod;
 import mypals.ml.shape.Shape;
-import mypals.ml.shape.basics.drawTypes.DrawableLine;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.util.math.Vec3d;
@@ -19,18 +18,19 @@ public abstract class ShapeBuilder {
     protected BufferBuilder bufferBuilder;
     protected float a = 1f, r = 1f, g = 1f, b = 1f;
     protected boolean seeThrough = false;
-    public boolean cullFace = true;
 
     public ShapeBuilder(Matrix4f modelViewMatrix) {
         this.positionMatrix = modelViewMatrix;
     }
 
-    public ShapeBuilder(Matrix4f modelViewMatrix,boolean seeThrough,boolean cullFace) {
+    public ShapeBuilder(Matrix4f modelViewMatrix,boolean seeThrough) {
         this.positionMatrix = modelViewMatrix;
         this.seeThrough = seeThrough;
-        this.cullFace = cullFace;
     }
 
+    public Matrix4f getPositionMatrix(){
+        return positionMatrix;
+    }
     public void setPositionMatrix(Matrix4f modelViewMatrix) {
         this.positionMatrix = modelViewMatrix;
     }
@@ -78,7 +78,6 @@ public abstract class ShapeBuilder {
                 .color(r, g, b, a)
                 .normal(normal.x, normal.y, normal.z);
     }
-
     public void putVertex(Vector3f v, Color color) {
         float[] argb = toARGB(color);
         putVertex(v, argb[1], argb[2], argb[3], argb[0]);
@@ -128,17 +127,12 @@ public abstract class ShapeBuilder {
     public void draw(Shape shape, Consumer<ShapeBuilder> builder, RenderMethod renderMethod) {
     }
     public void setUpRendererSystem(@Nullable Shape shape) {
-        if ((shape != null && shape.seeThrough) || seeThrough) {
+        if ( (shape != null && shape.seeThrough) || seeThrough) {
             RenderSystem.disableDepthTest();
         } else {
             RenderSystem.enableDepthTest();
         }
-
-        if(shape instanceof DrawableLine || !this.cullFace) {
-            RenderSystem.disableCull();
-        }else{
-            RenderSystem.enableCull();
-        }
+        RenderSystem.disableCull();
         RenderSystem.enablePolygonOffset();
         RenderSystem.polygonOffset(-1.0f, -1.0f);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);

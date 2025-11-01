@@ -5,4 +5,9 @@ public interface CircleLikeShape {
     void setSegments(int segments);
     float getRadius();
     int getSegments();
+    public enum CircleAxis{
+        X,
+        Y,
+        Z
+    }
 }

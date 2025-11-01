@@ -1,4 +1,4 @@
-package mypals.ml.shape.basics.drawTypes;
+package mypals.ml.shape.basics.tags;
 import net.minecraft.util.Identifier;
 
 public interface ExtractableShape {

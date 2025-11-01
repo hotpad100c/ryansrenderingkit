@@ -1,32 +1,24 @@
 package mypals.ml.test;
 
 import mypals.ml.shape.basics.BoxLikeShape;
-import mypals.ml.shape.basics.core.LineLikeShape;
 import mypals.ml.shape.box.BoxFaceShape;
 import mypals.ml.shape.box.BoxShape;
-import mypals.ml.shape.box.BoxWireframeShape;
 import mypals.ml.shape.Shape;
-import mypals.ml.shape.box.WireframedBoxShape;
-import mypals.ml.shape.line.CircleShape;
+import mypals.ml.shape.round.FaceCircleShape;
+import mypals.ml.shape.round.LineCircleShape;
 import mypals.ml.shape.line.LineShape;
-import mypals.ml.shape.line.StripLineShape;
+import mypals.ml.shape.round.SphereShape;
 import mypals.ml.shapeManagers.ShapeManagers;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityAttachmentType;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Quaternionf;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -36,6 +28,8 @@ import static mypals.ml.RyansRenderingKit.MOD_ID;
 public class Tester {
     public static boolean added =false;
     public static void init(){
+        ShapeManagers.removeShapes(Identifier.of(MOD_ID,"test_shape_circle"));
+        ShapeManagers.removeShapes(Identifier.of(MOD_ID,"test_shape_ball"));
         ClientCommandRegistrationCallback.EVENT.register((commandDispatcher, commandRegistryAccess) -> {
             commandDispatcher.register(
                     ClientCommandManager.literal("reload")
@@ -70,30 +64,71 @@ public class Tester {
                 testVertexes.add(new Vec3d(x, center.y, z));
             }
 
-            ShapeManagers.addShape(Identifier.of(MOD_ID,"test_shape_circle"),new CircleShape(
-                            BoxFaceShape.RenderingType.BATCH,
-                            (transformer,shape)->{
-                                if(MinecraftClient.getInstance().world != null
-                                        && MinecraftClient.getInstance().player != null){
-                                    PlayerEntity player = MinecraftClient.getInstance().player;
-
-                                    transformer.setShapeCenterPos(player.getEyePos().add(0,0.5,0));
-                                    float gameTime = MinecraftClient.getInstance().world.getTime();
-                                    float rotationAngle = (gameTime % 3600) * 5f;
-                                    transformer.setMatrixRotation(new Vec3d(0,rotationAngle,0));
-                                    transformer.setSegment(10);
-                                    transformer.setWidth(1);
-                                }
+            ShapeManagers.addShape(
+                    Identifier.of(MOD_ID, "test_shape_circle"),//标识符
+                    new FaceCircleShape(
+                            BoxFaceShape.RenderingType.BATCH,//绘制模式
+                            //-- 变换逻辑（每帧）--------------------
+                            (transformer, shape) -> {
+                                MinecraftClient c = MinecraftClient.getInstance();
+                                if (c.world == null || c.player == null) return;
+                                PlayerEntity player = c.player;
+                                float gameTime = c.world.getTime();
+                                float rotationAngle = (gameTime % 3600) * 5f;
+                                transformer.setShapeCenterPos(player.getEyePos().add(0, 0.5, 0));
+                                transformer.setMatrixRotation(new Vec3d(0, 0, 0));
+                                transformer.setSegment(10);
+                                transformer.setRadius(0.5f);
                             },
-                            CircleShape.CircleAxis.Y,
-                            Vec3d.ZERO,
-                            180,
-                            0.5f,
-                            10,
-                            new Color(255, 255, 255, 200),
-                            true
+                            //-------------------------------------
+                            LineCircleShape.CircleAxis.Y, //圆的轴方向
+                            Vec3d.ZERO,     // 初始中心
+                            180,            // 初始角度（度）
+                            0.5f,           // 初始半径
+                            new Color(255, 0, 255, 100), // 初始颜色
+                            true // 透视
                     )
             );
+            ShapeManagers.addShape(
+                    Identifier.of(MOD_ID, "test_shape_ball"),//标识符
+                    new SphereShape(
+                            Shape.RenderingType.BATCH,
+                            //-- 变换逻辑（每帧）--------------------
+                            (transformer, shape) -> {
+                                MinecraftClient c = MinecraftClient.getInstance();
+                                if (c.world == null || c.player == null) return;
+                                PlayerEntity player = c.player;
+                                float gameTime = c.world.getTime();
+                                float rotationAngle = (gameTime % 3600) * 5f;
+                                transformer.setShapeCenterPos(player.getPos().add(0,player.getHeight()/2,0));
+                                transformer.setMatrixRotation(new Vec3d(0, rotationAngle, 0));
+                                transformer.setRadius(3);
+                                transformer.setSegment(2);
+                            },
+                            //-------------------------------------
+                            SphereShape.SphereMode.Ico, //圆的轴方向
+                            Vec3d.ZERO,     // 初始中心
+                            8,            // 初始角度（度）
+                            0.5f,           // 初始半径
+                            new Color(255, 255, 255, 20), // 初始颜色
+                            false // 透视
+                    )
+            );
+
+
+
+
+            /*ArrayList<String> texts = new ArrayList<>();
+            texts.add("Hello");
+            ArrayList<Color> colors = new ArrayList<>();
+            colors.add(Color.RED);
+            ShapeManagers.addShape(
+                    Identifier.of(MOD_ID, "test_text"),
+                    new TextShape(
+                            Shape.RenderingType.IMMEDIATE, (a, b)->{},
+                            TextShape.BillBoardMode.ALL, center, texts, colors,true
+                    )
+            );*/
             /*
             ShapeManagers.addShape(Identifier.of(MOD_ID,"test_shape2"),
                     new LineShape(Shape.RenderingType.IMMEDIATE,
@@ -109,6 +144,7 @@ public class Tester {
                     },
                     Vec3d.ZERO,Vec3d.ZERO,Color.ORANGE,3,false));*/
             ShapeManagers.removeShapes(Identifier.of(MOD_ID,"test_shape2"));
+
             //ShapeManagers.removeShape(Identifier.of(MOD_ID,"test_shape1"));
            added = true;
         });

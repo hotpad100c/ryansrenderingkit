@@ -1,7 +1,7 @@
 package mypals.ml.shape.basics.core;
 
 import mypals.ml.shape.Shape;
-import mypals.ml.shape.basics.drawTypes.DrawableLine;
+import mypals.ml.shape.basics.tags.DrawableLine;
 import mypals.ml.transform.FloatValueTransformer;
 import net.minecraft.client.util.math.MatrixStack;
 

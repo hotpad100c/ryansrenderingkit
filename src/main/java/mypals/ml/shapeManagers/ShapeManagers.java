@@ -1,5 +1,5 @@
 package mypals.ml.shapeManagers;
-import mypals.ml.shape.basics.drawTypes.ExtractableShape;
+import mypals.ml.shape.basics.tags.ExtractableShape;
 import mypals.ml.builderManager.BuilderManager;
 import mypals.ml.builderManager.BuilderManagers;
 import mypals.ml.shape.Shape;
@@ -16,13 +16,19 @@ public class ShapeManagers {
     public static ShapeManager QUADS_SHAPE_MANAGER;
     public static ShapeManager LINES_SHAPE_MANAGER;
     public static ShapeManager LINE_STRIP_SHAPE_MANAGER;
+    public static ShapeManager TEXT;
     public static ShapeManager TRIANGLES_SHAPE_MANAGER;
+    public static ShapeManager TRIANGLES_STRIP_SHAPE_MANAGER;
+    public static ShapeManager TRIANGLES_FAN_SHAPE_MANAGER;
     public static List<ShapeManager> managers = new ArrayList<>();
     public static void init(){
         QUADS_SHAPE_MANAGER = register(BuilderManagers.QUADS_BUILDER_MANAGER,"quads_shape_manager");
         LINE_STRIP_SHAPE_MANAGER = register(BuilderManagers.LINE_STRIP_BUILDER_MANAGER,"line_strip_shape_manager");
         LINES_SHAPE_MANAGER = register(BuilderManagers.LINES_BUILDER_MANAGER,"lines_shape_manager");
         TRIANGLES_SHAPE_MANAGER = register(BuilderManagers.TRIANGLES_BUILDER_MANAGER,"triangles_shape_manager");
+        TRIANGLES_STRIP_SHAPE_MANAGER = register(BuilderManagers.TRIANGLES_STRIP_BUILDER_MANAGER,"triangles_strip_shape_manager");
+        TRIANGLES_FAN_SHAPE_MANAGER = register(BuilderManagers.TRIANGLES_FAN_BUILDER_MANAGER,"triangles_fan_shape_manager");
+        TEXT = register(BuilderManagers.TEXT,"text_manager");
     }
     public static void renderAll(MatrixStack matrixStack, float tickDelta){
         for(ShapeManager manager : managers
