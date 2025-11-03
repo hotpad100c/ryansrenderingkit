@@ -12,13 +12,6 @@ import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
 public class ConeWireframeShape extends CylinderWireframeShape {
-    public ConeWireframeShape(RenderingType type, BiConsumer<CylinderWireframeShape.CylinderWireframeTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int radius, float height, float lineWidth, Color color) {
-        this(type, transform,circleAxis,center,180, radius,height,lineWidth, color, false);
-    }
-    public ConeWireframeShape(RenderingType type, BiConsumer<CylinderWireframeShape.CylinderWireframeTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius, float height, float lineWidth, Color color) {
-        this(type, transform,circleAxis,center,segments, radius, height,lineWidth,color, false);
-    }
-
     public ConeWireframeShape(RenderingType type, BiConsumer<CylinderWireframeShape.CylinderWireframeTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius, float height, float lineWidth, Color color, boolean seeThrough) {
         super(type, transform,circleAxis,center,segments, radius, height,lineWidth,color, seeThrough);
     }

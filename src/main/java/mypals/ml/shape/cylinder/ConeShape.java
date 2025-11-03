@@ -9,15 +9,6 @@ import java.util.function.BiConsumer;
 
 public class ConeShape extends CylinderShape {
 
-    public ConeShape(RenderingType type, BiConsumer<CylinderTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int radius, float height, Color color) {
-        this(type, transform,circleAxis,center,180, radius,height, color, false);
-    }
-    public ConeShape(RenderingType type, BiConsumer<CylinderTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius, float height, Color color) {
-        this(type, transform,circleAxis,center,segments, radius, height,color, false);
-    }
-    public ConeShape(RenderingType type, Boolean seeThrough){
-        super(type, seeThrough);
-    }
     public ConeShape(RenderingType type, BiConsumer<CylinderTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius, float height, Color color, boolean seeThrough) {
         super(type, seeThrough);
         this.transformer = new CylinderTransformer(this,segments,radius,height);

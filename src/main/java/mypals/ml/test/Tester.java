@@ -1,0 +1,414 @@
+package mypals.ml.test;
+
+import mypals.ml.builders.shapeBuilders.ShapeGenerator;
+import mypals.ml.shape.basics.BoxLikeShape;
+import mypals.ml.shape.basics.CircleLikeShape;
+import mypals.ml.shape.box.BoxFaceShape;
+import mypals.ml.shape.box.BoxShape;
+import mypals.ml.shape.Shape;
+import mypals.ml.shape.line.LineShape;
+import mypals.ml.shape.line.StripLineShape;
+import mypals.ml.shape.round.SphereShape;
+import mypals.ml.shapeManagers.ShapeManagers;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import static mypals.ml.RyansRenderingKit.MOD_ID;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+
+public class Tester {
+    public static boolean added =false;
+    public static Random random = new Random();
+    public static float spacing = 8.0f;  // 每个图形间隔 8 格
+    public static int index = 0;
+
+    static Color randomColor() {
+        return new Color(
+                random.nextInt(256),
+                random.nextInt(256),
+                random.nextInt(256),
+                120 + random.nextInt(136)  // 透明度 120~255
+        );
+    }
+
+    static float xPos() {
+        return (index++ * spacing);
+    }
+
+    public static void init(){
+        ClientCommandRegistrationCallback.EVENT.register((commandDispatcher, commandRegistryAccess) -> {
+            commandDispatcher.register(
+                    ClientCommandManager.literal("reload")
+                            .executes(context -> {
+                                added = false;
+                                return 0;
+                            })
+            );
+        });
+        ClientTickEvents.START_WORLD_TICK.register(client -> {
+            if (added) return;
+            index = 0;
+            List.of(
+                    "demo_face_circle",
+                    "demo_line_circle",
+                    "demo_sphere",
+                    "demo_obj_model",
+                    "demo_obj_outline",
+                    "demo_cone",
+                    "demo_cylinder",
+                    "demo_cone_wire",
+                    "demo_cylinder_wire",
+                    "demo_line",
+                    "demo_strip_line",
+                    "demo_box_face",
+                    "demo_box_wire",
+                    "demo_wireframed_box"
+            ).forEach(name -> ShapeManagers.removeShapes(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, name)
+            ));
+
+            // 1. FaceCircle
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_face_circle"),
+                    ShapeGenerator.generateFaceCircle()
+                            .pos(new Vec3(xPos(), 0,0))
+                            .radius(2.0f)
+                            .segments(64)
+                            .axis(CircleLikeShape.CircleAxis.Y)
+                            .color(randomColor())
+                            .seeThrough(true)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(0, time * 3, 0));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            // 2. LineCircle
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_line_circle"),
+                    ShapeGenerator.generateLineCircle()
+                            .pos(new Vec3(xPos(), 0,0))
+                            .radius(2.0f)
+                            .segments(64)
+                            .axis(CircleLikeShape.CircleAxis.Y)
+                            .lineWidth(3.0f)
+                            .color(randomColor())
+                            .seeThrough(false)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(0, time * 4, 0));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            // 3. Sphere
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_sphere"),
+                    ShapeGenerator.generateSphere()
+                            .pos(new Vec3(xPos(), 0,0))
+                            .radius(2.0f)
+                            .segments(32)
+                            .mode(SphereShape.SphereMode.UV)
+                            .color(randomColor())
+                            .seeThrough(true)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(time * 2, time * 3, 0));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            // 4. ObjModel
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_obj_model"),
+                    ShapeGenerator.generateObjModel()
+                            .pos(new Vec3(xPos(), 0,0))
+                            .model(ResourceLocation.fromNamespaceAndPath(MOD_ID, "models/monkey.obj"))
+                            .color(randomColor())
+                            .seeThrough(false)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(0, time * 5, 0));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            // 5. ObjModelOutline
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_obj_outline"),
+                    ShapeGenerator.generateObjModelOutline()
+                            .pos(new Vec3(xPos(), 0,0))
+                            .model(ResourceLocation.fromNamespaceAndPath(MOD_ID, "models/monkey.obj"))
+                            .lineWidth(4.0f)
+                            .color(randomColor())
+                            .seeThrough(false)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(0, time * 5, 0));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            // 6. Cone
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_cone"),
+                    ShapeGenerator.generateCone()
+                            .pos(new Vec3(xPos(), 0,0))
+                            .radius(2.0f)
+                            .height(4.0f)
+                            .segments(32)
+                            .axis(CircleLikeShape.CircleAxis.Y)
+                            .color(randomColor())
+                            .seeThrough(true)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(time * 1, 0, 0));
+
+                                double f = (Math.sin(time * 0.1) + 1) / 2; // 0 → 1 → 0
+                                int seg = (int)(3 + f * 20-3);
+
+                                t.setSegment(Math.max(3,seg));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            // 7. Cylinder
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_cylinder"),
+                    ShapeGenerator.generateCylinder()
+                            .pos(new Vec3(xPos(), 0,0))
+                            .radius(1.5f)
+                            .height(4.0f)
+                            .segments(32)
+                            .axis(CircleLikeShape.CircleAxis.Z)
+                            .color(randomColor())
+                            .seeThrough(false)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(time * 3, time * 4, 0));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_cone_wire"),
+                    ShapeGenerator.generateConeWireframe()
+                            .pos(new Vec3(xPos(), 0,0))
+                            .radius(2.0f)
+                            .height(4.0f)
+                            .segments(32)
+                            .axis(CircleLikeShape.CircleAxis.Y)
+                            .color(randomColor())
+                            .seeThrough(true)
+                            .width(3)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(time * 1, 0, 0));
+
+                                double f = (Math.sin(time * 0.1) + 1) / 2; // 0 → 1 → 0
+                                int seg = (int)(3 + f * 20-3);
+
+                                t.setSegment(Math.max(3,seg));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_cylinder_wire"),
+                    ShapeGenerator.generateCylinderWireframe()
+                            .pos(new Vec3(xPos(), 0,0))
+                            .radius(1.5f)
+                            .height(4.0f)
+                            .segments(32)
+                            .axis(CircleLikeShape.CircleAxis.Z)
+                            .color(randomColor())
+                            .seeThrough(false)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(time * 3, time * 4, 0));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            float linex  = xPos();
+            // 8. Line
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_line"),
+                    ShapeGenerator.generateLine()
+                            .start(new Vec3(linex - 2, 0,0))
+                            .end(new Vec3(linex + 2, 4,0))
+                            .lineWidth(3.0f)
+                            .color(randomColor())
+                            .seeThrough(false)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setStart(new Vec3(linex - 2, 0,0));
+                                t.setEnd(new Vec3(linex + 2, 4 + (float)Math.sin(time * 0.1) * 2,0));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            // 9. StripLine（螺旋线）
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_strip_line"),
+                    ShapeGenerator.generateStripLine()
+                            .vertexes(generateSpiral(xPos(), 100, 2.0f, 5.0f))
+                            .lineWidth(2.0f)
+                            .color(randomColor())
+                            .seeThrough(false)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                // 动态更新顶点（旋转螺旋）
+                                ((StripLineShape)s).setVertexes(generateSpiral(xPos(), 100, 2.0f, 5.0f, time * 0.05f));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            // 10. BoxFace
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_box_face"),
+                    ShapeGenerator.generateBoxFace()
+                            .pos(new Vec3(xPos(), 0, 0))
+                            .size(new Vec3(2,2,2))
+                            .color(randomColor())
+                            .seeThrough(true)
+                            .construction(BoxShape.BoxConstructionType.CENTER_AND_DIMENSIONS    )
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(time * 2, time * 3, time * 1.5f));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            // 11. BoxWireframe
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_box_wire"),
+                    ShapeGenerator.generateBoxWireframe()
+                            .aabb(new Vec3(xPos() - 2, 0, -2),
+                                    new Vec3(xPos() + 2, 4, 2))
+                            .edgeWidth(3.0f)
+                            .color(randomColor())
+                            .seeThrough(false)
+                            .construction(BoxShape.BoxConstructionType.CORNERS)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(0, time * 4, 0));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            // 12. WireframedBox
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_wireframed_box"),
+                    ShapeGenerator.generateWireframedBox()
+                            .aabb(new Vec3(xPos() - 2, 0, -2),
+                                    new Vec3(xPos() + 2, 4, 2))
+                            .color(randomColor())           // 面颜色
+                            .edgeColor(new Color(255, 255, 255, 200))
+                            .edgeWidth(2.0f)
+                            .seeThrough(true)
+                            .lineSeeThrough(false)
+                            .construction(BoxShape.BoxConstructionType.CORNERS)
+                            .transform((t, s) -> {
+                                float time = client.getGameTime();
+                                t.setMatrixRotation(new Vec3(time * 1.5f, time * 2.5f, 0));
+                            })
+                            .build(Shape.RenderingType.BATCH)
+            );
+
+            added = true;
+        });
+
+    }
+    private static ArrayList<Vec3> generateSpiral(float centerX, int segments, float radius, float height, float offset) {
+        ArrayList<Vec3> points = new ArrayList<>();
+        for (int i = 0; i <= segments; i++) {
+            float t = i / (float) segments;
+            float angle = t * 10 * (float)Math.PI + offset;
+            float x = centerX + radius * (float)Math.cos(angle);
+            float z = radius * (float)Math.sin(angle);
+            float y = t * height;
+            points.add(new Vec3(x, y, z));
+        }
+        return points;
+    }
+
+    private static List<Vec3> generateSpiral(float centerX, int segments, float radius, float height) {
+        return generateSpiral(centerX, segments, radius, height, 0);
+    }
+    public static void renderTick(PoseStack matrixStack){
+    }
+    public static void rotate(BoxLikeShape.BoxTransformer boxTransformer, Shape shape){
+
+        float gameTime = Minecraft.getInstance().level.getGameTime();
+        float rotationAngle = (gameTime % 3600) * 2f;
+        boxTransformer.setMatrixRotation(new Vec3(rotationAngle, rotationAngle, rotationAngle));
+    }
+    public static void addEntity(Entity entity) {
+        Player player = Minecraft.getInstance().player;
+        if (player == null || entity == null || entity == player) return;
+
+        int entityId = entity.getId();
+        EntityDimensions dimensions = entity.getDimensions(entity.getPose());
+        ShapeManagers.addShape(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "entity_tracker_" + entityId + "/bounding_box"),
+                new BoxFaceShape(
+                        Shape.RenderingType.BATCH,
+                        (transformer, shape) -> {
+                            Vec3 entityCenter = entity.position().add(0, dimensions.height() / 2, 0);
+                            if (entity.isRemoved()) {
+                                shape.discard();
+                                return;
+                            }
+                            transformer.setShapeCenterPos(entityCenter);
+                        },
+                        entity.position().add(0, dimensions.height() / 2, 0),
+                        new Vec3(dimensions.width(), dimensions.height(), dimensions.width()),
+                        new Color(191, 87, 0, 164),
+                        true,
+                        BoxShape.BoxConstructionType.CENTER_AND_DIMENSIONS
+                )
+        );
+
+        ShapeManagers.addShape(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "entity_tracker_" + entityId + "/line"),
+                new LineShape(
+                        Shape.RenderingType.BATCH,
+                        (transformer, shape) -> {
+                            if (entity.isRemoved()) {
+                                shape.discard();
+                                return;
+                            }
+                            if (Minecraft.getInstance().level != null && Minecraft.getInstance().player != null) {
+                                transformer.setStart(player.getEyePosition().add(player.getLookAngle().scale(2)));
+                                transformer.setEnd(entity.position());
+                            }
+                        },
+                        player.getEyePosition().add(player.getLookAngle().scale(2)),
+                        entity.position(),
+                        new Color(255, 0, 0, 50),
+                        3,
+                        true
+                )
+        );
+
+        added = true;
+    }
+
+    public static void removeEntity(int entityId) {
+        ShapeManagers.removeShapes(ResourceLocation.fromNamespaceAndPath(MOD_ID,"entity_tracker_" + entityId));
+    }
+}
