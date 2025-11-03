@@ -20,14 +20,6 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
     public CircleAxis axis = CircleAxis.X;
     public ArrayList<Vec3> vertexes = new ArrayList<>();
     public Color color = Color.white;
-
-    public CylinderShape(RenderingType type, BiConsumer<CylinderTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int radius,float height, Color color) {
-        this(type, transform,circleAxis,center,180, radius,height, color, false);
-    }
-    public CylinderShape(RenderingType type, BiConsumer<CylinderTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius,float height, Color color) {
-        this(type, transform,circleAxis,center,segments, radius, height,color, false);
-    }
-
     public CylinderShape(RenderingType type, BiConsumer<CylinderTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius,float height, Color color, boolean seeThrough) {
         super(type, seeThrough);
         this.transformer = new CylinderTransformer(this,segments,radius,height);

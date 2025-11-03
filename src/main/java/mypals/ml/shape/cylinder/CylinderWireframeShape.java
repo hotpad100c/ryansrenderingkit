@@ -16,13 +16,7 @@ import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
 public class CylinderWireframeShape extends CylinderShape implements DrawableLine,LineLikeShape {
-    public float lineWidth = 1.0f;
-    public CylinderWireframeShape(RenderingType type, BiConsumer<CylinderWireframeTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int radius, float height, float lineWidth, Color color) {
-        this(type, transform,circleAxis,center,180, radius,height,lineWidth, color, false);
-    }
-    public CylinderWireframeShape(RenderingType type, BiConsumer<CylinderWireframeTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius, float height, float lineWidth, Color color) {
-        this(type, transform,circleAxis,center,segments, radius, height,lineWidth,color, false);
-    }
+    public float lineWidth;
 
     public CylinderWireframeShape(RenderingType type, BiConsumer<CylinderWireframeTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius, float height, float lineWidth, Color color, boolean seeThrough) {
         super(type, seeThrough);
