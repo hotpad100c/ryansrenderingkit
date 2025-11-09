@@ -20,11 +20,12 @@ public class ImmediateVertexBuilder extends VertexBuilder {
         RenderSystem.setShader(renderMethod.shader());
         builder.accept(this);
 
-        setUpRendererSystem(shape);
 
-        MeshData builtBuffer = this.getBufferBuilder().buildOrThrow();
-        BufferUploader.drawWithShader(builtBuffer);
-
-        restoreRendererSystem();
+        MeshData builtBuffer = this.getBufferBuilder().build();
+        if(builtBuffer!=null){
+            setUpRendererSystem(shape);
+            BufferUploader.drawWithShader(builtBuffer);
+            restoreRendererSystem();
+        }
     }
 }

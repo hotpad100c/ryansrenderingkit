@@ -40,12 +40,13 @@ public class BatchVertexBuilder extends VertexBuilder {
             return;
         }
 
-        setUpRendererSystem(null);
+        MeshData builtBuffer = this.getBufferBuilder().build();
+        if(builtBuffer!=null){
+            setUpRendererSystem(null);
+            BufferUploader.drawWithShader(builtBuffer);
+            restoreRendererSystem();
+        }
 
-        MeshData builtBuffer = this.getBufferBuilder().buildOrThrow();
-        BufferUploader.drawWithShader(builtBuffer);
-
-        restoreRendererSystem();
 
         isBuilding = false;
     }
