@@ -10,66 +10,86 @@ import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.io.IOException;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape {
 
     public float lineWidth;
-    public Color color = Color.white;
-    public ObjModelShapeOutline(RenderingType type, BiConsumer<DefaultLineTransformer, Shape> transform, ResourceLocation resourceLocation, Vec3 center,float lineWidth, Color color) {
-        this(type, transform,resourceLocation,center,lineWidth,color,false);
+    public Color color = Color.WHITE;
+
+    public ObjModelShapeOutline(RenderingType type,
+                                Consumer<SimpleLineTransformer> transform,
+                                ResourceLocation resourceLocation,
+                                Vec3 center,
+                                float lineWidth,
+                                Color color) {
+        this(type, transform, resourceLocation, center, lineWidth, color, false);
     }
 
     protected ObjModelShapeOutline(RenderingType type) {
-        super(type);
+        super(type, Color.WHITE, false);
     }
 
     protected ObjModelShapeOutline(RenderingType type, boolean seeThrough) {
-        super(type, seeThrough);
+        super(type, Color.WHITE, seeThrough);
     }
 
-    public ObjModelShapeOutline(RenderingType type, BiConsumer<DefaultLineTransformer, Shape> transform, ResourceLocation resourceLocation, Vec3 center,float lineWidth, Color color, boolean seeThrough) {
-        super(type, seeThrough);
-        this.transformer = new DefaultLineTransformer(this);
-        this.transformFunction = (tr,s)->{transform.accept((DefaultLineTransformer)this.transformer,this);};
-        try {
-            loadOBJ(resourceLocation);
-        }catch (IOException e){
-            e.printStackTrace();
-        }
+    public ObjModelShapeOutline(RenderingType type,
+                                Consumer<SimpleLineTransformer> transform,
+                                ResourceLocation resourceLocation,
+                                Vec3 center,
+                                float lineWidth,
+                                Color color,
+                                boolean seeThrough) {
+        super(type, (d) -> {}, resourceLocation, center, color, seeThrough);
+
+        this.transformer = new SimpleLineTransformer(this,lineWidth,center);
+        this.transformFunction = (t) -> transform.accept((SimpleLineTransformer) this.transformer);
+
         this.lineWidth = lineWidth;
-        ((DefaultLineTransformer)this.transformer).setWidth(this.lineWidth);
-        syncLastToTarget();
         this.color = color;
-        this.centerPoint = center;
-        this.transformer.setShapeCenterPos(center);
+
+        ((SimpleLineTransformer) this.transformer).setWidth(this.lineWidth);
+        this.transformer.setShapeWorldPivot(center);
+
+        syncLastToTarget();
     }
 
     @Override
     public void setLineWidth(float width) {
         this.lineWidth = width;
-    }
-
-    @Override
-    public void draw(VertexBuilder builder) {
-        RenderSystem.lineWidth(this.lineWidth);
-        builder.putColor(this.color);
-
-        if (model == null) return;
-
-        for (int[] face : model.faces) {
-            int n = face.length;
-            if (n < 2) continue;
-
-            for (int i = 0; i < n; i++) {
-                int next = (i + 1) % n;
-
-                Vec3 v0 = model.vertices.get(face[i]).subtract(modelCenter).add(centerPoint);
-                Vec3 v1 = model.vertices.get(face[next]).subtract(modelCenter).add(centerPoint);
-
-                addLineSegment(builder,v0,v1);
-            }
+        if (this.transformer instanceof SimpleLineTransformer slt) {
+            slt.setWidth(width);
         }
     }
 
+    @Override
+    public float getLineWidth(boolean lerp) {
+       return  ((SimpleLineTransformer)this.transformer).getWidth(lerp);
+    }
 
+    @Override
+    protected void generateRawGeometry(boolean lerp) {
+        super.generateRawGeometry(lerp);
+    }
+
+    @Override
+    protected void drawInternal(VertexBuilder builder) {
+        if (model_vertexes.isEmpty() || indexBuffer == null || indexBuffer.length < 3)
+            return;
+
+        RenderSystem.lineWidth(this.lineWidth);
+        builder.putColor(this.color);
+
+        for (int i = 0; i < indexBuffer.length; i += 3) {
+            Vec3 v0 = model_vertexes.get(indexBuffer[i]);
+            Vec3 v1 = model_vertexes.get(indexBuffer[i + 1]);
+            Vec3 v2 = model_vertexes.get(indexBuffer[i + 2]);
+
+            addLineSegment(builder, v0, v1);
+            addLineSegment(builder, v1, v2);
+            addLineSegment(builder, v2, v0);
+        }
+    }
 }
+

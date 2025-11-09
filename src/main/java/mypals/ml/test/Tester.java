@@ -89,9 +89,9 @@ public class Tester {
                             .axis(CircleLikeShape.CircleAxis.Y)
                             .color(randomColor())
                             .seeThrough(true)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(0, time * 3, 0));
+                                 t.setShapeMatrixRotationDegrees(0, time * 3, 0);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -107,9 +107,12 @@ public class Tester {
                             .lineWidth(3.0f)
                             .color(randomColor())
                             .seeThrough(false)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(0, time * 4, 0));
+                                //t.setShapeMatrixRotationDegrees(0, time * 4, 0);
+
+                                 t.setShapeLocalRotationDegrees(0,time*4,0);
+                                 t.setShapeWorldRotationDegrees(time*4, 0, 0);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -121,14 +124,72 @@ public class Tester {
                             .pos(new Vec3(xPos(), 0,0))
                             .radius(2.0f)
                             .segments(32)
-                            .mode(SphereShape.SphereMode.UV)
                             .color(randomColor())
                             .seeThrough(true)
-                            .transform((t, s) -> {
+                            .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(time * 2, time * 3, 0));
+                                t.setShapeMatrixRotationDegrees(time * 2, time * 3, 0);
                             })
                             .build(Shape.RenderingType.BATCH)
+            );
+
+            Vec3 spos = new Vec3(xPos(), 0,20);
+            Shape s1 = ShapeGenerator.generateSphere()
+                    .pos(spos)
+                    .radius(2.0f)
+                    .segments(6)
+                    .color(randomColor())
+                    .seeThrough(false)
+                    .transform((t) -> {
+                        float time = client.getGameTime();
+                        t.setShapeWorldRotationDegrees(0, time * 3, 0);
+
+                        float yOffset = (float)Math.sin(time * 0.1) * 2f;
+                        Vec3 worldPivot = t.getShapeWorldPivot(false);
+                        t.setShapeWorldPivot(new Vec3(worldPivot.x, 0 + yOffset, worldPivot.z));
+                    })
+                    .build(Shape.RenderingType.BATCH);
+
+            Shape s2 = ShapeGenerator.generateSphere()
+                    .pos(new Vec3(15,0,0))
+                    .radius(1.0f)
+                    .segments(3)
+                    .color(randomColor())
+                    .seeThrough(false)
+                    .transform((t) -> {
+                        float time = client.getGameTime();
+                        t.setShapeMatrixRotationDegrees(0, time*6, 0);
+                    })
+                    .build(Shape.RenderingType.BATCH);
+
+            Shape s3 = ShapeGenerator.generateSphere()
+                    .pos(new Vec3(7,0,0))
+                    .radius(0.3f)
+                    .segments(5)
+                    .color(randomColor())
+                    .seeThrough(false)
+                    .transform((t) -> {
+                        float time = client.getGameTime();
+                        //t.setShapeMatrixRotationDegrees(time * 2, time * 3, 0);
+                    })
+                    .build(Shape.RenderingType.BATCH);
+
+            s2.addChild(s3);
+            s1.addChild(s2);
+
+
+            // 3...3. Sphere
+            ShapeManagers.addShape(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_sphere_2"),
+                s1
+            );
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_sphere_2_child"),
+                    s2
+            );
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_sphere_3_child"),
+                    s3
             );
 
             // 4. ObjModel
@@ -139,9 +200,9 @@ public class Tester {
                             .model(ResourceLocation.fromNamespaceAndPath(MOD_ID, "models/monkey.obj"))
                             .color(randomColor())
                             .seeThrough(false)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(0, time * 5, 0));
+                                 t.setShapeMatrixRotationDegrees(0, time * 5, 0);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -155,9 +216,9 @@ public class Tester {
                             .lineWidth(4.0f)
                             .color(randomColor())
                             .seeThrough(false)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(0, time * 5, 0));
+                                 t.setShapeMatrixRotationDegrees(0, time * 5, 0);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -173,9 +234,9 @@ public class Tester {
                             .axis(CircleLikeShape.CircleAxis.Y)
                             .color(randomColor())
                             .seeThrough(true)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(time * 1, 0, 0));
+                                 t.setShapeMatrixRotationDegrees(time, 0, 0);
 
                                 double f = (Math.sin(time * 0.1) + 1) / 2; // 0 → 1 → 0
                                 int seg = (int)(3 + f * 20-3);
@@ -196,9 +257,9 @@ public class Tester {
                             .axis(CircleLikeShape.CircleAxis.Z)
                             .color(randomColor())
                             .seeThrough(false)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(time * 3, time * 4, 0));
+                                t.setShapeLocalPivot(new Vec3(0,0,0));
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -214,9 +275,9 @@ public class Tester {
                             .color(randomColor())
                             .seeThrough(true)
                             .width(3)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(time * 1, 0, 0));
+                                 t.setShapeMatrixRotationDegrees(time, 0, 0);
 
                                 double f = (Math.sin(time * 0.1) + 1) / 2; // 0 → 1 → 0
                                 int seg = (int)(3 + f * 20-3);
@@ -236,9 +297,10 @@ public class Tester {
                             .axis(CircleLikeShape.CircleAxis.Z)
                             .color(randomColor())
                             .seeThrough(false)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(time * 3, time * 4, 0));
+                                 t.setShapeMatrixRotationDegrees(time*2, time * 5, 0);
+                                 //t.setShapeLocalRotationDegrees(0,0,time * 5);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -253,7 +315,7 @@ public class Tester {
                             .lineWidth(3.0f)
                             .color(randomColor())
                             .seeThrough(false)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
                                 t.setStart(new Vec3(linex - 2, 0,0));
                                 t.setEnd(new Vec3(linex + 2, 4 + (float)Math.sin(time * 0.1) * 2,0));
@@ -269,10 +331,10 @@ public class Tester {
                             .lineWidth(2.0f)
                             .color(randomColor())
                             .seeThrough(false)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
                                 // 动态更新顶点（旋转螺旋）
-                                ((StripLineShape)s).setVertexes(generateSpiral(xPos(), 100, 2.0f, 5.0f, time * 0.05f));
+                                ((StripLineShape)t.getShape()).setVertexes(generateSpiral(xPos(), 100, 2.0f, 5.0f, time * 0.05f));
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -286,9 +348,9 @@ public class Tester {
                             .color(randomColor())
                             .seeThrough(true)
                             .construction(BoxShape.BoxConstructionType.CENTER_AND_DIMENSIONS    )
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(time * 2, time * 3, time * 1.5f));
+                                t.setShapeMatrixRotationDegrees(time * 2, time * 3, time * 1.5f);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -303,9 +365,9 @@ public class Tester {
                             .color(randomColor())
                             .seeThrough(false)
                             .construction(BoxShape.BoxConstructionType.CORNERS)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(0, time * 4, 0));
+                                t.setShapeMatrixRotationDegrees(0, time * 4, 0);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -322,9 +384,9 @@ public class Tester {
                             .seeThrough(true)
                             .lineSeeThrough(false)
                             .construction(BoxShape.BoxConstructionType.CORNERS)
-                            .transform((t, s) -> {
+                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setMatrixRotation(new Vec3(time * 1.5f, time * 2.5f, 0));
+                                t.setShapeMatrixRotationDegrees(time * 1.5f, time * 2.5f, time*0.5f);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -355,7 +417,7 @@ public class Tester {
 
         float gameTime = Minecraft.getInstance().level.getGameTime();
         float rotationAngle = (gameTime % 3600) * 2f;
-        boxTransformer.setMatrixRotation(new Vec3(rotationAngle, rotationAngle, rotationAngle));
+        boxTransformer.setShapeMatrixRotationDegrees(rotationAngle, rotationAngle, rotationAngle);
     }
     public static void addEntity(Entity entity) {
         Player player = Minecraft.getInstance().player;
@@ -367,13 +429,13 @@ public class Tester {
                 ResourceLocation.fromNamespaceAndPath(MOD_ID, "entity_tracker_" + entityId + "/bounding_box"),
                 new BoxFaceShape(
                         Shape.RenderingType.BATCH,
-                        (transformer, shape) -> {
+                        (transformer) -> {
                             Vec3 entityCenter = entity.position().add(0, dimensions.height() / 2, 0);
                             if (entity.isRemoved()) {
-                                shape.discard();
+                                transformer.shape.discard();
                                 return;
                             }
-                            transformer.setShapeCenterPos(entityCenter);
+                            transformer.setShapeWorldPivot(entityCenter);
                         },
                         entity.position().add(0, dimensions.height() / 2, 0),
                         new Vec3(dimensions.width(), dimensions.height(), dimensions.width()),
@@ -387,13 +449,14 @@ public class Tester {
                 ResourceLocation.fromNamespaceAndPath(MOD_ID, "entity_tracker_" + entityId + "/line"),
                 new LineShape(
                         Shape.RenderingType.BATCH,
-                        (transformer, shape) -> {
+                        (transformer) -> {
                             if (entity.isRemoved()) {
-                                shape.discard();
+                                transformer.getShape().discard();
                                 return;
                             }
                             if (Minecraft.getInstance().level != null && Minecraft.getInstance().player != null) {
                                 transformer.setStart(player.getEyePosition().add(player.getLookAngle().scale(2)));
+                                //transformer.lineModelInfo.syncLastToTarget();
                                 transformer.setEnd(entity.position());
                             }
                         },

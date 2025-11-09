@@ -8,9 +8,8 @@ import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 
-public class StripLineBuilder extends BaseBuilder<StripLineBuilder, LineLikeShape.DefaultLineTransformer> {
+public class StripLineBuilder extends BaseBuilder<StripLineBuilder, LineLikeShape.SimpleLineTransformer> {
     private final List<Vec3> vertexes = new ArrayList<>();
     private final List<Color> colors = new ArrayList<>();
     private float lineWidth = 1.0f;

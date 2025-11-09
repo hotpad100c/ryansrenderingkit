@@ -1,159 +1,121 @@
 package mypals.ml.shape.round;
-
-import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.CircleLikeShape;
-import mypals.ml.shape.basics.tags.DrawableTriangle;
-import mypals.ml.transform.FloatValueTransformer;
-import mypals.ml.transform.IntValueTransformer;
+import mypals.ml.transform.shapeTransformers.DefaultTransformer;
+import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.CircleModelInfo;
 import net.minecraft.world.phys.Vec3;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-public class FaceCircleShape extends Shape implements CircleLikeShape, DrawableTriangle {
+public class FaceCircleShape extends Shape implements CircleLikeShape {
 
-    public int segments;
-    public float radius;
     public CircleAxis axis = CircleAxis.X;
-    public ArrayList<Vec3> vertexes = new ArrayList<>();
-    public Color color;
 
-    public FaceCircleShape(RenderingType type, BiConsumer<FaceCircleTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius,Color color, boolean seeThrough) {
-        super(type, seeThrough);
-        this.transformer = new FaceCircleTransformer(this,segments,radius);
-        this.transformFunction = (defaultTransformer,shape)->transform.accept((FaceCircleTransformer) this.transformer, shape);
-        this.segments = segments;
-        this.radius = radius;
-        this.color = color;
-        ((FaceCircleTransformer)this.transformer).setRadius(this.radius);
-        ((FaceCircleTransformer)this.transformer).setSegment(this.segments);
-        this.setAxis(circleAxis);
-        this.centerPoint = center;
-        this.transformer.setShapeCenterPos(center);
+    public FaceCircleShape(RenderingType type,
+                           Consumer<FaceCircleTransformer> transform,
+                           CircleAxis axis,
+                           Vec3 center,
+                           int segments,
+                           float radius,
+                           Color color,
+                           boolean seeThrough) {
+        super(type, color, seeThrough);
+        this.axis = axis;
+
+        this.transformer = new FaceCircleTransformer(this, segments, radius,center);
+        this.transformFunction = (t) -> transform.accept((FaceCircleTransformer) this.transformer);
+
+        generateRawGeometry(true);
         syncLastToTarget();
     }
-    /*@Override
-    public Vec3 calculateShapeCenterPos() {
-        if (vertexes.isEmpty()) {
-            return Vec3.ZERO;
-        }
 
-        double sumX = 0, sumY = 0, sumZ = 0;
-        for (Vec3 vertex : vertexes) {
-            sumX += vertex.x;
-            sumY += vertex.y;
-            sumZ += vertex.z;
-        }
+    @Override
+    protected void generateRawGeometry(boolean lerp) {
+        model_vertexes.clear();
+        if (this.getSegments(lerp) < 3) return;
 
-        int count = vertexes.size();
-        return new Vec3(sumX / count, sumY / count, sumZ / count);
-    }*/
-    public void generateCircle(){
-        ArrayList<Vec3> vs = new ArrayList<>();
-        Vec3 center = Vec3.ZERO;
+        int segments = getSegments(lerp);
+        float radius = getRadius(lerp);
+
+        model_vertexes.add(Vec3.ZERO);
+
         for (int i = 0; i < segments; i++) {
-            double theta = (2 * Math.PI * i) / segments;
-            double x, y, z;
+            double theta = 2 * Math.PI * i / segments;
+            double x = 0, y = 0, z = 0;
 
             switch (axis) {
                 case X -> {
-                    y = center.y + radius * Math.cos(theta);
-                    z = center.z + radius * Math.sin(theta);
-                    x = center.x;
+                    y = radius * Math.cos(theta);
+                    z = radius * Math.sin(theta);
+                    x = 0;
                 }
                 case Y -> {
-                    x = center.x + radius * Math.cos(theta);
-                    z = center.z + radius * Math.sin(theta);
-                    y = center.y;
+                    x = radius * Math.cos(theta);
+                    z = radius * Math.sin(theta);
+                    y = 0;
                 }
                 case Z -> {
-                    x = center.x + radius * Math.cos(theta);
-                    y = center.y + radius * Math.sin(theta);
-                    z = center.z;
+                    x = radius * Math.cos(theta);
+                    y = radius * Math.sin(theta);
+                    z = 0;
                 }
-                default -> throw new IllegalStateException("Unexpected axis value: " + axis);
             }
-
-            vs.add(new Vec3(x, y, z));
-        }
-        if (!vs.isEmpty()) {
-            vs.add(vs.getFirst());
-        }
-        vertexes = vs;
-    }
-    public void setAxis(CircleAxis circleAxis){
-        this.axis = circleAxis;
-        generateCircle();
-    }
-    @Override
-    public void draw(VertexBuilder builder) {
-
-        builder.putColor(this.color);
-
-        builder.putVertex(this.centerPoint);
-        for(Vec3 v : vertexes){
-            builder.putVertex(v.add(getShapeCenterPos()));
+            model_vertexes.add(new Vec3(x, y, z));
         }
 
-    }
-    public static class FaceCircleTransformer extends DefaultTransformer {
-        public IntValueTransformer segmentTransformer = new IntValueTransformer();
-        public FloatValueTransformer radiusTransformer = new FloatValueTransformer();
-        public FaceCircleTransformer(Shape managerShape,int seg,float rad) {
-            super(managerShape);
-            setSegment(seg);
-            setRadius(rad);
-        }
-        public void setSegment(int segment){
-            this.segmentTransformer.setTargetValue(segment);
-        }
-        public void setRadius(float radius){
-            this.radiusTransformer.setTargetValue(radius);
-        }
-        @Override
-        public void applyTransformations(PoseStack matrixStack){
-            super.applyTransformations(matrixStack);
-            float deltaTime = getTickDelta();
-            if(this.managedShape instanceof FaceCircleShape circleShape) {
-                this.segmentTransformer.updateValue(circleShape::setSegments,deltaTime);
-                this.radiusTransformer.updateValue(circleShape::setRadius,deltaTime);
-            }
-        }
-        @Override
-        public void syncLastToTarget(){
-            this.segmentTransformer.syncLastToTarget();
-            this.radiusTransformer.syncLastToTarget();
-            super.syncLastToTarget();
+        indexBuffer = new int[segments * 3];
+        for (int i = 0; i < segments; i++) {
+            int next = (i + 1) % segments;
+            indexBuffer[i * 3] = 0;      // center
+            indexBuffer[i * 3 + 1] = i + 1;
+            indexBuffer[i * 3 + 2] = next + 1;
         }
     }
+
     @Override
     public void setRadius(float radius) {
-        boolean rebuild = this.radius != radius;
-        this.radius = radius;
-        if(rebuild){
-            generateCircle();
-        }
-
+        ((FaceCircleTransformer)this.transformer).setRadius(radius);
     }
 
     @Override
     public void setSegments(int segments) {
-        boolean rebuild = this.segments != segments;
-        this.segments = segments;
-        if(rebuild){
-            generateCircle();
+        ((FaceCircleTransformer)this.transformer).setSegment(segments);
+    }
+
+    @Override
+    public float getRadius(boolean lerp) {
+        return ((FaceCircleTransformer)this.transformer).getRadius(lerp);
+    }
+
+    @Override
+    public int getSegments(boolean lerp) {
+        return ((FaceCircleTransformer)this.transformer).getSegment(lerp);
+    }
+
+    public static class FaceCircleTransformer extends DefaultTransformer {
+        public CircleModelInfo circleModelInfo;
+        public FaceCircleTransformer(Shape managedShape, int seg, float rad,Vec3 center) {
+            super(managedShape,center);
+            circleModelInfo = new CircleModelInfo(seg,rad);
         }
-    }
 
-    @Override
-    public float getRadius() {
-        return radius;
-    }
+        public void setSegment(int segment) { this.circleModelInfo.setSegment(segment); }
+        public void setRadius(float radius) { this.circleModelInfo.setRadius(radius); }
+        public int getSegment(boolean lerp) {return this.circleModelInfo.getSegment(lerp); }
+        public float getRadius(boolean lerp) {return this.circleModelInfo.getRadius(lerp); }
 
-    @Override
-    public int getSegments() {
-        return segments;
+        @Override
+        public void updateTickDelta(float delta) {
+            this.circleModelInfo.update(delta);
+            super.updateTickDelta(delta);
+        }
+        @Override
+        public void syncLastToTarget() {
+            this.circleModelInfo.syncLastToTarget();
+            super.syncLastToTarget();
+        }
+        public boolean asyncModelInfo(){
+            return circleModelInfo.async();
+        }
     }
 }

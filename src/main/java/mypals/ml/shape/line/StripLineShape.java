@@ -3,127 +3,138 @@ package mypals.ml.shape.line;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
-import mypals.ml.shape.basics.core.LineLikeShape;
 import mypals.ml.shape.basics.core.StripLineLikeShape;
 import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class StripLineShape extends Shape implements StripLineLikeShape {
-    public List<Vec3> vertexes = new ArrayList<>();
-    public float lineWidth;
-    public Color color;
 
-    public List<Color> vertexColors = new ArrayList<>();
-    public StripLineShape(RenderingType type, Color color,float lineWidth,boolean seeThrough) {
-        super(type,seeThrough);
-        this.color = color;
-        this.lineWidth = lineWidth;
+    private List<Vec3> vertexes = new ArrayList<>();
+    private List<Color> vertexColors = new ArrayList<>();
 
-    }
-    public StripLineShape(RenderingType type, BiConsumer<? super LineLikeShape.DefaultLineTransformer, Shape> transform, List<Vec3> vertexes, float lineWidth, Color color, boolean seeThrough) {
-        super(type, seeThrough);
-        this.setVertexes(vertexes);
-        this.color = color;
-        this.lineWidth = lineWidth;
-        this.transformer = new LineLikeShape.DefaultLineTransformer(this);
-        this.transformer.setShapeCenterPos(this.calculateShapeCenterPos());
-        this.transformFunction = (defaultTransformer,shape)->transform.accept((LineLikeShape.DefaultLineTransformer) this.transformer, shape);
-        ((LineLikeShape.DefaultLineTransformer)this.transformer).setWidth(this.lineWidth);
+    public StripLineShape(RenderingType type,
+                          Consumer<SimpleLineTransformer> transform,
+                          List<Vec3> vertexes,
+                          float lineWidth,
+                          Color color,
+                          boolean seeThrough) {
+        super(type, color, seeThrough);
+        this.vertexes = new ArrayList<>(vertexes);
+        this.transformer = new SimpleLineTransformer(this,lineWidth,this.calculateShapeCenterPos());
+        this.transformFunction = (defaultTransformer) ->
+                transform.accept((SimpleLineTransformer) this.transformer);
+
         syncLastToTarget();
+        generateRawGeometry(false);
     }
-    @Override
+
+
     public Vec3 calculateShapeCenterPos() {
-        if (vertexes.isEmpty()) {
-            return Vec3.ZERO;
-        }
+        if (vertexes.isEmpty()) return Vec3.ZERO;
 
         double sumX = 0, sumY = 0, sumZ = 0;
-        for (Vec3 vertex : vertexes) {
-            sumX += vertex.x;
-            sumY += vertex.y;
-            sumZ += vertex.z;
+        for (Vec3 v : vertexes) {
+            sumX += v.x;
+            sumY += v.y;
+            sumZ += v.z;
         }
 
-        int count = vertexes.size();
-        return new Vec3(sumX / count, sumY / count, sumZ / count);
+        double n = vertexes.size();
+        return new Vec3(sumX / n, sumY / n, sumZ / n);
     }
 
-    public void setVertexColors(List<Color> colors){
-        vertexColors = colors;
-    }
     @Override
-    public void setShapeCenterPos(Vec3 newCenter) {
-        super.setShapeCenterPos(newCenter);
+    protected void generateRawGeometry(boolean lerp) {
+        model_vertexes.clear();
+        if (vertexes.size() < 2) return;
 
-        if (vertexes.isEmpty()) {
-            return;
+        // (1) 仅计算模型内部中心点（局部坐标）
+        Vec3 localCenter = calculateShapeCenterPos();
+        transformer.setShapeLocalPivot(localCenter);
+
+        // (2) 世界 pivot 由外部或实体位置决定，不要在这里改
+        // transformer.setWorldPivot(...);
+
+        // (3) 将模型顶点移到以 localPivot 为中心
+        for (Vec3 v : vertexes) {
+            model_vertexes.add(v.subtract(localCenter));
         }
 
-        Vec3 currentCenter = calculateShapeCenterPos();
+        int n = model_vertexes.size();
+        indexBuffer = new int[n];
+        for (int i = 0; i < n; i++) indexBuffer[i] = i;
+    }
 
-        Vec3 offset = newCenter.subtract(currentCenter);
 
-        vertexes.replaceAll(vec3 -> vec3.add(offset));
-        //syncLastToTarget();
+
+    @Override
+    protected void drawInternal(VertexBuilder builder) {
+        RenderSystem.lineWidth(getLineWidth(true));
+
+        int n = model_vertexes.size();
+        if (n < 2) return;;
+
+        Vec3 first = model_vertexes.getFirst();
+        builder.putColor(new Color(0, 0, 0, 0));
+        builder.putVertex((float) first.x, (float) first.y, (float) first.z, 0f, 0f, 0f);
+        for (int i = 0; i < n; i++) {
+            Color vColor = baseColor;
+            if (i < vertexColors.size()) vColor = vertexColors.get(i);
+            builder.putColor(vColor);
+            Vec3 normal;
+            if (i == 0) {
+                Vec3 dir = model_vertexes.get(1).subtract(model_vertexes.get(0));
+                normal = dir.normalize();
+            } else if (i == n - 1) {
+                Vec3 dir = model_vertexes.get(n - 1).subtract(model_vertexes.get(n - 2));
+                normal = dir.normalize();
+            } else {
+                Vec3 prevDir = model_vertexes.get(i).subtract(model_vertexes.get(i - 1));
+                Vec3 nextDir = model_vertexes.get(i + 1).subtract(model_vertexes.get(i));
+                normal = prevDir.add(nextDir).normalize();
+                if (Double.isNaN(normal.x) || Double.isNaN(normal.y) || Double.isNaN(normal.z)) {
+                    Vec3 fallback = nextDir.lengthSqr() > 0 ? nextDir : prevDir;
+                    normal = fallback.normalize();
+                }
+            }
+
+            Vec3 pos = model_vertexes.get(i);
+            builder.putVertex((float) pos.x, (float) pos.y, (float) pos.z,
+                    (float) normal.x, (float) normal.y, (float) normal.z);
+        }
+
+        Vec3 last = model_vertexes.get(n - 1);
+        builder.putColor(new Color(0, 0, 0, 0));
+        builder.putVertex((float) last.x, (float) last.y, (float) last.z, 0f, 0f, 0f);
     }
 
     @Override
     public void setVertexes(List<Vec3> vertexes) {
-        this.vertexes = vertexes;
+        this.vertexes = new ArrayList<>(vertexes);
+        generateRawGeometry(false);
     }
 
     @Override
     public List<Vec3> getVertexes() {
-        return this.vertexes;
+        return vertexes;
     }
-    @Override
-    public void draw(VertexBuilder builder) {
-        RenderSystem.lineWidth(lineWidth);
 
-        int n = vertexes.size();
-        if (n < 2) return;
-
-        builder.putColor(0x00000000F);
-        Vec3 first = vertexes.getFirst();
-        builder.putVertex((float) first.x, (float) first.y, (float) first.z, 0, 0, 0);
-
-        for (int i = 0; i < n; i++) {
-            Color vColor = color;
-            if(i<vertexColors.size()){
-                vColor = vertexColors.get(i);
-            }
-            builder.putColor(vColor);
-
-            Vec3 normal;
-
-            if (i == 0) {
-                Vec3 dir = vertexes.get(i + 1).subtract(vertexes.get(i));
-                normal = dir.normalize();
-            } else if (i == n - 1) {
-                Vec3 dir = vertexes.get(i).subtract(vertexes.get(i - 1));
-                normal = dir.normalize();
-            } else {
-                Vec3 prevDir = vertexes.get(i).subtract(vertexes.get(i - 1));
-                Vec3 nextDir = vertexes.get(i + 1).subtract(vertexes.get(i));
-                normal = prevDir.add(nextDir).normalize();
-            }
-
-            Vec3 pos = vertexes.get(i);
-            builder.putVertex((float) pos.x, (float) pos.y, (float) pos.z,
-                    (float) normal.x, (float) normal.y, (float) normal.z);
-        }
-        builder.putColor(0x00000000F);
-        Vec3 last = vertexes.getLast();
-        builder.putVertex((float) last.x, (float) last.y, (float) last.z, 0, 0, 0);
-
-
+    public void setVertexColors(List<Color> colors) {
+        this.vertexColors = new ArrayList<>(colors);
     }
 
     @Override
     public void setLineWidth(float width) {
-        this.lineWidth = width;
+        ((SimpleLineTransformer)this.transformer).setWidth(width);
+    }
+
+    @Override
+    public float getLineWidth(boolean lerp) {
+       return ((SimpleLineTransformer)this.transformer).getWidth(lerp);
     }
 }
+

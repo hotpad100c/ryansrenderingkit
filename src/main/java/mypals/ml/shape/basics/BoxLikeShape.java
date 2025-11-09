@@ -2,7 +2,11 @@ package mypals.ml.shape.basics;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mypals.ml.shape.Shape;
-import mypals.ml.transform.Vec3dTransformer;
+import mypals.ml.shape.box.BoxShape;
+import mypals.ml.transform.shapeTransformers.DefaultTransformer;
+import mypals.ml.transform.shapeTransformers.ModelInfoLayer;
+import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.BoxModelInfo;
+import mypals.ml.transform.valueTransformers.Vec3Transformer;
 import net.minecraft.world.phys.Vec3;
 
 public interface BoxLikeShape {
@@ -17,26 +21,32 @@ public interface BoxLikeShape {
         double centerZ = (getMin().z + getMax().z) / 2.0;
         return new Vec3(centerX, centerY, centerZ);
     }
-     class BoxTransformer extends Shape.DefaultTransformer {
-        public BoxTransformer(Shape managedShape) {
-            super(managedShape);
+     class BoxTransformer extends DefaultTransformer {
+
+        public BoxModelInfo modelInfoLayer;
+        public BoxTransformer(BoxShape managedShape,Vec3 dim,Vec3 center) {
+            super(managedShape,center);
+            modelInfoLayer = new BoxModelInfo(dim);
         }
-        public Vec3dTransformer dimensionTransformer = new Vec3dTransformer();
         public void setDimension(Vec3 dimension) {
-            this.dimensionTransformer.setTargetVector(dimension);
+            this.modelInfoLayer.setDimension(dimension);
         }
-        @Override
-        public void applyTransformations(PoseStack matrixStack){
-            super.applyTransformations(matrixStack);
-            float deltaTime = getTickDelta();
-            if(this.managedShape instanceof BoxLikeShape boxLikeShape) {
-                dimensionTransformer.updateVector(boxLikeShape::setDimensions, deltaTime);
-            }
-        }
+
         public void syncLastToTarget(){
-            this.dimensionTransformer.syncLastToTarget();
+            this.modelInfoLayer.syncLastToTarget();
             super.syncLastToTarget();
         }
+        public Vec3 getDimension(boolean lerp){
+            return modelInfoLayer.getDimension(lerp);
+        }
+         public boolean asyncModelInfo(){
+             return modelInfoLayer.async();
+         }
+         @Override
+         public void updateTickDelta(float delta){
+            this.modelInfoLayer.update(delta);
+            super.updateTickDelta(delta);
+         }
     }
     default void normalizeBounds() {
 

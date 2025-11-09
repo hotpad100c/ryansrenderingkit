@@ -5,6 +5,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public abstract class BaseBuilder<T extends BaseBuilder<T, R>, R> implements ShapeBuilder<T> {
 
@@ -12,7 +13,7 @@ public abstract class BaseBuilder<T extends BaseBuilder<T, R>, R> implements Sha
     protected Color color = Color.WHITE;
     protected boolean seeThrough = false;
 
-    private TransformerSupplier<R> transformerSupplier = () -> (t, s) -> {};
+    private TransformerSupplier<R> transformerSupplier = () ->(t)-> {};
 
     @SuppressWarnings("unchecked")
     protected T self() {
@@ -24,7 +25,7 @@ public abstract class BaseBuilder<T extends BaseBuilder<T, R>, R> implements Sha
     public T color(int color) {return this.color(new Color(color)); }
     @Override public T seeThrough(boolean seeThrough) { this.seeThrough = seeThrough; return self(); }
 
-    public T transform(BiConsumer<R, Shape> transformer) {
+    public T transform(Consumer<R> transformer) {
         this.transformerSupplier = () -> transformer;
         return self();
     }
@@ -34,7 +35,7 @@ public abstract class BaseBuilder<T extends BaseBuilder<T, R>, R> implements Sha
         return self();
     }
 
-    protected BiConsumer<R, Shape> getTransformer() {
+    protected Consumer<R> getTransformer() {
         return transformerSupplier.get();
     }
 
@@ -42,6 +43,6 @@ public abstract class BaseBuilder<T extends BaseBuilder<T, R>, R> implements Sha
 
     @FunctionalInterface
     public interface TransformerSupplier<X> {
-        BiConsumer<X, Shape> get();
+        Consumer<X> get();
     }
 }

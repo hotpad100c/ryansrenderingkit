@@ -2,11 +2,12 @@ package mypals.ml.builders.shapeBuilders;
 
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.model.ObjModelShape;
+import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.BiConsumer;
 
-public class ObjModelBuilder extends BaseBuilder<ObjModelBuilder, Shape.DefaultTransformer> {
+public class ObjModelBuilder extends BaseBuilder<ObjModelBuilder, DefaultTransformer> {
     private ResourceLocation resourceLocation;
 
     public ObjModelBuilder model(ResourceLocation resourceLocation) {

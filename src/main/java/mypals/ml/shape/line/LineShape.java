@@ -7,82 +7,86 @@ import mypals.ml.shape.basics.core.TwoPointsLineShape;
 import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class LineShape extends Shape implements TwoPointsLineShape {
-    public Vec3 start;
-    public Vec3 end;
-    public Color color;
-    public float lineWidth;
+
     public LineShape(RenderingType type,
-                     BiConsumer<TwoPointsLineTransformer, Shape> transform,
-                     Vec3 start,
-                     Vec3 end,
-                     Color color,
-                     float lineWidth,
-                     boolean seeThrough)
-    {
-        super(type, seeThrough);
-        this.start = start;
-        this.end = end;
-        this.color = color;
-        setShapeCenterPos(calculateShapeCenterPos());
-        this.lineWidth = lineWidth;
-        this.transformer = new TwoPointsLineTransformer(this);
-        this.transformer.setShapeCenterPos(this.getShapeCenterPos());
-        this.transformFunction = (defaultTransformer,shape)->transform.accept((TwoPointsLineTransformer) this.transformer, shape);
-        ((TwoPointsLineTransformer)this.transformer).setStart(this.getStart());
-        ((TwoPointsLineTransformer)this.transformer).setEnd(this.getEnd());
-        ((TwoPointsLineTransformer)this.transformer).setWidth(this.lineWidth);
+                     Consumer<TwoPointsLineTransformer> transform,
+                     Vec3 start, Vec3 end,
+                     Color color, float lineWidth,
+                     boolean seeThrough) {
+
+        super(type, color, seeThrough);
+
+        this.transformer = new TwoPointsLineTransformer(this,start,end,lineWidth,Vec3.ZERO);
+        this.transformer.setShapeWorldPivot(calculateShapeCenterPos());
+        this.transformFunction = (defaultTransformer) ->
+                transform.accept((TwoPointsLineTransformer) this.transformer);
+
         syncLastToTarget();
+        generateRawGeometry(false);
     }
-    @Override
+
     public Vec3 calculateShapeCenterPos() {
-        double centerX = (getStart().x + getEnd().x) / 2.0;
-        double centerY = (getStart().y + getEnd().y) / 2.0;
-        double centerZ = (getStart().z + getEnd().z) / 2.0;
+        double centerX = (getStart(false).x + getEnd(false).x) / 2.0;
+        double centerY = (getStart(false).y + getEnd(false).y) / 2.0;
+        double centerZ = (getStart(false).z + getEnd(false).z) / 2.0;
         return new Vec3(centerX, centerY, centerZ);
     }
 
     @Override
-    public void setShapeCenterPos(Vec3 newCenter) {
-        super.setShapeCenterPos(newCenter);
-        Vec3 currentCenter = calculateShapeCenterPos();
-        Vec3 offset = newCenter.subtract(currentCenter);
-
-        setStart(getStart().add(offset));
-        setEnd(getEnd().add(offset));
-    }
-
-
-    @Override
     public void setStart(Vec3 start) {
-        this.start = start;
+        ((TwoPointsLineTransformer)this.transformer).setStart(start);
     }
 
     @Override
     public void setEnd(Vec3 end) {
-        this.end = end;
+        ((TwoPointsLineTransformer)this.transformer).setEnd(end);
     }
 
     @Override
     public void setLineWidth(float width) {
-        this.lineWidth = width;
+        ((TwoPointsLineTransformer)this.transformer).setWidth(width);
     }
 
     @Override
-    public Vec3 getStart() {
-        return start;
-    }
-    @Override
-    public Vec3 getEnd() {
-        return end;
+    public float getLineWidth(boolean lerp) {
+        return ((TwoPointsLineTransformer)this.transformer).getWidth(lerp);
     }
 
     @Override
-    public void draw(VertexBuilder builder) {
-        RenderSystem.lineWidth(lineWidth);
-        builder.putColor(color);
-        addLineSegment(builder,getStart(),getEnd());
-    }
+    public Vec3 getStart(boolean lerp) { return ((TwoPointsLineTransformer)this.transformer).getStart(lerp);}
 
+    @Override
+    public Vec3 getEnd(boolean lerp) { return ((TwoPointsLineTransformer)this.transformer).getEnd(lerp);}
+
+    public float getWidth(boolean lerp) { return ((TwoPointsLineTransformer)this.transformer).getWidth(lerp);}
+
+    @Override
+    protected void generateRawGeometry(boolean lerp) {
+        model_vertexes.clear();
+
+        Vec3 start = getStart(lerp);
+        Vec3 end = getEnd(lerp);
+        Vec3 center = calculateShapeCenterPos();
+
+
+        this.transformer.setShapeWorldPivot(center);
+        this.transformer.world.position.syncLastToTarget();
+
+        Vec3 localA = start.subtract(center);
+        Vec3 localB = end.subtract(center);
+
+        model_vertexes.add(localA);
+        model_vertexes.add(localB);
+
+        this.indexBuffer = new int[] { 0, 1 };
+    }
+    protected void drawInternal(VertexBuilder builder) {
+        RenderSystem.lineWidth(getWidth(true));
+        builder.putColor(baseColor);
+        addLineSegment(builder,model_vertexes.getFirst(),model_vertexes.getLast());
+    }
 }
+

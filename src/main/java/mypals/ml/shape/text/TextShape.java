@@ -12,8 +12,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
-public class TextShape extends Shape {
-    public ArrayList<String> contents = new ArrayList<>();
+public class TextShape {
+    /*public ArrayList<String> contents = new ArrayList<>();
     public ArrayList<Color> color = new ArrayList<>();
     public BillBoardMode bill = BillBoardMode.ALL;
     public enum BillBoardMode {
@@ -106,6 +106,6 @@ public class TextShape extends Shape {
                 matrices.mulPose(Minecraft.getInstance().gameRenderer.getMainCamera().rotation());
                 break;
         }
-    }
+    }*/
 
 }

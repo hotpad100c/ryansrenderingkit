@@ -26,12 +26,12 @@ public class VertexBuilderGetter {
     }
     public static void init(){
         registerShapeBuilder(BoxWireframeShape.class, ShapeManagers.LINES_SHAPE_MANAGER);
-        registerShapeBuilder(BoxFaceShape.class, ShapeManagers.QUADS_SHAPE_MANAGER);
+        registerShapeBuilder(BoxFaceShape.class, ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(LineShape.class,ShapeManagers.LINES_SHAPE_MANAGER);
         registerShapeBuilder(StripLineShape.class,ShapeManagers.LINE_STRIP_SHAPE_MANAGER);
         registerShapeBuilder(LineCircleShape.class,ShapeManagers.LINE_STRIP_SHAPE_MANAGER);
-        registerShapeBuilder(TextShape.class,ShapeManagers.TEXT);
-        registerShapeBuilder(FaceCircleShape.class,ShapeManagers.TRIANGLES_FAN_SHAPE_MANAGER);
+        //registerShapeBuilder(TextShape.class,ShapeManagers.TEXT);
+        registerShapeBuilder(FaceCircleShape.class,ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(SphereShape.class,ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(ObjModelShape.class,ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(ObjModelShapeOutline.class,ShapeManagers.LINES_SHAPE_MANAGER);

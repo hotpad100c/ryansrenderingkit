@@ -1,151 +1,115 @@
 package mypals.ml.shape.box;
 
+import mypals.ml.Helpers;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.BoxLikeShape;
+import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.world.phys.Vec3;
+
+import java.awt.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class BoxShape extends Shape implements BoxLikeShape {
-    private Vec3 center;
-    private Vec3 dimensions;
-    private Vec3 min;
-    private Vec3 max;
 
-    public enum BoxConstructionType {
-        CENTER_AND_DIMENSIONS,
-        CORNERS
-    }
+    public enum BoxConstructionType { CENTER_AND_DIMENSIONS, CORNERS }
 
-    public BoxShape(RenderingType type, BiConsumer<BoxTransformer, Shape> transform,
-                    Vec3 vec1, Vec3 vec2, boolean seeThrough, BoxConstructionType constructionType) {
-        super(type, seeThrough);
-        this.transformer = new BoxTransformer(this);
-        this.transformFunction = (defaultTransformer, shape) -> transform.accept((BoxTransformer) this.transformer, shape);
+    public BoxShape(RenderingType type,
+                    Consumer<BoxTransformer> transform,
+                    Vec3 vec1,
+                    Vec3 vec2,
+                    Color color,
+                    boolean seeThrough,
+                    BoxConstructionType constructionType) {
+        super(type, color, seeThrough);
+
+        this.transformFunction = (t)->{transform.accept((BoxTransformer)this.transformer);};
 
         if (constructionType == BoxConstructionType.CENTER_AND_DIMENSIONS) {
-            this.center = vec1;
-            this.dimensions = new Vec3(Math.abs(vec2.x), Math.abs(vec2.y), Math.abs(vec2.z));
+            this.transformer = new BoxTransformer(this,new Vec3(Math.abs(vec2.x), Math.abs(vec2.y), Math.abs(vec2.z)),vec1);
         } else {
-
-            this.dimensions = new Vec3(
-                    Math.abs(vec2.x - vec1.x),
-                    Math.abs(vec2.y - vec1.y),
-                    Math.abs(vec2.z - vec1.z)
-            );
-            this.center = new Vec3(
-                    (vec1.x + vec2.x) / 2.0,
-                    (vec1.y + vec2.y) / 2.0,
-                    (vec1.z + vec2.z) / 2.0
-            );
+            Vec3 min = Helpers.min(vec1, vec2);
+            Vec3 max = Helpers.max(vec1, vec2);
+            Vec3 dims = max.subtract(min);
+            Vec3 center = min.add(dims.scale(0.5));
+            this.transformer = new BoxTransformer(this,dims,center);
         }
-        this.transformer.setShapeCenterPos(this.center);
-        ((BoxTransformer)this.transformer).setDimension(this.dimensions);
-        updateCornersFromCenterAndDimensions();
-        normalizeBounds();
+
+        
         syncLastToTarget();
     }
 
-    public BoxShape(RenderingType type, BiConsumer<BoxTransformer, Shape> transform,
-                    Vec3 vec1, Vec3 vec2, BoxConstructionType constructionType) {
-        this(type, transform, vec1, vec2, false, constructionType);
+
+
+    @Override
+    protected void generateRawGeometry(boolean lerp) {
+
     }
+
+    // ====================== BoxLikeShape 接口实现 ======================
 
     @Override
     public Vec3 getMin() {
-        return this.min;
+        BoxTransformer bt = (BoxTransformer) transformer;
+        Vec3 half = bt.getDimension(false).scale(0.5);
+        return bt.getWorldPivot().subtract(half);
     }
 
     @Override
     public Vec3 getMax() {
-        return this.max;
+        BoxTransformer bt = (BoxTransformer) transformer;
+        Vec3 half = bt.getDimension(false).scale(0.5);
+        return bt.getWorldPivot().add(half);
     }
 
     @Override
     public void setMin(Vec3 min) {
-        this.min = min;
-        this.center = new Vec3(
-                (min.x + max.x) / 2.0,
-                (min.y + max.y) / 2.0,
-                (min.z + max.z) / 2.0
-        );
-        this.dimensions = new Vec3(
-                max.x - min.x,
-                max.y - min.y,
-                max.z - min.z
-        );
+        Vec3 max = getMax();
+        Vec3 center = min.add(max).scale(0.5);
+        Vec3 dims = max.subtract(min);
+        BoxTransformer bt = (BoxTransformer) transformer;
+        bt.setShapeWorldPivot(center);
+        bt.setDimension(dims);
+        
     }
 
     @Override
     public void setMax(Vec3 max) {
-        this.max = max;
-        this.center = new Vec3(
-                (min.x + max.x) / 2.0,
-                (min.y + max.y) / 2.0,
-                (min.z + max.z) / 2.0
-        );
-        this.dimensions = new Vec3(
-                max.x - min.x,
-                max.y - min.y,
-                max.z - min.z
-        );
+        Vec3 min = getMin();
+        Vec3 center = min.add(max).scale(0.5);
+        Vec3 dims = max.subtract(min);
+        BoxTransformer bt = (BoxTransformer) transformer;
+        bt.setShapeWorldPivot(center);
+        bt.setDimension(dims);
+        
     }
 
-    public Vec3 getCenter() {
-        return this.center;
-    }
-
-    public Vec3 getDimensions() {
-        return this.dimensions;
-    }
-
-    @Override
-    public void setShapeCenterPos(Vec3 center) {
-        this.center = center;
-        this.centerPoint = center;
-        updateCornersFromCenterAndDimensions();
-    }
 
     public void setDimensions(Vec3 dimensions) {
-        this.dimensions = new Vec3(Math.abs(dimensions.x), Math.abs(dimensions.y), Math.abs(dimensions.z));
-        updateCornersFromCenterAndDimensions();
+        ((BoxTransformer) transformer).setDimension(
+                new Vec3(Math.abs(dimensions.x), Math.abs(dimensions.y), Math.abs(dimensions.z))
+        );
+        
     }
 
-    private void updateCornersFromCenterAndDimensions() {
-        Vec3 half = dimensions.scale(0.5);
-        this.min = center.subtract(half);
-        this.max = center.add(half);
-    }
-
-    public void setCorners(Vec3 min, Vec3 max) {
-        Vec3 dims = new Vec3(
-                Math.abs(max.x - min.x),
-                Math.abs(max.y - min.y),
-                Math.abs(max.z - min.z)
-        );
-        Vec3 c = new Vec3(
-                (min.x + max.x) / 2.0,
-                (min.y + max.y) / 2.0,
-                (min.z + max.z) / 2.0
-        );
-        setShapeCenterPos(c);
-        setDimensions(dims);
+    public void setCorners(Vec3 corner1, Vec3 corner2) {
+        Vec3 min = Helpers.min(corner1, corner2);
+        Vec3 max = Helpers.max(corner1, corner2);
+        Vec3 center = min.add(max).scale(0.5);
+        Vec3 dims = max.subtract(min);
+        BoxTransformer bt = (BoxTransformer) transformer;
+        bt.setShapeWorldPivot(center);
+        bt.setDimension(dims);
+        
     }
 
     @Override
     public void normalizeBounds() {
-        // 保证 min/max 永远小于等于 max
-        double minX = Math.min(min.x, max.x);
-        double minY = Math.min(min.y, max.y);
-        double minZ = Math.min(min.z, max.z);
-        double maxX = Math.max(min.x, max.x);
-        double maxY = Math.max(min.y, max.y);
-        double maxZ = Math.max(min.z, max.z);
-        this.min = new Vec3(minX, minY, minZ);
-        this.max = new Vec3(maxX, maxY, maxZ);
+
+        Vec3 min = Helpers.min(getMin(), getMax());
+        Vec3 max = Helpers.max(getMin(), getMax());
+        setCorners(min, max);
     }
 
-    @Override
-    public Vec3 calculateShapeCenterPos() {
-        return this.center;
-    }
+
 }

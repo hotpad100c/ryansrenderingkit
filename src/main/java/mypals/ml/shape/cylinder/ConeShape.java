@@ -1,62 +1,34 @@
 package mypals.ml.shape.cylinder;
 
+import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class ConeShape extends CylinderShape {
 
-    public ConeShape(RenderingType type, BiConsumer<CylinderTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius, float height, Color color, boolean seeThrough) {
-        super(type, seeThrough);
-        this.transformer = new CylinderTransformer(this,segments,radius,height);
-        this.transformFunction = (defaultTransformer,shape)->transform.accept((CylinderTransformer) this.transformer, shape);
-        this.segments = segments;
-        this.radius = radius;
-        this.height = height;
-        this.color = color;
-        this.centerPoint = center;
-        this.transformer.setShapeCenterPos(center);
-        this.setAxis(circleAxis);
-        syncLastToTarget();
+    public ConeShape(RenderingType type, Consumer<CylinderTransformer> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius, float height, Color color, boolean seeThrough) {
+        super(type, transform, circleAxis, center, segments, radius, height, color, seeThrough);
     }
-    @Override
-    public void generateCylinder() {
-        ArrayList<Vec3> vs = new ArrayList<>();
-        double halfH = height / 2.0;
-
-        ArrayList<Vec3> baseRing = new ArrayList<>();
+    private List<Vec3> generateConeVertices(double halfH, int segments, float radius, CircleAxis axis) {
+        List<Vec3> vertices = new ArrayList<>();
 
         for (int i = 0; i < segments; i++) {
             double theta = 2 * Math.PI * i / segments;
             double c = Math.cos(theta);
             double s = Math.sin(theta);
 
-            double x = 0, y = 0, z = 0;
-
-            switch (axis) {
-                case X -> {
-                    y = radius * c;
-                    z = radius * s;
-                    x = -halfH;
-                    baseRing.add(new Vec3(x, y, z));
-                }
-                case Y -> {
-                    x = radius * c;
-                    z = radius * s;
-                    y = -halfH;
-                    baseRing.add(new Vec3(x, y, z));
-                }
-                case Z -> {
-                    x = radius * c;
-                    y = radius * s;
-                    z = -halfH;
-                    baseRing.add(new Vec3(x, y, z));
-                }
-                default -> throw new IllegalStateException("Unexpected axis value: " + axis);
-            }
+            Vec3 point = switch (axis) {
+                case X -> new Vec3(-halfH, radius * c, radius * s);
+                case Y -> new Vec3(radius * c, -halfH, radius * s);
+                case Z -> new Vec3(radius * c, radius * s, -halfH);
+            };
+            vertices.add(point);
         }
 
         Vec3 apex = switch (axis) {
@@ -64,34 +36,49 @@ public class ConeShape extends CylinderShape {
             case Y -> new Vec3(0, halfH, 0);
             case Z -> new Vec3(0, 0, halfH);
         };
+        vertices.add(apex);
 
         Vec3 baseCenter = switch (axis) {
             case X -> new Vec3(-halfH, 0, 0);
             case Y -> new Vec3(0, -halfH, 0);
             case Z -> new Vec3(0, 0, -halfH);
         };
+        vertices.add(baseCenter);
 
-        for (int i = 0; i < segments; i++) {
-            int next = (i + 1) % segments;
-            Vec3 b0 = baseRing.get(i);
-            Vec3 b1 = baseRing.get(next);
-
-            vs.add(b0);
-            vs.add(apex);
-            vs.add(b1);
-        }
-
-        for (int i = 0; i < segments; i++) {
-            int next = (i + 1) % segments;
-            Vec3 b0 = baseRing.get(i);
-            Vec3 b1 = baseRing.get(next);
-
-            vs.add(baseCenter);
-            vs.add(b1);
-            vs.add(b0);
-        }
-
-        vertexes = vs;
-
+        return vertices;
     }
+
+    @Override
+    protected void generateRawGeometry(boolean lerp) {
+        model_vertexes.clear();
+        List<Integer> indices = new ArrayList<>();
+
+        float height = ((CylinderTransformer)this.transformer).getHeight(lerp);
+        int segments = ((CylinderTransformer)this.transformer).getSegments(lerp);
+        float radius = ((CylinderTransformer)this.transformer).getRadius(lerp);
+        double halfH = height / 2.0;
+
+        List<Vec3> verts = generateConeVertices(halfH, segments, radius, axis);
+        model_vertexes.addAll(verts);
+
+        int apexIndex = segments;
+        int baseCenterIndex = segments + 1;
+
+        for (int i = 0; i < segments; i++) {
+            int next = (i + 1) % segments;
+            indices.add(i);
+            indices.add(apexIndex);
+            indices.add(next);
+        }
+
+        for (int i = 0; i < segments; i++) {
+            int next = (i + 1) % segments;
+            indices.add(baseCenterIndex);
+            indices.add(next);
+            indices.add(i);
+        }
+
+        this.indexBuffer = indices.stream().mapToInt(Integer::intValue).toArray();
+    }
+
 }

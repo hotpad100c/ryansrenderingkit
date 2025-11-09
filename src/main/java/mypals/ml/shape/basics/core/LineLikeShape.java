@@ -1,14 +1,15 @@
 package mypals.ml.shape.basics.core;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.tags.DrawableLine;
-import mypals.ml.transform.FloatValueTransformer;
+import mypals.ml.transform.shapeTransformers.DefaultTransformer;
+import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.LineModelInfo;
 import net.minecraft.world.phys.Vec3;
 
 public interface LineLikeShape extends DrawableLine {
     void setLineWidth(float width);
+    float getLineWidth(boolean lerp);
     default void addLineSegment(VertexBuilder vertexBuilder, Vec3 start, Vec3 end) {
         double dx = end.x() - start.x();
         double dy = end.y() - start.y();
@@ -20,27 +21,29 @@ public interface LineLikeShape extends DrawableLine {
         vertexBuilder.putVertex(start, normal);
         vertexBuilder.putVertex(end, normal);
     }
-
-    class DefaultLineTransformer extends Shape.DefaultTransformer{
-        public FloatValueTransformer widthTransformer = new FloatValueTransformer();
-        public DefaultLineTransformer(Shape managerShape) {
-            super(managerShape);
-        }
-        public void syncLastToTarget(){
-            this.widthTransformer.syncLastToTarget();
-            super.syncLastToTarget();
+    class SimpleLineTransformer extends DefaultTransformer {
+        public LineModelInfo lineModelInfo;
+        public SimpleLineTransformer(Shape s, float width, Vec3 center) {
+            super(s, center);
+            lineModelInfo = new LineModelInfo(width);
         }
         public void setWidth(float width){
-            this.widthTransformer.setTargetValue(width);
+            lineModelInfo.setWidth(width);
+        }
+        public float getWidth(boolean lerp){
+            return lineModelInfo.getWidth(lerp);
+        }
+        public void syncLastToTarget(){
+            lineModelInfo.syncLastToTarget();
+            super.syncLastToTarget();
+        }
+        public boolean asyncModelInfo(){
+            return lineModelInfo.async();
         }
         @Override
-        public void applyTransformations(PoseStack matrixStack){
-            super.applyTransformations(matrixStack);
-            float deltaTime = getTickDelta();
-            if(this.managedShape instanceof LineLikeShape lineLikeShape) {
-                this.widthTransformer.updateValue(lineLikeShape::setLineWidth,deltaTime);
-            }
+        public void updateTickDelta(float delta){
+            this.lineModelInfo.update(delta);
+            super.updateTickDelta(delta);
         }
     }
-
 }
