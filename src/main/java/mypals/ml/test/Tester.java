@@ -1,6 +1,7 @@
 package mypals.ml.test;
 
 import mypals.ml.builders.shapeBuilders.ShapeGenerator;
+import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shape.basics.BoxLikeShape;
 import mypals.ml.shape.basics.CircleLikeShape;
 import mypals.ml.shape.box.BoxFaceShape;
@@ -13,6 +14,7 @@ import mypals.ml.shapeManagers.ShapeManagers;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -31,7 +33,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 public class Tester {
     public static boolean added =false;
     public static Random random = new Random();
-    public static float spacing = 8.0f;  // 每个图形间隔 8 格
+    public static float spacing = 8.0f;
     public static int index = 0;
 
     static Color randomColor() {
@@ -39,7 +41,7 @@ public class Tester {
                 random.nextInt(256),
                 random.nextInt(256),
                 random.nextInt(256),
-                120 + random.nextInt(136)  // 透明度 120~255
+                120 + random.nextInt(136)
         );
     }
 
@@ -88,10 +90,10 @@ public class Tester {
                             .segments(64)
                             .axis(CircleLikeShape.CircleAxis.Y)
                             .color(randomColor())
-                            .seeThrough(true)
+                            .seeThrough(false)
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                 t.setShapeMatrixRotationDegrees(0, time * 3, 0);
+                                 t.setShapeWorldRotationDegrees(0, time * 3, 0);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -109,12 +111,12 @@ public class Tester {
                             .seeThrough(false)
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                //t.setShapeMatrixRotationDegrees(0, time * 4, 0);
+                                //t.setShapeWorldRotationDegrees(0, time * 4, 0);
 
                                  t.setShapeLocalRotationDegrees(0,time*4,0);
                                  t.setShapeWorldRotationDegrees(time*4, 0, 0);
                             })
-                            .build(Shape.RenderingType.BATCH)
+                            .build(Shape.RenderingType.BUFFERED)
             );
 
             // 3. Sphere
@@ -125,12 +127,12 @@ public class Tester {
                             .radius(2.0f)
                             .segments(32)
                             .color(randomColor())
-                            .seeThrough(true)
+                            .seeThrough(false)
                             .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setShapeMatrixRotationDegrees(time * 2, time * 3, 0);
+                                t.setShapeWorldRotationDegrees(time * 2, time * 3, 0);
                             })
-                            .build(Shape.RenderingType.BATCH)
+                            .build(Shape.RenderingType.BUFFERED)
             );
 
             Vec3 spos = new Vec3(xPos(), 0,20);
@@ -158,7 +160,7 @@ public class Tester {
                     .seeThrough(false)
                     .transform((t) -> {
                         float time = client.getGameTime();
-                        t.setShapeMatrixRotationDegrees(0, time*6, 0);
+                        t.setShapeWorldRotationDegrees(0, time*6, 0);
                     })
                     .build(Shape.RenderingType.BATCH);
 
@@ -170,7 +172,12 @@ public class Tester {
                     .seeThrough(false)
                     .transform((t) -> {
                         float time = client.getGameTime();
-                        //t.setShapeMatrixRotationDegrees(time * 2, time * 3, 0);
+                        //t.setShapeWorldRotationDegrees(time * 2, time * 3, 0);
+                        if(t.shape.isPlayerLookingAt().hit){
+                            t.shape.baseColor = new Color(255, 234, 0,100);
+                        }else{
+                            t.shape.baseColor = new Color(255, 0, 251,100);
+                        }
                     })
                     .build(Shape.RenderingType.BATCH);
 
@@ -202,7 +209,15 @@ public class Tester {
                             .seeThrough(false)
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                 t.setShapeMatrixRotationDegrees(0, time * 5, 0);
+
+                                 t.setShapeWorldRotationDegrees(0, time * 5, 0);
+
+                                 if(t.shape.isPlayerLookingAt().hit){
+                                     t.shape.baseColor = new Color(255,0,72,100);
+                                 }else{
+                                     t.shape.baseColor = new Color(0, 255, 72,100);
+                                 }
+
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -218,7 +233,12 @@ public class Tester {
                             .seeThrough(false)
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                 t.setShapeMatrixRotationDegrees(0, time * 5, 0);
+                                 t.setShapeWorldRotationDegrees(0, time * 5, 0);
+                                 if(t.shape.isPlayerLookingAt().hit){
+                                     t.shape.baseColor = new Color(255,0,72,100);
+                                 }else{
+                                     t.shape.baseColor = new Color(0, 255, 72,100);
+                                 }
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -233,14 +253,18 @@ public class Tester {
                             .segments(32)
                             .axis(CircleLikeShape.CircleAxis.Y)
                             .color(randomColor())
-                            .seeThrough(true)
+                            .seeThrough(false)
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                 t.setShapeMatrixRotationDegrees(time, 0, 0);
+                                 t.setShapeWorldRotationDegrees(time, 0, 0);
 
                                 double f = (Math.sin(time * 0.1) + 1) / 2; // 0 → 1 → 0
                                 int seg = (int)(3 + f * 20-3);
-
+                                 if(t.shape.isPlayerLookingAt().hit){
+                                     t.shape.baseColor = new Color(0, 255, 149,100);
+                                 }else{
+                                     t.shape.baseColor = new Color(136, 136, 136,100);
+                                 }
                                 t.setSegment(Math.max(3,seg));
                             })
                             .build(Shape.RenderingType.BATCH)
@@ -273,11 +297,11 @@ public class Tester {
                             .segments(32)
                             .axis(CircleLikeShape.CircleAxis.Y)
                             .color(randomColor())
-                            .seeThrough(true)
+                            .seeThrough(false)
                             .width(3)
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                 t.setShapeMatrixRotationDegrees(time, 0, 0);
+                                 t.setShapeWorldRotationDegrees(time, 0, 0);
 
                                 double f = (Math.sin(time * 0.1) + 1) / 2; // 0 → 1 → 0
                                 int seg = (int)(3 + f * 20-3);
@@ -299,7 +323,7 @@ public class Tester {
                             .seeThrough(false)
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                 t.setShapeMatrixRotationDegrees(time*2, time * 5, 0);
+                                 t.setShapeWorldRotationDegrees(time*2, time * 5, 0);
                                  //t.setShapeLocalRotationDegrees(0,0,time * 5);
                             })
                             .build(Shape.RenderingType.BATCH)
@@ -346,11 +370,11 @@ public class Tester {
                             .pos(new Vec3(xPos(), 0, 0))
                             .size(new Vec3(2,2,2))
                             .color(randomColor())
-                            .seeThrough(true)
+                            .seeThrough(false)
                             .construction(BoxShape.BoxConstructionType.CENTER_AND_DIMENSIONS    )
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setShapeMatrixRotationDegrees(time * 2, time * 3, time * 1.5f);
+                                t.setShapeWorldRotationDegrees(time * 2, time * 3, time * 1.5f);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -367,7 +391,7 @@ public class Tester {
                             .construction(BoxShape.BoxConstructionType.CORNERS)
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setShapeMatrixRotationDegrees(0, time * 4, 0);
+                                t.setShapeWorldRotationDegrees(0, time * 4, 0);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -381,12 +405,12 @@ public class Tester {
                             .color(randomColor())           // 面颜色
                             .edgeColor(new Color(255, 255, 255, 200))
                             .edgeWidth(2.0f)
-                            .seeThrough(true)
+                            .seeThrough(false)
                             .lineSeeThrough(false)
                             .construction(BoxShape.BoxConstructionType.CORNERS)
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                t.setShapeMatrixRotationDegrees(time * 1.5f, time * 2.5f, time*0.5f);
+                                t.setShapeWorldRotationDegrees(time * 1.5f, time * 2.5f, time*0.5f);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -417,7 +441,7 @@ public class Tester {
 
         float gameTime = Minecraft.getInstance().level.getGameTime();
         float rotationAngle = (gameTime % 3600) * 2f;
-        boxTransformer.setShapeMatrixRotationDegrees(rotationAngle, rotationAngle, rotationAngle);
+        boxTransformer.setShapeWorldRotationDegrees(rotationAngle, rotationAngle, rotationAngle);
     }
     public static void addEntity(Entity entity) {
         Player player = Minecraft.getInstance().player;

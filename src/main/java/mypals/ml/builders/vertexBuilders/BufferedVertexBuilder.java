@@ -24,6 +24,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
     public void rebuild(RenderMethod renderMethod, Consumer<BufferedVertexBuilder> builder) {
         start(renderMethod);
         push(builder);
+        //flushTransparent();
         end();
     }
 

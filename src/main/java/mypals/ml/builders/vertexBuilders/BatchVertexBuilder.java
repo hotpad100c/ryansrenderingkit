@@ -39,7 +39,7 @@ public class BatchVertexBuilder extends VertexBuilder {
         if (!isBuilding) {
             return;
         }
-
+        //flushTransparent();
         MeshData builtBuffer = this.getBufferBuilder().build();
         if(builtBuffer!=null){
             setUpRendererSystem(null);

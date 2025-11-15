@@ -2,6 +2,7 @@ package mypals.ml.shape.line;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
+import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.core.StripLineLikeShape;
 import net.minecraft.world.phys.Vec3;
@@ -46,20 +47,16 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
         double n = vertexes.size();
         return new Vec3(sumX / n, sumY / n, sumZ / n);
     }
-
+    @Override
+    public RayModelIntersection.HitResult isPlayerLookingAt(){
+        return new RayModelIntersection.HitResult(false,null,-1);
+    }
     @Override
     protected void generateRawGeometry(boolean lerp) {
         model_vertexes.clear();
         if (vertexes.size() < 2) return;
-
-        // (1) 仅计算模型内部中心点（局部坐标）
         Vec3 localCenter = calculateShapeCenterPos();
         transformer.setShapeLocalPivot(localCenter);
-
-        // (2) 世界 pivot 由外部或实体位置决定，不要在这里改
-        // transformer.setWorldPivot(...);
-
-        // (3) 将模型顶点移到以 localPivot 为中心
         for (Vec3 v : vertexes) {
             model_vertexes.add(v.subtract(localCenter));
         }
@@ -80,7 +77,7 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
 
         Vec3 first = model_vertexes.getFirst();
         builder.putColor(new Color(0, 0, 0, 0));
-        builder.putVertex((float) first.x, (float) first.y, (float) first.z, 0f, 0f, 0f);
+        builder.putVertex(first, Vec3.ZERO);
         for (int i = 0; i < n; i++) {
             Color vColor = baseColor;
             if (i < vertexColors.size()) vColor = vertexColors.get(i);
@@ -103,13 +100,12 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
             }
 
             Vec3 pos = model_vertexes.get(i);
-            builder.putVertex((float) pos.x, (float) pos.y, (float) pos.z,
-                    (float) normal.x, (float) normal.y, (float) normal.z);
+            builder.putVertex(pos, normal);
         }
 
         Vec3 last = model_vertexes.get(n - 1);
         builder.putColor(new Color(0, 0, 0, 0));
-        builder.putVertex((float) last.x, (float) last.y, (float) last.z, 0f, 0f, 0f);
+        builder.putVertex(last, Vec3.ZERO);
     }
 
     @Override

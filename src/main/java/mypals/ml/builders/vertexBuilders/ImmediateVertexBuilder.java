@@ -19,7 +19,7 @@ public class ImmediateVertexBuilder extends VertexBuilder {
         begin(renderMethod);
         RenderSystem.setShader(renderMethod.shader());
         builder.accept(this);
-
+        //flushTransparent();
 
         MeshData builtBuffer = this.getBufferBuilder().build();
         if(builtBuffer!=null){

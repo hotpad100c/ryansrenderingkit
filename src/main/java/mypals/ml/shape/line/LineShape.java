@@ -2,8 +2,12 @@ package mypals.ml.shape.line;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
+import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.core.TwoPointsLineShape;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.util.function.BiConsumer;
@@ -82,6 +86,10 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         model_vertexes.add(localB);
 
         this.indexBuffer = new int[] { 0, 1 };
+    }
+    @Override
+    public RayModelIntersection.HitResult isPlayerLookingAt(){
+        return new RayModelIntersection.HitResult(false,null,-1);
     }
     protected void drawInternal(VertexBuilder builder) {
         RenderSystem.lineWidth(getWidth(true));

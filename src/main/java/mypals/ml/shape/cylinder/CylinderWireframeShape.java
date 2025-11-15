@@ -27,7 +27,7 @@ public class CylinderWireframeShape extends CylinderShape implements DrawableLin
         this.transformFunction = t -> transform.accept((CylinderWireframeTransformer) this.transformer);
 
         this.setAxis(circleAxis);
-        this.setLocalPosition(center);
+        this.setWorldPosition(center);
 
         syncLastToTarget();
     }

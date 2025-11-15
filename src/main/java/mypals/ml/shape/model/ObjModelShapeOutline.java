@@ -15,24 +15,6 @@ import java.util.function.Consumer;
 public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape {
 
     public float lineWidth;
-    public Color color = Color.WHITE;
-
-    public ObjModelShapeOutline(RenderingType type,
-                                Consumer<SimpleLineTransformer> transform,
-                                ResourceLocation resourceLocation,
-                                Vec3 center,
-                                float lineWidth,
-                                Color color) {
-        this(type, transform, resourceLocation, center, lineWidth, color, false);
-    }
-
-    protected ObjModelShapeOutline(RenderingType type) {
-        super(type, Color.WHITE, false);
-    }
-
-    protected ObjModelShapeOutline(RenderingType type, boolean seeThrough) {
-        super(type, Color.WHITE, seeThrough);
-    }
 
     public ObjModelShapeOutline(RenderingType type,
                                 Consumer<SimpleLineTransformer> transform,
@@ -47,7 +29,7 @@ public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape
         this.transformFunction = (t) -> transform.accept((SimpleLineTransformer) this.transformer);
 
         this.lineWidth = lineWidth;
-        this.color = color;
+        this.baseColor = color;
 
         ((SimpleLineTransformer) this.transformer).setWidth(this.lineWidth);
         this.transformer.setShapeWorldPivot(center);
@@ -79,17 +61,20 @@ public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape
             return;
 
         RenderSystem.lineWidth(this.lineWidth);
-        builder.putColor(this.color);
+        builder.putColor(this.baseColor);
 
-        for (int i = 0; i < indexBuffer.length; i += 3) {
-            Vec3 v0 = model_vertexes.get(indexBuffer[i]);
-            Vec3 v1 = model_vertexes.get(indexBuffer[i + 1]);
-            Vec3 v2 = model_vertexes.get(indexBuffer[i + 2]);
+        for (int[] face : model.faces) {
+            int n = face.length;
+            if (n < 2) continue;
 
-            addLineSegment(builder, v0, v1);
-            addLineSegment(builder, v1, v2);
-            addLineSegment(builder, v2, v0);
+            for (int i = 0; i < n; i++) {
+                Vec3 v0 = model_vertexes.get(face[i]);
+                Vec3 v1 = model_vertexes.get(face[(i + 1) % n]);
+
+                addLineSegment(builder, v0, v1);
+            }
         }
+
     }
 }
 

@@ -27,13 +27,4 @@ public class Helpers {
                 Math.min(a.z, b.z)
         );
     }
-
-
-    public static double maxComponent(Vec3 v) {
-        return Math.max(Math.max(v.x, v.y), v.z);
-    }
-
-    public static double minComponent(Vec3 v) {
-        return Math.min(Math.min(v.x, v.y), v.z);
-    }
 }

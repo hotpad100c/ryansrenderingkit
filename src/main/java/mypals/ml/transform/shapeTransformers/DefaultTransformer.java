@@ -12,9 +12,9 @@ public class DefaultTransformer {
     private float delta = 0;
     public final Shape shape;
 
-    public final TransformLayer local  = new TransformLayer();  // 模型本地
-    public final TransformLayer world  = new TransformLayer();  // 世界空间
-    public final TransformLayer matrix = new TransformLayer();  // 实时动画
+    public final TransformLayer local  = new TransformLayer();
+    public final TransformLayer world  = new TransformLayer();
+    public final TransformLayer matrix = new TransformLayer();
 
     public DefaultTransformer(Shape s,Vec3 center) {
         this.shape = s;
@@ -49,7 +49,7 @@ public class DefaultTransformer {
         applyLayer(stack, matrix,false, lerp);
     }
     public void applyModelTransformations(PoseStack stack,boolean lerp) {
-        applyLayer(stack,local,true,lerp);
+        applyLayer(stack,local,false,lerp);
         applyLayer(stack,world,false,lerp);
     }
 

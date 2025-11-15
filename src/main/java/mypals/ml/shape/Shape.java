@@ -1,9 +1,13 @@
 package mypals.ml.shape;
 
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
+import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shapeManagers.ShapeManagers;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -12,7 +16,9 @@ import org.joml.Vector3f;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class Shape {
@@ -32,7 +38,7 @@ public abstract class Shape {
 
     public List<Vec3> model_vertexes = new ArrayList<>();//This is the original model of our model.
     public int[] indexBuffer = new int[0];
-
+    public Map<String, Object> customData = new HashMap<>();
 
     protected Shape(RenderingType type, Consumer<DefaultTransformer> transform,Color color, Vec3 center, boolean seeThrough) {
         this(type,color,seeThrough);
@@ -129,6 +135,18 @@ public abstract class Shape {
         //We'll apply all transformations to the matrix stack before drawing(With lerp!).
     }
 
+    public RayModelIntersection.HitResult isPlayerLookingAt(){
+        Minecraft minecraft = Minecraft.getInstance();
+        Player p = minecraft.player;
+        Camera camera = minecraft.gameRenderer.getMainCamera();
+        RayModelIntersection.Ray r = new RayModelIntersection.Ray(camera.getPosition(), p.getForward());
+
+        return RayModelIntersection.rayIntersectsModel(
+                r,
+                this.getRealModel(),
+                this.indexBuffer
+        );
+    }
     public void draw(VertexBuilder builder, PoseStack matrixStack, float deltaTime) {
         if(!visible) return;
         matrixStack.pushPose();
@@ -145,10 +163,30 @@ public abstract class Shape {
         }
     }
 
-
+    public void setBaseColor(Color color){
+            this.baseColor = color;
+    }
     public void setId(ResourceLocation id) { this.id = id; }
     public void discard() {
         children.forEach(Shape::discard);
         ShapeManagers.removeShape(this.id); }
     public void syncLastToTarget() { transformer.syncLastToTarget(); }
+
+    private Map<String, Object> data() {
+        if (customData == null) customData = new HashMap<>(1);
+        return customData;
+    }
+
+    public <T> void putCustomData(String key, T value) {
+        data().put(key , value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getCustomData(String key, T def) {
+        return (T) customData.getOrDefault(key, null);
+    }
+    @SuppressWarnings("unchecked")
+    public void removeCustomData(String key) {
+        customData.remove(key);
+    }
 }

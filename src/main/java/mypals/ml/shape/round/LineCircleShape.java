@@ -69,7 +69,7 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
         indexBuffer = new int[segments * 2];
         for (int i = 0; i < segments; i++) {
             indexBuffer[i * 2] = i;
-            indexBuffer[i * 2 + 1] = (i + 1) % segments; // 循环闭合
+            indexBuffer[i * 2 + 1] = (i + 1) % segments;
         }
     }
 
@@ -160,7 +160,7 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
 
         Vec3 first = model_vertexes.getFirst();
         builder.putColor(new Color(0, 0, 0, 0));
-        builder.putVertex((float) first.x, (float) first.y, (float) first.z, 0f, 0f, 0f);
+        builder.putVertex(first, Vec3.ZERO);
         builder.putColor(baseColor);
         for (int i = 0; i < n; i++) {
 
@@ -182,16 +182,15 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
             }
 
             Vec3 pos = model_vertexes.get(i);
-            builder.putVertex((float) pos.x, (float) pos.y, (float) pos.z,
-                    (float) normal.x, (float) normal.y, (float) normal.z);
+            builder.putVertex(pos,normal);
         }
         Vec3 finish = model_vertexes.getFirst();
 
-        builder.putVertex((float) finish.x, (float) finish.y, (float) finish.z, 0f, 0f, 0f);
+        builder.putVertex(finish,Vec3.ZERO);
 
         Vec3 last = model_vertexes.get(n - 1);
         builder.putColor(new Color(0, 0, 0, 0));
-        builder.putVertex((float) last.x, (float) last.y, (float) last.z, 0f, 0f, 0f);
+        builder.putVertex(last,Vec3.ZERO);
     }
 }
 

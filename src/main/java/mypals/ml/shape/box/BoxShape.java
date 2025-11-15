@@ -45,9 +45,6 @@ public class BoxShape extends Shape implements BoxLikeShape {
     protected void generateRawGeometry(boolean lerp) {
 
     }
-
-    // ====================== BoxLikeShape 接口实现 ======================
-
     @Override
     public Vec3 getMin() {
         BoxTransformer bt = (BoxTransformer) transformer;
