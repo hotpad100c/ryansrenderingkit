@@ -162,7 +162,6 @@ public abstract class Shape {
             builder.putVertex(model_vertexes.get(i));
         }
     }
-
     public void setBaseColor(Color color){
             this.baseColor = color;
     }

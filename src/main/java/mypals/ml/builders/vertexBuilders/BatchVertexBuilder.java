@@ -2,7 +2,10 @@ package mypals.ml.builders.vertexBuilders;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import mypals.ml.interfaces.MeshDataExt;
 import mypals.ml.render.RenderMethod;
 import mypals.ml.shape.Shape;
 import org.joml.Matrix4f;
@@ -32,18 +35,24 @@ public class BatchVertexBuilder extends VertexBuilder {
     public void draw(Shape shape, Consumer<VertexBuilder> builder, RenderMethod renderMethod) {
         beginBatch(renderMethod);
         push(builder);
-        drawBatch();
+        drawBatch(renderMethod);
     }
 
-    public void drawBatch() {
+    public void drawBatch(RenderMethod renderMethod) {
         if (!isBuilding) {
             return;
         }
         //flushTransparent();
         MeshData builtBuffer = this.getBufferBuilder().build();
         if(builtBuffer!=null){
+            ByteBufferBuilder builder = null;
+            if(renderMethod.mode() == VertexFormat.Mode.TRIANGLES){
+                builder = ((MeshDataExt)builtBuffer).ryansrenderingkit$sortTriangles(RenderSystem.getProjectionType().vertexSorting());
+            }
             setUpRendererSystem(null);
             BufferUploader.drawWithShader(builtBuffer);
+            if(builder != null) builder.close();
+            builtBuffer.close();
             restoreRendererSystem();
         }
 

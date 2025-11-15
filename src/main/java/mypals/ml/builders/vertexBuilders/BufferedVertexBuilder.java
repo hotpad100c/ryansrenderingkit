@@ -2,8 +2,11 @@ package mypals.ml.builders.vertexBuilders;
 
 import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import mypals.ml.interfaces.MeshDataExt;
 import mypals.ml.render.RenderMethod;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -25,7 +28,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
         start(renderMethod);
         push(builder);
         //flushTransparent();
-        end();
+        end(renderMethod);
     }
 
     public void start(RenderMethod renderMethod) {
@@ -44,7 +47,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
         }
     }
 
-    public void end() {
+    public void end(RenderMethod renderMethod) {
         if (!isBuilding) {
             return;
         }
@@ -56,8 +59,16 @@ public class BufferedVertexBuilder extends VertexBuilder {
             isBuilding = false;
             return;
         }
-
+        ByteBufferBuilder builder = null;
+        if(renderMethod.mode() == VertexFormat.Mode.TRIANGLES){
+            builder = ((MeshDataExt)builtBuffer).ryansrenderingkit$sortTriangles(RenderSystem.getProjectionType().vertexSorting());
+        }
+        if(renderMethod.mode() == VertexFormat.Mode.TRIANGLES){
+            builder = ((MeshDataExt)builtBuffer).ryansrenderingkit$sortTriangles(RenderSystem.getProjectionType().vertexSorting());
+        }
         this.vertexBuffer.upload(builtBuffer);
+        if(builder != null) builder.close();
+        builtBuffer.close();
         VertexBuffer.unbind();
         isBuilding = false;
     }

@@ -16,7 +16,7 @@ public class InformationRender {
             matrixStack.pushPose();
             matrixStack.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z);
 
-            RenderSystem.depthMask(false);
+            //RenderSystem.depthMask(false);
             RenderSystem.enableBlend();
 
             Matrix4f pose = matrixStack.last().pose();
@@ -26,7 +26,7 @@ public class InformationRender {
 
             ShapeManagers.renderAll(matrixStack, tickDelta);
 
-            RenderSystem.depthMask(true);
+            //RenderSystem.depthMask(true);
             RenderSystem.disableBlend();
 
             matrixStack.popPose();
