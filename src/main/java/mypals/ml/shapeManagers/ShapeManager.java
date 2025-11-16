@@ -115,7 +115,7 @@ public class ShapeManager {
 
                 for (Shape shape : sortedShapes) {
                     builderManager.drawImmediate(shape, builder -> {
-                        shape.draw(builder, matrixStack,tickDelta);
+                        shape.draw(true, builder, matrixStack,tickDelta);
                     });
                 }
             }
@@ -125,7 +125,7 @@ public class ShapeManager {
 
                 for (Shape shape : sortedShapes) {
                     builderManager.drawImmediate(shape, builder -> {
-                        shape.draw(builder, matrixStack,tickDelta);
+                        shape.draw(true, builder, matrixStack,tickDelta);
                     });
                 }
             }
@@ -137,7 +137,7 @@ public class ShapeManager {
                     sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
                     for (Shape shape : sortedShapes) {
-                        shape.draw(builder, matrixStack,tickDelta);
+                        shape.draw(true,builder, matrixStack,tickDelta);
                     }
                 }, false);
             }
@@ -147,7 +147,7 @@ public class ShapeManager {
                     sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
                     for (Shape shape : sortedShapes) {
-                        shape.draw(builder, matrixStack,tickDelta);
+                        shape.draw(true,builder, matrixStack,tickDelta);
                     }
                 }, true);
             }

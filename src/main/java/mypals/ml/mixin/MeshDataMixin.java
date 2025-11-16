@@ -57,14 +57,11 @@ public abstract class MeshDataMixin implements MeshDataExt {
 
 
     @Unique
-    public ByteBufferBuilder ryansrenderingkit$sortTriangles(VertexSorting vertexSorting) {
-        int vertexCount = this.drawState.vertexCount();
-        int bufferSize = vertexCount * Integer.BYTES;
-        ByteBufferBuilder byteBufferBuilder = new ByteBufferBuilder(bufferSize);
+    public void ryansrenderingkit$sortTriangles(ByteBufferBuilder byteBufferBuilder,VertexSorting vertexSorting) {
+
         Vector3f[] compactVectorArray = unpackTriangleCentroids(this.vertexBuffer.byteBuffer(), this.drawState.vertexCount(), this.drawState.format());
         MeshData.SortState sortState = new MeshData.SortState(compactVectorArray, this.drawState.indexType());
         this.indexBuffer = ((MeshDataSortableExt)(Object)sortState).ryansrenderingkit$buildSortedIndexBufferTriangles(byteBufferBuilder, vertexSorting);
-        return byteBufferBuilder;
     }
     @Mixin(MeshData.SortState.class)
     public static abstract class SortStateMixin implements MeshDataSortableExt{

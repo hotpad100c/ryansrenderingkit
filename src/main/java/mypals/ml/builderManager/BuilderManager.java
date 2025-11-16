@@ -74,7 +74,7 @@ public class BuilderManager {
             sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
             for(Shape shape: sortedShapes){
-                shape.draw(builder,new PoseStack(),1);
+                shape.draw(false, builder,new PoseStack(),1);
             }
         });
         else normalBuilderGroup.bufferedVertexBuilder.rebuild(renderMethod, builder->{
@@ -83,7 +83,7 @@ public class BuilderManager {
             sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
             for(Shape shape: sortedShapes){
-                shape.draw(builder,new PoseStack(),1);
+                shape.draw(false, builder,new PoseStack(),1);
             }
         });
     }

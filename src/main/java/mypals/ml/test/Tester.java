@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -203,21 +204,44 @@ public class Tester {
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_obj_model"),
                     ShapeGenerator.generateObjModel()
-                            .pos(new Vec3(xPos(), 0,0))
+                            .pos(new Vec3(xPos(), 0, 0))
                             .model(ResourceLocation.fromNamespaceAndPath(MOD_ID, "models/monkey.obj"))
                             .color(randomColor())
                             .seeThrough(false)
-                             .transform((t) -> {
+                            .transform((transformer) -> {
                                 float time = client.getGameTime();
+                                transformer.setShapeWorldRotationDegrees(0, time * 5, 0);
+                                Shape shape = transformer.shape;
+                                if (shape.isPlayerLookingAt().hit/* 如果玩家正在看着这个 shape*/) {
+                                    if (Minecraft.getInstance().mouseHandler.isLeftPressed()) {
+                                        Player player = Minecraft.getInstance().player;
+                                        // 第一次抓取时，记录形状与玩家视线的距离
+                                        if (!shape.getCustomData("isHolding", false)) {
+                                            shape.putCustomData("isHolding", true);
+                                            double distance = transformer
+                                                    .getShapeWorldPivot(true)
+                                                    .distanceTo(player.getEyePosition());
+                                            shape.putCustomData("distance", distance);
+                                        }
+                                        // 将模型移动到玩家正前方
+                                        transformer.setShapeWorldPivot(
+                                                player.getEyePosition(transformer.getTickDelta())
+                                                        .add(player.getLookAngle().scale(shape.getCustomData("distance", 5.0)))
+                                                        .add(0, -1, 0)
+                                        );
+                                        transformer.world.position.syncLastToTarget();
+                                    } else {
+                                        // 松开鼠标 → 结束抓取
+                                        if (shape.getCustomData("isHolding", false))
+                                            shape.putCustomData("isHolding", false);
+                                    }
 
-                                 t.setShapeWorldRotationDegrees(0, time * 5, 0);
-
-                                 if(t.shape.isPlayerLookingAt().hit){
-                                     t.shape.baseColor = new Color(255,0,72,100);
-                                 }else{
-                                     t.shape.baseColor = new Color(0, 255, 72,100);
-                                 }
-
+                                    shape.baseColor = new Color(255, 0, 72, 100);
+                                } else {
+                                    if (shape.getCustomData("isHolding", false))
+                                        shape.putCustomData("isHolding", false);
+                                    shape.baseColor = new Color(0, 255, 72, 100);
+                                }
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -348,6 +372,7 @@ public class Tester {
             );
 
             // 9. StripLine（螺旋线）
+            float cx = xPos();
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_strip_line"),
                     ShapeGenerator.generateStripLine()
@@ -358,7 +383,7 @@ public class Tester {
                              .transform((t) -> {
                                 float time = client.getGameTime();
                                 // 动态更新顶点（旋转螺旋）
-                                ((StripLineShape)t.getShape()).setVertexes(generateSpiral(xPos(), 100, 2.0f, 5.0f, time * 0.05f));
+                                ((StripLineShape)t.getShape()).setVertexes(generateSpiral(cx, 100, 2.0f, 5.0f, time * 0.05f));
                             })
                             .build(Shape.RenderingType.BATCH)
             );
@@ -402,7 +427,7 @@ public class Tester {
                     ShapeGenerator.generateWireframedBox()
                             .aabb(new Vec3(xPos() - 2, 0, -2),
                                     new Vec3(xPos() + 2, 4, 2))
-                            .color(randomColor())           // 面颜色
+                            .color(randomColor())
                             .edgeColor(new Color(255, 255, 255, 200))
                             .edgeWidth(2.0f)
                             .seeThrough(false)

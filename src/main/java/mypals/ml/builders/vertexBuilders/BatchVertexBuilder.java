@@ -39,19 +39,25 @@ public class BatchVertexBuilder extends VertexBuilder {
     }
 
     public void drawBatch(RenderMethod renderMethod) {
-        if (!isBuilding) {
+        if (!isBuilding || this.getBufferBuilder().vertices == 0) {
             return;
         }
         //flushTransparent();
+
         MeshData builtBuffer = this.getBufferBuilder().build();
         if(builtBuffer!=null){
-            ByteBufferBuilder builder = null;
+            ByteBufferBuilder byteBufferBuilder = null;
             if(renderMethod.mode() == VertexFormat.Mode.TRIANGLES){
-                builder = ((MeshDataExt)builtBuffer).ryansrenderingkit$sortTriangles(RenderSystem.getProjectionType().vertexSorting());
+                int vertexCount = builtBuffer.drawState().vertexCount();
+                int bufferSize = vertexCount * Integer.BYTES;
+                byteBufferBuilder = new ByteBufferBuilder(bufferSize);
+                ((MeshDataExt)builtBuffer).ryansrenderingkit$sortTriangles(byteBufferBuilder, RenderSystem.getProjectionType().vertexSorting());
             }
             setUpRendererSystem(null);
             BufferUploader.drawWithShader(builtBuffer);
-            if(builder != null) builder.close();
+            if(byteBufferBuilder != null){
+                byteBufferBuilder.close();
+            }
             builtBuffer.close();
             restoreRendererSystem();
         }

@@ -56,7 +56,7 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
         model_vertexes.clear();
         if (vertexes.size() < 2) return;
         Vec3 localCenter = calculateShapeCenterPos();
-        transformer.setShapeLocalPivot(localCenter);
+        transformer.setShapeWorldPivot(localCenter);
         for (Vec3 v : vertexes) {
             model_vertexes.add(v.subtract(localCenter));
         }

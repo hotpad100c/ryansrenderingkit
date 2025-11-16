@@ -18,23 +18,32 @@ public class ImmediateVertexBuilder extends VertexBuilder {
         super(modelViewMatrix, seeThrough);
     }
 
-    public void draw(Shape shape, Consumer<VertexBuilder> builder, RenderMethod renderMethod) {
+    public void draw(Shape shape, Consumer<VertexBuilder> vertexBuilderConsumer, RenderMethod renderMethod) {
         begin(renderMethod);
         RenderSystem.setShader(renderMethod.shader());
-        builder.accept(this);
+        vertexBuilderConsumer.accept(this);
 
-        MeshData builtBuffer = this.getBufferBuilder().build();
+        if(this.getBufferBuilder().vertices == 0){
+            return;
+        }
+        MeshData meshData = this.getBufferBuilder().build();
 
-        if(builtBuffer!=null){
-            ByteBufferBuilder builder1 = null;
+        if(meshData!=null){
+            ByteBufferBuilder byteBufferBuilder = null;
 
             if(shape.baseColor.getAlpha() < 255 && renderMethod.mode() == VertexFormat.Mode.TRIANGLES){
-                builder1 = ((MeshDataExt)builtBuffer).ryansrenderingkit$sortTriangles(RenderSystem.getProjectionType().vertexSorting());
+                int vertexCount = meshData.drawState().vertexCount();
+                int bufferSize = vertexCount * Integer.BYTES;
+                byteBufferBuilder = new ByteBufferBuilder(bufferSize);
+
+                ((MeshDataExt)meshData).ryansrenderingkit$sortTriangles(byteBufferBuilder,RenderSystem.getProjectionType().vertexSorting());
             }
             setUpRendererSystem(shape);
-            BufferUploader.drawWithShader(builtBuffer);
-            if(builder1 != null)builder1.close();
-            builtBuffer.close();
+            BufferUploader.drawWithShader(meshData);
+            if(byteBufferBuilder != null){
+                byteBufferBuilder.close();
+            }
+            meshData.close();
             restoreRendererSystem();
         }
     }

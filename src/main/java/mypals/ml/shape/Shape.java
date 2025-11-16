@@ -1,11 +1,14 @@
 package mypals.ml.shape;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shapeManagers.ShapeManagers;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -13,6 +16,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -20,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import static mypals.ml.Helpers.*;
 
 public abstract class Shape {
     public enum RenderingType { IMMEDIATE, BATCH, BUFFERED }
@@ -82,7 +88,7 @@ public abstract class Shape {
     protected abstract void generateRawGeometry(boolean lerp);
 
 
-    public List<Vec3> getRealModel() {
+    public List<Vec3> getModel(boolean applyMatrixTransformer) {
         if (this.transformer.asyncModelInfo()) {
             model_vertexes.clear();
             generateRawGeometry(false);
@@ -99,7 +105,11 @@ public abstract class Shape {
         }
         for (int i = hierarchy.size() - 1; i >= 0; i--) {
             Shape n = hierarchy.get(i);
-            n.transformer.applyModelTransformations(poseStack, true);
+            if(applyMatrixTransformer){
+                n.transformer.applyTransformations(poseStack, true);
+            }else{
+                n.transformer.applyModelTransformations(poseStack, true);
+            }
         }
 
         Matrix4f matrix = poseStack.last().pose();
@@ -143,19 +153,59 @@ public abstract class Shape {
 
         return RayModelIntersection.rayIntersectsModel(
                 r,
-                this.getRealModel(),
+                this.getModel(false),
                 this.indexBuffer
         );
     }
-    public void draw(VertexBuilder builder, PoseStack matrixStack, float deltaTime) {
+    public void draw(boolean frustumCull, VertexBuilder builder, PoseStack matrixStack, float deltaTime) {
         if(!visible) return;
         matrixStack.pushPose();
         beforeDraw(matrixStack, deltaTime);
         builder.setPositionMatrix(matrixStack.last().pose());
-        drawInternal(builder);
+        if(!frustumCull || shouldDraw()){
+            drawInternal(builder);
+        }
         matrixStack.popPose();
     }
+    public boolean shouldDraw() {
+        List<Vec3> vertices = this.getModel(true);
+        if (vertices.isEmpty()) return false;
 
+        Minecraft client = Minecraft.getInstance();
+        Camera camera = client.gameRenderer.getMainCamera();
+        GameRenderer gameRenderer = client.gameRenderer;
+
+        Vec3 center = this.transformer.getWorldPivot().add(this.transformer.getLocalPivot());
+
+        Matrix4f viewMatrix = createViewMatrix(camera);
+
+        float fov = client.options.fov().get().floatValue();
+        Matrix4f projectionMatrix = gameRenderer.getProjectionMatrix(fov);
+
+        Matrix4f mvp = new Matrix4f(projectionMatrix);
+        mvp.mul(viewMatrix);
+
+        if (isVertexInFrustum(center, mvp)) return true;
+        for (Vec3 v : vertices) {
+            if (isVertexInFrustum(v, mvp)) return true;
+        }
+        return false;
+    }
+
+    public static boolean isVertexInFrustum(Vec3 v, Matrix4f mvp) {
+        Vector4f clip = new Vector4f((float)v.x, (float)v.y, (float)v.z, 1f);
+        clip.mul(mvp);
+
+        if (clip.w <= 0) return false; // 在 near plane 之前
+
+        float ndcX = clip.x / clip.w;
+        float ndcY = clip.y / clip.w;
+        float ndcZ = clip.z / clip.w;
+
+        return ndcX >= -1 && ndcX <= 1
+                && ndcY >= -1 && ndcY <= 1
+                && ndcZ >= -1 && ndcZ <= 1; // 关键修复：Z 是 [-1,1]
+    }
     protected void drawInternal(VertexBuilder builder) {
         builder.putColor(baseColor);
         for (int i : indexBuffer) {
@@ -182,7 +232,7 @@ public abstract class Shape {
 
     @SuppressWarnings("unchecked")
     public <T> T getCustomData(String key, T def) {
-        return (T) customData.getOrDefault(key, null);
+        return (T) customData.getOrDefault(key, def);
     }
     @SuppressWarnings("unchecked")
     public void removeCustomData(String key) {
