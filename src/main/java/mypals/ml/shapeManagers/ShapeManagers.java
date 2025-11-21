@@ -61,8 +61,8 @@ public class ShapeManagers {
         managers.forEach(
                 (shapeManager) -> shapeManager.removeShapes(root)
         );
-        managers.forEach(
-                (shapeManager) -> shapeManager.removeShape(root)
+        emptyManagers.forEach(
+                (shapeManager) -> shapeManager.removeShapes(root)
         );
     }
 

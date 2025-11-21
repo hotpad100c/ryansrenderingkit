@@ -1,6 +1,6 @@
 plugins {
 	id 'fabric-loom' version "${loom_version}"
-	id 'maven-publish'
+	id "com.vanniktech.maven.publish" version "0.35.0"
 }
 
 version = project.mod_version
@@ -69,11 +69,41 @@ jar {
 	}
 }
 
+mavenPublishing {
+	coordinates(project.maven_group, project.archives_base_name, project.mod_version)
+	pom {
+		name = "Ryan's RenderingKit"
+		description = "A powerful rendering utility library for Fabric"
+		url = "https://github.com/hotpad100c/ryansrenderingkit"
+		licenses {
+			license {
+				name = "MIT"
+				url = "https://opensource.org/licenses/MIT"
+			}
+		}
+		developers {
+			developer {
+				id = "hotpad100c"
+				name = "Ryan"
+			}
+		}
+		scm {
+			connection = "scm:git:github.com:hotpad100c/ryansrenderingkit.git"
+			developerConnection = "scm:git:github.com:hotpad100c/ryansrenderingkit.git"
+			url = "https://github.com/hotpad100c/ryansrenderingkit"
+		}
+	}
+}
+signing {
+	useGpgCmd()
+	sign(publishing.publications)
+}
 // configure the maven publication
-publishing {
+/*publishing {
 	publications {
 		create("mavenJava", MavenPublication) {
 			artifactId = project.archives_base_name
+			version = project.mod_version
 			from components.java
 		}
 	}
@@ -88,7 +118,7 @@ publishing {
 			url = layout.buildDirectory.dir("repo")
 		}
 	}
-}
+}*/
 loom {
 	accessWidenerPath = file("src/main/resources/ryansRenderingKit.accesswidener")
 }

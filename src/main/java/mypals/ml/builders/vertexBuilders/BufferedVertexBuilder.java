@@ -49,6 +49,8 @@ public class BufferedVertexBuilder extends VertexBuilder {
 
     public void end(RenderMethod renderMethod) {
         if (!isBuilding || this.getBufferBuilder().vertices == 0) {
+            isBuilding = false;
+            close();
             return;
         }
 
@@ -90,19 +92,19 @@ public class BufferedVertexBuilder extends VertexBuilder {
 
         this.vertexBuffer.bind();
         RenderSystem.getModelViewStack().pushMatrix();
+
         RenderSystem.getModelViewStack().translate(
                 (float) -cameraPos.x,
                 (float) -cameraPos.y,
                 (float) -cameraPos.z
         );
-
         setUpRendererSystem(null);
         RenderSystem.setShader(bufferedRenderMethod.shader());
 
         this.vertexBuffer.drawWithShader(RenderSystem.getModelViewStack(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
         VertexBuffer.unbind();
-
         restoreRendererSystem();
+
         RenderSystem.getModelViewStack().popMatrix();
     }
 }

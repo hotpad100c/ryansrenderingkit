@@ -56,12 +56,18 @@ public class ShapeManager {
     public void removeShape(ResourceLocation identifier){
         immediateShapeGroup.removeShape(identifier);
         batchShapeGroup.removeShape(identifier);
-        bufferedShapeGroup.removeShape(identifier);
+        if(bufferedShapeGroup.removeShape(identifier)){
+            builderManager.rebuildVBO(bufferedShapeGroup.seeThroughShapeMap.values(),true);
+            builderManager.rebuildVBO(bufferedShapeGroup.normalShapeMap.values(),false);
+        };
     }
     public void removeShapes(ResourceLocation root){
-        immediateShapeGroup.removeShape(root);
-        batchShapeGroup.removeShape(root);
-        bufferedShapeGroup.removeShape(root);
+        immediateShapeGroup.removeShapes(root);
+        batchShapeGroup.removeShapes(root);
+        if(bufferedShapeGroup.removeShapes(root)){
+            builderManager.rebuildVBO(bufferedShapeGroup.seeThroughShapeMap.values(),true);
+            builderManager.rebuildVBO(bufferedShapeGroup.normalShapeMap.values(),false);
+        };
     }
     public void draw(PoseStack matrixStack,float tickDelta){
         batchShapeGroup.drawBatched(this.builderManager,matrixStack,tickDelta);
@@ -84,14 +90,26 @@ public class ShapeManager {
                 normalShapeMap.put(id,shape);
             }
         }
-        public void removeShape(@NotNull ResourceLocation identifier){
-            seeThroughShapeMap.remove(identifier);
-            normalShapeMap.remove(identifier);
+        public boolean removeShape(@NotNull ResourceLocation identifier) {
+            boolean removed1 = seeThroughShapeMap.remove(identifier) != null;
+            boolean removed2 = normalShapeMap.remove(identifier) != null;
+            return removed1 || removed2;
         }
-        public void removeShapes(@NotNull ResourceLocation identifier) {
-            seeThroughShapeMap.entrySet().removeIf(entry -> entry.getKey().getPath().startsWith(identifier.getPath()));
-            normalShapeMap.entrySet().removeIf(entry -> entry.getKey().getPath().startsWith(identifier.getPath()));
+        public boolean removeShapes(@NotNull ResourceLocation identifier) {
+            String namespace = identifier.getNamespace();
+            String path = identifier.getPath();
+
+            boolean removed1 = seeThroughShapeMap.entrySet()
+                    .removeIf(entry -> entry.getKey().getNamespace().equals(namespace)
+                            && entry.getKey().getPath().startsWith(path));
+
+            boolean removed2 = normalShapeMap.entrySet()
+                    .removeIf(entry -> entry.getKey().getNamespace().equals(namespace)
+                            && entry.getKey().getPath().startsWith(path));
+
+            return removed1 || removed2;
         }
+
         public void clear(){
             normalShapeMap.clear();
             seeThroughShapeMap.clear();

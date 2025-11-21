@@ -14,26 +14,23 @@ public class InformationRender {
         if(Minecraft.getInstance().player == null || !camera.isInitialized()) return;
         try {
             matrixStack.pushPose();
+
             matrixStack.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z);
-
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-
             Matrix4f pose = matrixStack.last().pose();
             BuilderManagers.updateMatrix(pose);
 
             Tester.renderTick(matrixStack);
-
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
             ShapeManagers.renderAll(matrixStack, tickDelta);
-
             RenderSystem.disableBlend();
 
             matrixStack.popPose();
 
+
         }catch (Exception e){
             System.out.println("Error during InformationRender.render:");
             System.err.println(e.getMessage());
-            throw e;
         }
     }
 

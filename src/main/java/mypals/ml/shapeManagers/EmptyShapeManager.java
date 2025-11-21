@@ -41,7 +41,7 @@ public class EmptyShapeManager {
         shapeGroup.removeShape(identifier);
     }
     public void removeShapes(ResourceLocation root){
-        shapeGroup.removeShape(root);
+        shapeGroup.removeShapes(root);
     }
     public void draw(PoseStack matrixStack,float tickDelta){
         shapeGroup.drawAll(builderManager,matrixStack,tickDelta);
