@@ -16,7 +16,7 @@ public class CylinderBuilder extends BaseBuilder<CylinderBuilder, CylinderShape.
     public CylinderBuilder height(float height) { this.height = height; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public CylinderShape build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new CylinderShape(type, t, circleAxis, center, segments, radius, height, color, seeThrough);

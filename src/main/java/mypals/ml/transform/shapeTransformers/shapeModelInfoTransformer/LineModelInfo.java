@@ -59,9 +59,9 @@ public class LineModelInfo extends ModelInfoLayer {
 
         @Override
         public void syncLastToTarget() {
+            super.syncLastToTarget();
             this.startPointTransformer.syncLastToTarget();
             this.endPointTransformer.syncLastToTarget();
-            super.syncLastToTarget();
         }
     }
 }

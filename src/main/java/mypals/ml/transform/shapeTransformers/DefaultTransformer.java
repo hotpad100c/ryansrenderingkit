@@ -44,30 +44,23 @@ public class DefaultTransformer {
     }
 
     public void applyTransformations(PoseStack stack,boolean lerp) {
-        applyLayer(stack,local,false, lerp);
-        applyLayer(stack,world,false,lerp);
-        applyLayer(stack, matrix,false, lerp);
+        applyLayer(stack,world,lerp);
+        applyLayer(stack,local, lerp);
+        applyLayer(stack, matrix, lerp);
     }
     public void applyModelTransformations(PoseStack stack,boolean lerp) {
-        applyLayer(stack,local,false,lerp);
-        applyLayer(stack,world,false,lerp);
+        applyLayer(stack,world,lerp);
+        applyLayer(stack,local,lerp);
     }
 
-    private void applyLayer(PoseStack stack, TransformLayer layer,boolean isLocal, boolean lerp) {
+    private void applyLayer(PoseStack stack, TransformLayer layer, boolean lerp) {
         Vec3 p = layer.position.getValue(lerp);
         Quaternionf r = layer.rotation.getValue(lerp);
         Vec3 s = layer.scale.getValue(lerp);
 
-        if(isLocal){
-            stack.translate(p.x, p.y, p.z);
-            stack.mulPose(r);
-            stack.scale((float) s.x, (float) s.y, (float) s.z);
-            stack.translate(-p.x, -p.y, -p.z);
-        }else{
-            stack.translate(p.x, p.y, p.z);
-            stack.mulPose(r);
-            stack.scale((float) s.x, (float) s.y, (float) s.z);
-        }
+        stack.translate(p.x, p.y, p.z);
+        stack.mulPose(r);
+        stack.scale((float) s.x, (float) s.y, (float) s.z);
     }
 
 
@@ -75,7 +68,6 @@ public class DefaultTransformer {
     public TransformLayer world()  { return world; }
     public TransformLayer matrix() { return matrix; }
 
-    // ====================== WORLD GETTERS ======================
     public Vec3 getShapeWorldPivot(boolean lerp) {
         return world.getPosition(lerp);
     }
@@ -88,7 +80,6 @@ public class DefaultTransformer {
         return world.getScale(lerp);
     }
 
-    // ====================== LOCAL GETTERS ======================
     public Vec3 getShapeLocalPivot(boolean lerp) {
         return local.getPosition(lerp);
     }
@@ -101,7 +92,6 @@ public class DefaultTransformer {
         return local.getScale(lerp);
     }
 
-    // ====================== MATRIX (Render) GETTERS ======================
     public Vec3 getShapeMatrixPivot(boolean lerp) {
         return matrix.getPosition(lerp);
     }
@@ -127,7 +117,6 @@ public class DefaultTransformer {
     public Vec3 getMatrixScale() { return getShapeMatrixScale(true); }
 
 
-    // World
     public void setShapeWorldPivot(Vec3 v)               { world.setPosition(v); }
     public void setShapeWorldRotation(Quaternionf q)     { world.setRotation(q); }
     public void setShapeWorldRotationDegrees(float x, float y, float z) {
@@ -139,7 +128,6 @@ public class DefaultTransformer {
     }
     public void setShapeWorldScale(Vec3 s)               { world.setScale(s); }
 
-    // Local
     public void setShapeLocalPivot(Vec3 v)               { local.setPosition(v); }
     public void setShapeLocalRotation(Quaternionf q)     { local.setRotation(q); }
     public void setShapeLocalRotationDegrees(float x, float y, float z) {
@@ -151,7 +139,6 @@ public class DefaultTransformer {
     }
     public void setShapeLocalScale(Vec3 s)               { local.setScale(s); }
 
-    // Matrix (Render layer)
     public void setShapeMatrixPivot(Vec3 v)              { matrix.setPosition(v); }
     public void setShapeMatrixRotation(Quaternionf q)    { matrix.setRotation(q); }
     public void setShapeMatrixRotationDegrees(float x, float y, float z) {

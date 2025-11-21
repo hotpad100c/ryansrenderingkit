@@ -16,7 +16,7 @@ public class ObjModelBuilder extends BaseBuilder<ObjModelBuilder, DefaultTransfo
     }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public ObjModelShape build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new ObjModelShape(type, t, resourceLocation, center, color, seeThrough);

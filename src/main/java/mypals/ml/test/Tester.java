@@ -1,32 +1,42 @@
 package mypals.ml.test;
 
+import com.mojang.brigadier.CommandDispatcher;
 import mypals.ml.builders.shapeBuilders.ShapeGenerator;
 import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shape.basics.BoxLikeShape;
 import mypals.ml.shape.basics.CircleLikeShape;
+import mypals.ml.shape.basics.core.TwoPointsLineShape;
 import mypals.ml.shape.box.BoxFaceShape;
 import mypals.ml.shape.box.BoxShape;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.line.LineShape;
 import mypals.ml.shape.line.StripLineShape;
 import mypals.ml.shape.round.SphereShape;
+import mypals.ml.shape.text.TextShape;
+import mypals.ml.shapeManagers.ShapeManager;
 import mypals.ml.shapeManagers.ShapeManagers;
+import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static mypals.ml.RyansRenderingKit.MOD_ID;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -36,6 +46,7 @@ public class Tester {
     public static Random random = new Random();
     public static float spacing = 8.0f;
     public static int index = 0;
+    public static boolean ENABLE_DEBUG = false;
 
     static Color randomColor() {
         return new Color(
@@ -49,19 +60,56 @@ public class Tester {
     static float xPos() {
         return (index++ * spacing);
     }
+    public static void registerDebugCommands(CommandDispatcher<FabricClientCommandSource> dispatcher) {
 
-    public static void init(){
-        ClientCommandRegistrationCallback.EVENT.register((commandDispatcher, commandRegistryAccess) -> {
-            commandDispatcher.register(
-                    ClientCommandManager.literal("reload")
-                            .executes(context -> {
+        dispatcher.register(
+                ClientCommandManager.literal("ryansRenderingKit_DEBUG")
+                        .then(ClientCommandManager.literal("toggle")
+                                .executes(ctx -> {
+                                    boolean newValue = toggleDebugMode();
+                                    ctx.getSource().sendFeedback(
+                                            Component.nullToEmpty("Ryan's Rendering Kit Debug Mode: " + (newValue ?
+                                                    "§aENABLED"
+                                                    : "§cDISABLED")));
+                                    return 1;
+                                })
+                        ).then(ClientCommandManager.literal("reload")
+                            .executes(ctx -> {
                                 added = false;
+                                ctx.getSource().sendFeedback(
+                                        Component.nullToEmpty("Ryan's Rendering Kit Debug Shapes Reloaded."));
                                 return 0;
                             })
-            );
-        });
+                        )
+        );
+    }
+    private static boolean toggleDebugMode(){
+        ENABLE_DEBUG = !ENABLE_DEBUG;
+        if(!ENABLE_DEBUG){
+            List.of(
+                    "demo_face_circle",
+                    "demo_line_circle",
+                    "demo_sphere",
+                    "demo_obj_model",
+                    "demo_obj_outline",
+                    "demo_cone",
+                    "demo_cylinder",
+                    "demo_cone_wire",
+                    "demo_cylinder_wire",
+                    "demo_line",
+                    "demo_strip_line",
+                    "demo_box_face",
+                    "demo_box_wire",
+                    "demo_wireframed_box"
+            ).forEach(name -> ShapeManagers.removeShapes(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, name)
+            ));
+        }
+        return ENABLE_DEBUG;
+    }
+    public static void init(){
         ClientTickEvents.START_WORLD_TICK.register(client -> {
-            if (added) return;
+            if (added || !ENABLE_DEBUG) return;
             index = 0;
             List.of(
                     "demo_face_circle",
@@ -82,7 +130,6 @@ public class Tester {
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, name)
             ));
 
-            // 1. FaceCircle
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_face_circle"),
                     ShapeGenerator.generateFaceCircle()
@@ -99,7 +146,6 @@ public class Tester {
                             .build(Shape.RenderingType.BATCH)
             );
 
-            // 2. LineCircle
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_line_circle"),
                     ShapeGenerator.generateLineCircle()
@@ -112,15 +158,12 @@ public class Tester {
                             .seeThrough(false)
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                //t.setShapeWorldRotationDegrees(0, time * 4, 0);
-
                                  t.setShapeLocalRotationDegrees(0,time*4,0);
                                  t.setShapeWorldRotationDegrees(time*4, 0, 0);
                             })
                             .build(Shape.RenderingType.BUFFERED)
             );
 
-            // 3. Sphere
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_sphere"),
                     ShapeGenerator.generateSphere()
@@ -173,7 +216,6 @@ public class Tester {
                     .seeThrough(false)
                     .transform((t) -> {
                         float time = client.getGameTime();
-                        //t.setShapeWorldRotationDegrees(time * 2, time * 3, 0);
                         if(t.shape.isPlayerLookingAt().hit){
                             t.shape.baseColor = new Color(255, 234, 0,100);
                         }else{
@@ -185,8 +227,6 @@ public class Tester {
             s2.addChild(s3);
             s1.addChild(s2);
 
-
-            // 3...3. Sphere
             ShapeManagers.addShape(
                 ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_sphere_2"),
                 s1
@@ -200,7 +240,6 @@ public class Tester {
                     s3
             );
 
-            // 4. ObjModel
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_obj_model"),
                     ShapeGenerator.generateObjModel()
@@ -212,10 +251,9 @@ public class Tester {
                                 float time = client.getGameTime();
                                 transformer.setShapeWorldRotationDegrees(0, time * 5, 0);
                                 Shape shape = transformer.shape;
-                                if (shape.isPlayerLookingAt().hit/* 如果玩家正在看着这个 shape*/) {
+                                if (shape.isPlayerLookingAt().hit) {
                                     if (Minecraft.getInstance().mouseHandler.isLeftPressed()) {
                                         Player player = Minecraft.getInstance().player;
-                                        // 第一次抓取时，记录形状与玩家视线的距离
                                         if (!shape.getCustomData("isHolding", false)) {
                                             shape.putCustomData("isHolding", true);
                                             double distance = transformer
@@ -223,15 +261,13 @@ public class Tester {
                                                     .distanceTo(player.getEyePosition());
                                             shape.putCustomData("distance", distance);
                                         }
-                                        // 将模型移动到玩家正前方
-                                        transformer.setShapeWorldPivot(
+                                        transformer.setShapeLocalPivot(
                                                 player.getEyePosition(transformer.getTickDelta())
                                                         .add(player.getLookAngle().scale(shape.getCustomData("distance", 5.0)))
                                                         .add(0, -1, 0)
                                         );
                                         transformer.world.position.syncLastToTarget();
                                     } else {
-                                        // 松开鼠标 → 结束抓取
                                         if (shape.getCustomData("isHolding", false))
                                             shape.putCustomData("isHolding", false);
                                     }
@@ -246,7 +282,6 @@ public class Tester {
                             .build(Shape.RenderingType.BATCH)
             );
 
-            // 5. ObjModelOutline
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_obj_outline"),
                     ShapeGenerator.generateObjModelOutline()
@@ -267,7 +302,6 @@ public class Tester {
                             .build(Shape.RenderingType.BATCH)
             );
 
-            // 6. Cone
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_cone"),
                     ShapeGenerator.generateCone()
@@ -282,7 +316,7 @@ public class Tester {
                                 float time = client.getGameTime();
                                  t.setShapeWorldRotationDegrees(time, 0, 0);
 
-                                double f = (Math.sin(time * 0.1) + 1) / 2; // 0 → 1 → 0
+                                double f = (Math.sin(time * 0.1) + 1) / 2;
                                 int seg = (int)(3 + f * 20-3);
                                  if(t.shape.isPlayerLookingAt().hit){
                                      t.shape.baseColor = new Color(0, 255, 149,100);
@@ -294,7 +328,6 @@ public class Tester {
                             .build(Shape.RenderingType.BATCH)
             );
 
-            // 7. Cylinder
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_cylinder"),
                     ShapeGenerator.generateCylinder()
@@ -327,7 +360,7 @@ public class Tester {
                                 float time = client.getGameTime();
                                  t.setShapeWorldRotationDegrees(time, 0, 0);
 
-                                double f = (Math.sin(time * 0.1) + 1) / 2; // 0 → 1 → 0
+                                double f = (Math.sin(time * 0.1) + 1) / 2;
                                 int seg = (int)(3 + f * 20-3);
 
                                 t.setSegment(Math.max(3,seg));
@@ -348,13 +381,11 @@ public class Tester {
                              .transform((t) -> {
                                 float time = client.getGameTime();
                                  t.setShapeWorldRotationDegrees(time*2, time * 5, 0);
-                                 //t.setShapeLocalRotationDegrees(0,0,time * 5);
                             })
                             .build(Shape.RenderingType.BATCH)
             );
 
             float linex  = xPos();
-            // 8. Line
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_line"),
                     ShapeGenerator.generateLine()
@@ -371,7 +402,6 @@ public class Tester {
                             .build(Shape.RenderingType.BATCH)
             );
 
-            // 9. StripLine（螺旋线）
             float cx = xPos();
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_strip_line"),
@@ -382,13 +412,11 @@ public class Tester {
                             .seeThrough(false)
                              .transform((t) -> {
                                 float time = client.getGameTime();
-                                // 动态更新顶点（旋转螺旋）
                                 ((StripLineShape)t.getShape()).setVertexes(generateSpiral(cx, 100, 2.0f, 5.0f, time * 0.05f));
                             })
                             .build(Shape.RenderingType.BATCH)
             );
 
-            // 10. BoxFace
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_box_face"),
                     ShapeGenerator.generateBoxFace()
@@ -404,7 +432,6 @@ public class Tester {
                             .build(Shape.RenderingType.BATCH)
             );
 
-            // 11. BoxWireframe
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_box_wire"),
                     ShapeGenerator.generateBoxWireframe()
@@ -421,7 +448,6 @@ public class Tester {
                             .build(Shape.RenderingType.BATCH)
             );
 
-            // 12. WireframedBox
             ShapeManagers.addShape(
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "demo_wireframed_box"),
                     ShapeGenerator.generateWireframedBox()
@@ -439,7 +465,24 @@ public class Tester {
                             })
                             .build(Shape.RenderingType.BATCH)
             );
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test_text1"),
+                    ShapeGenerator.generateText()
+                            .pos(new Vec3(xPos(), 0, 0))
+                            .type(Shape.RenderingType.BATCH)
+                            .billBoardMode(TextShape.BillBoardMode.ALL)
+                            .seeThrough(false)
+                            .shadow(true)
+                            .outline(true)
+                            .texts("§b§l!TEST!", "§e你好", "§aAWA", "§dBillBoardMode.ALL")
+                            .textColors(Color.CYAN, Color.YELLOW, Color.GREEN, Color.MAGENTA)
 
+                            .transform(t -> t.setShapeMatrixPivot(
+                                    new Vec3(0, Math.sin(Minecraft.getInstance().player.tickCount * 0.05) * 0.3, 0)
+                            ))
+
+                            .build(Shape.RenderingType.BATCH)
+            );
             added = true;
         });
 
@@ -462,6 +505,128 @@ public class Tester {
     }
     public static void renderTick(PoseStack matrixStack){
     }
+    public static void generateLineTracker(){
+        Minecraft mc = Minecraft.getInstance();
+        Shape anchor1 = ShapeGenerator.generateSphere()
+                .pos(new Vec3(xPos(), 0,0))
+                .radius(0.1f)
+                .segments(16)
+                .color(new Color(0,0,1,0.5f))
+                .seeThrough(false)
+                .transform((transformer) -> {
+                    Shape shape = transformer.getShape();
+                    handleMouseGrab(mc.player,shape,transformer);
+
+                })
+                .build(Shape.RenderingType.BATCH);
+        Shape anchor2 = ShapeGenerator.generateSphere()
+                .pos(new Vec3(xPos(), 0,0))
+                .radius(0.1f)
+                .segments(16)
+                .color(new Color(1,0,0,0.5f))
+                .seeThrough(false)
+                .transform((transformer) -> {
+                    Shape shape = transformer.getShape();
+                    handleMouseGrab(mc.player,shape,transformer);
+                })
+                .build(Shape.RenderingType.BATCH);
+
+        Shape line = ShapeGenerator.generateLine()
+                .pos(new Vec3(0, 0,0))
+                .lineWidth(2.1f)
+                .color(Color.WHITE)
+                .seeThrough(false)
+                .transform((transformer) -> {
+                    transformer.setStart(anchor1.transformer.getShapeWorldPivot(true));
+                    transformer.setEnd(anchor2.transformer.getShapeWorldPivot(true));
+                })
+                .build(Shape.RenderingType.BATCH);
+
+        Shape text = ShapeGenerator.generateText()
+                .pos(new Vec3(xPos(), 0, 0))
+                .type(Shape.RenderingType.BATCH)
+                .billBoardMode(TextShape.BillBoardMode.ALL)
+                .seeThrough(false)
+                .shadow(true)
+                .outline(false)
+                .texts("-")
+                .textColors(Color.CYAN, Color.YELLOW, Color.GREEN, Color.MAGENTA)
+                .transform(t -> {
+                    Vec3 start = ((TwoPointsLineShape.TwoPointsLineTransformer)line.transformer).getStart(true);
+                    Vec3 end   = ((TwoPointsLineShape.TwoPointsLineTransformer)line.transformer).getEnd(true);
+                    Entity player = Minecraft.getInstance().player;
+                    if (player == null) return;
+                    Vec3 eyePos = player.getPosition(t.getTickDelta()).add(0, player.getEyeHeight(), 0);
+                    Vec3 lineDir = end.subtract(start);
+                    double lineLength = lineDir.length();
+                    if (lineLength < 0.001) {
+                        t.setShapeMatrixPivot(start.add(0, 0.1, 0));
+                        return;
+                    }
+                    Vec3 toEye = eyePos.subtract(start);
+                    double proj = toEye.dot(lineDir) / (lineLength * lineLength);
+                    proj = Mth.clamp(proj, 0.0, 1.0);
+                    Vec3 closestPoint = start.add(lineDir.scale(proj));
+                    Vec3 labelOffset = new Vec3(0, 0.3, 0);
+                    Vec3 towardsPlayer = eyePos.subtract(closestPoint).normalize().scale(0.15);
+                    Vec3 finalPos = closestPoint.add(labelOffset).add(towardsPlayer.yRot((float)Math.toRadians(15)));
+                    t.setShapeWorldPivot(finalPos);
+                    t.world.syncLastToTarget();
+                    double d = anchor1.transformer.getWorldPivot().distanceTo(anchor2.transformer.getWorldPivot());
+                    ((TextShape)t.shape).setText(1,"Distance : " + String.format("%.2f", d));
+                })
+                .build(Shape.RenderingType.BATCH);
+
+        ShapeManagers.addShape(
+            ResourceLocation.fromNamespaceAndPath(MOD_ID, "a1"),
+            anchor1
+        );
+        ShapeManagers.addShape(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "a2"),
+                anchor2
+        );
+        ShapeManagers.addShape(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "l1"),
+                line
+        );
+        ShapeManagers.addShape(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "tex"),
+                text
+        );
+    }
+    public static void handleMouseGrab(Player player, Shape shape, DefaultTransformer transformer) {
+        Minecraft mc = Minecraft.getInstance();
+        boolean isLeftPressed = mc.mouseHandler.isLeftPressed();
+        boolean wasHolding = shape.getCustomData("isHolding", false);
+        boolean isLookingAt = shape.isPlayerLookingAt().hit;
+        if(!wasHolding) shape.putCustomData("color",shape.baseColor);
+        boolean shouldHold = wasHolding || (isLeftPressed && isLookingAt);
+        if (shouldHold && !wasHolding) {
+            double distance = transformer.getShapeWorldPivot(true)
+                    .distanceTo(player.getEyePosition());
+            shape.putCustomData("grabDistance", distance);
+            shape.putCustomData("isHolding", true);
+        }
+        if (isLeftPressed && shape.getCustomData("isHolding", false)) {
+            double savedDistance = shape.getCustomData("grabDistance", 4.0);
+            Vec3 eyePos = player.getEyePosition(transformer.getTickDelta());
+            Vec3 look = player.getLookAngle();
+
+            Vec3 targetPos = eyePos.add(look.scale(savedDistance));
+
+            transformer.setShapeWorldPivot(targetPos);
+            transformer.world.position.syncLastToTarget();
+            shape.baseColor = new Color(255, 255, 255, 200);
+        }
+        else if (!isLeftPressed && wasHolding) {
+            shape.putCustomData("isHolding", false);
+            shape.putCustomData("grabDistance", null);
+            shape.baseColor = shape.getCustomData("color",Color.WHITE);
+        }
+        else if (!isLeftPressed) {
+            shape.baseColor = shape.getCustomData("color",Color.WHITE);
+        }
+      }
     public static void rotate(BoxLikeShape.BoxTransformer boxTransformer, Shape shape){
 
         float gameTime = Minecraft.getInstance().level.getGameTime();
@@ -470,7 +635,7 @@ public class Tester {
     }
     public static void addEntity(Entity entity) {
         Player player = Minecraft.getInstance().player;
-        if (player == null || entity == null || entity == player) return;
+        if (player == null || entity == null || entity == player || !ENABLE_DEBUG) return;
 
         int entityId = entity.getId();
         EntityDimensions dimensions = entity.getDimensions(entity.getPose());
@@ -480,7 +645,7 @@ public class Tester {
                         Shape.RenderingType.BATCH,
                         (transformer) -> {
                             Vec3 entityCenter = entity.position().add(0, dimensions.height() / 2, 0);
-                            if (entity.isRemoved()) {
+                            if (entity.isRemoved() || !ENABLE_DEBUG) {
                                 transformer.shape.discard();
                                 return;
                             }
@@ -499,13 +664,12 @@ public class Tester {
                 new LineShape(
                         Shape.RenderingType.BATCH,
                         (transformer) -> {
-                            if (entity.isRemoved()) {
+                            if (entity.isRemoved() || !ENABLE_DEBUG) {
                                 transformer.getShape().discard();
                                 return;
                             }
                             if (Minecraft.getInstance().level != null && Minecraft.getInstance().player != null) {
-                                transformer.setStart(player.getEyePosition().add(player.getLookAngle().scale(2)));
-                                //transformer.lineModelInfo.syncLastToTarget();
+                                ((LineShape)transformer.getShape()).forceSetStart(player.getEyePosition(transformer.getTickDelta()).add(player.getLookAngle().scale(2)));
                                 transformer.setEnd(entity.position());
                             }
                         },

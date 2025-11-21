@@ -4,14 +4,23 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shape.Shape;
+import mypals.ml.shape.basics.core.LineLikeShape;
 import mypals.ml.shape.basics.core.TwoPointsLineShape;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
+
 import java.awt.*;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
+import static mypals.ml.Helpers.createViewMatrix;
 
 public class LineShape extends Shape implements TwoPointsLineShape {
 
@@ -24,12 +33,12 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         super(type, color, seeThrough);
 
         this.transformer = new TwoPointsLineTransformer(this,start,end,lineWidth,Vec3.ZERO);
-        this.transformer.setShapeWorldPivot(calculateShapeCenterPos());
         this.transformFunction = (defaultTransformer) ->
                 transform.accept((TwoPointsLineTransformer) this.transformer);
 
         syncLastToTarget();
         generateRawGeometry(false);
+        this.transformer.setShapeWorldPivot(calculateShapeCenterPos());
     }
 
     public Vec3 calculateShapeCenterPos() {
@@ -38,7 +47,22 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         double centerZ = (getStart(false).z + getEnd(false).z) / 2.0;
         return new Vec3(centerX, centerY, centerZ);
     }
+    public void forceSetStart(Vec3 start) {
+        setStart(start);
+        ((TwoPointsLineTransformer)this.transformer).lineModelInfo.startPointTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
 
+    public void forceSetEnd(Vec3 end) {
+        setEnd(end);
+        ((TwoPointsLineTransformer)this.transformer).lineModelInfo.endPointTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
+    public void forceSetLineWidth(float width) {
+        setLineWidth(width);
+        ((TwoPointsLineTransformer)this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
     @Override
     public void setStart(Vec3 start) {
         ((TwoPointsLineTransformer)this.transformer).setStart(start);
@@ -75,7 +99,6 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         Vec3 end = getEnd(lerp);
         Vec3 center = calculateShapeCenterPos();
 
-
         this.transformer.setShapeWorldPivot(center);
         this.transformer.world.position.syncLastToTarget();
 
@@ -87,6 +110,41 @@ public class LineShape extends Shape implements TwoPointsLineShape {
 
         this.indexBuffer = new int[] { 0, 1 };
     }
+    @Override
+    public boolean shouldDraw() {
+        List<Vec3> vertices = this.getModel(true);
+        if (vertices.isEmpty()) return false;
+
+        Minecraft client = Minecraft.getInstance();
+        Camera camera = client.gameRenderer.getMainCamera();
+        GameRenderer gameRenderer = client.gameRenderer;
+
+        Vec3 center = this.transformer.getWorldPivot().add(this.transformer.getLocalPivot());
+
+        Matrix4f viewMatrix = createViewMatrix(camera);
+
+        float fov = client.options.fov().get().floatValue();
+        Matrix4f projectionMatrix = gameRenderer.getProjectionMatrix(fov);
+
+        Matrix4f mvp = new Matrix4f(projectionMatrix);
+        mvp.mul(viewMatrix);
+
+        if (isVertexInFrustum(center, mvp)) return true;
+
+        for (Vec3 v : vertices) {
+            if (isVertexInFrustum(v, mvp)) return true;
+        }
+
+        for (int i = 0; i < vertices.size() - 1; i++) {
+            Vec3 a = vertices.get(i);
+            Vec3 b = vertices.get(i + 1);
+            if (LineLikeShape.isSegmentInFrustum(a, b, mvp)) return true;
+        }
+
+        return false;
+    }
+
+
     @Override
     public RayModelIntersection.HitResult isPlayerLookingAt(){
         return new RayModelIntersection.HitResult(false,null,-1);

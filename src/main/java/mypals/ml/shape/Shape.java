@@ -1,19 +1,19 @@
 package mypals.ml.shape;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shapeManagers.ShapeManagers;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static mypals.ml.Helpers.*;
+import static mypals.ml.test.Tester.ENABLE_DEBUG;
 
 public abstract class Shape {
     public enum RenderingType { IMMEDIATE, BATCH, BUFFERED }
@@ -39,8 +40,8 @@ public abstract class Shape {
     public List<Shape> children = new ArrayList<>();
 
     public boolean visible = true;
-    public Color baseColor = Color.WHITE;
-    public boolean seeThrough = false;
+    public Color baseColor;
+    public boolean seeThrough;
 
     public List<Vec3> model_vertexes = new ArrayList<>();//This is the original model of our model.
     public int[] indexBuffer = new int[0];
@@ -79,11 +80,57 @@ public abstract class Shape {
 
     public void setWorldScale(Vec3 scale) {this.transformer.setShapeWorldScale(scale);}
 
-    public void setRenderPivot(Vec3 pos) {this.transformer.matrix.position.setTargetVector(pos);}
+    public void setRenderPivot(Vec3 pos) {this.transformer.setShapeMatrixPivot(pos);}
 
-    public void setRenderRotation(Vector3f rot) {this.transformer.matrix.setRotationDegrees(rot.x, rot.y, rot.z);}
+    public void setRenderRotation(Vector3f rot) {this.transformer.setShapeMatrixRotationDegrees(rot.x, rot.y, rot.z);}
 
-    public void setRenderScale(Vec3 scale) {this.transformer.matrix.scale.setTargetVector(scale);}
+    public void setRenderScale(Vec3 scale) {this.transformer.setShapeMatrixScale(scale);}
+
+    public void forceSetLocalPosition(Vec3 pos) {
+        setLocalPosition(pos);
+        this.transformer.local.position.syncLastToTarget();
+    }
+
+    public void forceSetLocalRotation(Vector3f rot) {
+        setLocalRotation(rot);
+        this.transformer.local.rotation.syncLastToTarget();
+    }
+
+    public void forceSetLocalScale(Vec3 scale) {
+        setLocalScale(scale);
+        this.transformer.local.scale.syncLastToTarget();
+    }
+
+    public void forceSetWorldPosition(Vec3 pos) {
+        setWorldPosition(pos);
+        this.transformer.world.position.syncLastToTarget();
+    }
+
+    public void forceSetWorldRotation(Vector3f rot) {
+        setWorldRotation(rot);
+        this.transformer.world.rotation.syncLastToTarget();
+    }
+
+    public void forceSetWorldScale(Vec3 scale) {
+        setWorldScale(scale);
+        this.transformer.world.scale.syncLastToTarget();
+    }
+
+    public void forceSetRenderPivot(Vec3 pos) {
+        setRenderPivot(pos);
+        this.transformer.matrix.position.syncLastToTarget();
+    }
+
+    public void forceSetRenderRotation(Vector3f rot) {
+        setRenderRotation(rot);
+        this.transformer.matrix.rotation.syncLastToTarget();
+    }
+
+    public void forceSetRenderScale(Vec3 scale) {
+        setRenderScale(scale);
+        this.transformer.matrix.scale.syncLastToTarget();
+    }
+
 
     protected abstract void generateRawGeometry(boolean lerp);
 
@@ -125,6 +172,7 @@ public abstract class Shape {
     }
 
     public void beforeDraw(PoseStack matrixStack, float deltaTime) {
+
         transformer.updateTickDelta(deltaTime);
         transformFunction.accept(transformer);
         if (this.transformer.asyncModelInfo()) {
@@ -144,10 +192,33 @@ public abstract class Shape {
         }
         //We'll apply all transformations to the matrix stack before drawing(With lerp!).
     }
+    public void drawShapeDebugInfo(PoseStack matrixStack, float deltaTime){
+        VertexConsumer vertexConsumer = Minecraft.getInstance()
+                .renderBuffers().bufferSource().getBuffer(RenderType.LINES);
+
+        Vec3 localCenter = this.transformer.getShapeWorldPivot(true).add(this.transformer.getShapeLocalPivot(true));
+        Vec3 worldCenter = this.transformer.getShapeWorldPivot(true);
+        Vec3 visualCenter = this.transformer.getShapeMatrixPivot(true).add(worldCenter);
+        renderLineBox(matrixStack,vertexConsumer,localCenter,0.15f,1,0,0,1);
+
+        renderLineBox(matrixStack,vertexConsumer,worldCenter,0.1f,0,1,0,1);
+
+        renderLineBox(matrixStack,vertexConsumer,visualCenter,0.05f,0,0,1,1);
+
+        RenderSystem.depthMask(false);
+        for(Vec3 v : getModel(false)){
+            double distanceTo = v.distanceToSqr(Minecraft.getInstance().cameraEntity.position());
+            if(distanceTo < 50)
+                renderBillboardFrame(matrixStack,vertexConsumer,v, (float) (distanceTo * 0.01),1,0,1,1);
+        }
+        RenderSystem.depthMask(true);
+    }
+
 
     public RayModelIntersection.HitResult isPlayerLookingAt(){
         Minecraft minecraft = Minecraft.getInstance();
         Player p = minecraft.player;
+        if(p == null) return new RayModelIntersection.HitResult(false,null, -1);;
         Camera camera = minecraft.gameRenderer.getMainCamera();
         RayModelIntersection.Ray r = new RayModelIntersection.Ray(camera.getPosition(), p.getForward());
 
@@ -158,11 +229,16 @@ public abstract class Shape {
         );
     }
     public void draw(boolean frustumCull, VertexBuilder builder, PoseStack matrixStack, float deltaTime) {
+        boolean shouldDraw = shouldDraw();
+        Minecraft mc = Minecraft.getInstance();
+        if(mc.getEntityRenderDispatcher().shouldRenderHitBoxes() && ENABLE_DEBUG){
+            drawShapeDebugInfo(matrixStack,deltaTime);
+        }
         if(!visible) return;
         matrixStack.pushPose();
         beforeDraw(matrixStack, deltaTime);
         builder.setPositionMatrix(matrixStack.last().pose());
-        if(!frustumCull || shouldDraw()){
+        if(!frustumCull || shouldDraw){
             drawInternal(builder);
         }
         matrixStack.popPose();
@@ -196,7 +272,7 @@ public abstract class Shape {
         Vector4f clip = new Vector4f((float)v.x, (float)v.y, (float)v.z, 1f);
         clip.mul(mvp);
 
-        if (clip.w <= 0) return false; // 在 near plane 之前
+        if (clip.w <= 0) return false;
 
         float ndcX = clip.x / clip.w;
         float ndcY = clip.y / clip.w;
@@ -204,7 +280,7 @@ public abstract class Shape {
 
         return ndcX >= -1 && ndcX <= 1
                 && ndcY >= -1 && ndcY <= 1
-                && ndcZ >= -1 && ndcZ <= 1; // 关键修复：Z 是 [-1,1]
+                && ndcZ >= -1 && ndcZ <= 1;
     }
     protected void drawInternal(VertexBuilder builder) {
         builder.putColor(baseColor);

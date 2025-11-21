@@ -4,13 +4,22 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shape.Shape;
+import mypals.ml.shape.basics.core.LineLikeShape;
 import mypals.ml.shape.basics.core.StripLineLikeShape;
+import mypals.ml.shape.basics.core.TwoPointsLineShape;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
+import static mypals.ml.Helpers.createViewMatrix;
 
 public class StripLineShape extends Shape implements StripLineLikeShape {
 
@@ -65,7 +74,39 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
         indexBuffer = new int[n];
         for (int i = 0; i < n; i++) indexBuffer[i] = i;
     }
+    @Override
+    public boolean shouldDraw() {
+        List<Vec3> vertices = this.getModel(true);
+        if (vertices.isEmpty()) return false;
 
+        Minecraft client = Minecraft.getInstance();
+        Camera camera = client.gameRenderer.getMainCamera();
+        GameRenderer gameRenderer = client.gameRenderer;
+
+        Vec3 center = this.transformer.getWorldPivot().add(this.transformer.getLocalPivot());
+
+        Matrix4f viewMatrix = createViewMatrix(camera);
+
+        float fov = client.options.fov().get().floatValue();
+        Matrix4f projectionMatrix = gameRenderer.getProjectionMatrix(fov);
+
+        Matrix4f mvp = new Matrix4f(projectionMatrix);
+        mvp.mul(viewMatrix);
+
+        if (isVertexInFrustum(center, mvp)) return true;
+
+        for (Vec3 v : vertices) {
+            if (isVertexInFrustum(v, mvp)) return true;
+        }
+
+        for (int i = 0; i < vertices.size() - 1; i++) {
+            Vec3 a = vertices.get(i);
+            Vec3 b = vertices.get(i + 1);
+            if (LineLikeShape.isSegmentInFrustum(a, b, mvp)) return true;
+        }
+
+        return false;
+    }
 
 
     @Override
@@ -122,7 +163,11 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
     public void setVertexColors(List<Color> colors) {
         this.vertexColors = new ArrayList<>(colors);
     }
-
+    public void forceSetLineWidth(float width) {
+        setLineWidth(width);
+        ((SimpleLineTransformer)this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
     @Override
     public void setLineWidth(float width) {
         ((SimpleLineTransformer)this.transformer).setWidth(width);

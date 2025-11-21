@@ -3,6 +3,7 @@ package mypals.ml.shape.cylinder;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.CircleLikeShape;
+import mypals.ml.shape.basics.core.LineLikeShape;
 import mypals.ml.shape.basics.tags.DrawableTriangle;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.CircleModelInfo;
@@ -188,5 +189,21 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
     }
 
     public float getHeight(boolean lerp) { return ((CylinderTransformer)this.transformer).getHeight(lerp); }
+
+    public void forceSetRadius(float radius) {
+        setRadius(radius);
+        ((CylinderTransformer)this.transformer).circleModelInfo.radiusTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
+    public void forceSetSegments(float segments) {
+        setRadius(segments);
+        ((CylinderTransformer)this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
+    public void forceSetHeight(float height) {
+        setHeight(height);
+        ((CylinderTransformer)this.transformer).heightTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
 }
 

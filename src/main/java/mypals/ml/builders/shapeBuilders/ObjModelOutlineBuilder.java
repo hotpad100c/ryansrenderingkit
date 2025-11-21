@@ -19,7 +19,7 @@ public class ObjModelOutlineBuilder extends BaseBuilder<ObjModelOutlineBuilder, 
     }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public ObjModelShapeOutline build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new ObjModelShapeOutline(type, t, resourceLocation, center, lineWidth, color, seeThrough);

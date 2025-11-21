@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.VertexSorting;
 
 public interface MeshDataExt {
     void ryansrenderingkit$sortTriangles(ByteBufferBuilder byteBufferBuilder, VertexSorting vertexSorting);
-    public interface MeshDataSortableExt {
+     interface MeshDataSortableExt {
         ByteBufferBuilder.Result ryansrenderingkit$buildSortedIndexBufferTriangles(ByteBufferBuilder byteBufferBuilder, VertexSorting vertexSorting);
     }
 }

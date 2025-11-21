@@ -16,17 +16,16 @@ public class InformationRender {
             matrixStack.pushPose();
             matrixStack.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z);
 
-            //RenderSystem.depthMask(false);
             RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
 
             Matrix4f pose = matrixStack.last().pose();
             BuilderManagers.updateMatrix(pose);
 
-            Tester.renderTick(matrixStack);//------
+            Tester.renderTick(matrixStack);
 
             ShapeManagers.renderAll(matrixStack, tickDelta);
 
-            //RenderSystem.depthMask(true);
             RenderSystem.disableBlend();
 
             matrixStack.popPose();

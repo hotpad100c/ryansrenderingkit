@@ -3,6 +3,9 @@ package mypals.ml.builders.shapeBuilders;
 public final class ShapeGenerator {
 
     private ShapeGenerator() {}
+    public static TextBuilder generateText() {
+        return new TextBuilder();
+    }
 
     public static FaceCircleBuilder generateFaceCircle() {
         return new FaceCircleBuilder();

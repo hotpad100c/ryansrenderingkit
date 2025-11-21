@@ -7,14 +7,20 @@ import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.core.LineLikeShape;
 import mypals.ml.shape.basics.tags.DrawableLine;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.LineModelInfo;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
+import static mypals.ml.Helpers.createViewMatrix;
 
 public class CylinderWireframeShape extends CylinderShape implements DrawableLine, LineLikeShape {
 
@@ -61,7 +67,39 @@ public class CylinderWireframeShape extends CylinderShape implements DrawableLin
 
         this.indexBuffer = indices.stream().mapToInt(Integer::intValue).toArray();
     }
+    @Override
+    public boolean shouldDraw() {
+        List<Vec3> vertices = this.getModel(true);
+        if (vertices.isEmpty()) return false;
 
+        Minecraft client = Minecraft.getInstance();
+        Camera camera = client.gameRenderer.getMainCamera();
+        GameRenderer gameRenderer = client.gameRenderer;
+
+        Vec3 center = this.transformer.getWorldPivot().add(this.transformer.getLocalPivot());
+
+        Matrix4f viewMatrix = createViewMatrix(camera);
+
+        float fov = client.options.fov().get().floatValue();
+        Matrix4f projectionMatrix = gameRenderer.getProjectionMatrix(fov);
+
+        Matrix4f mvp = new Matrix4f(projectionMatrix);
+        mvp.mul(viewMatrix);
+
+        if (isVertexInFrustum(center, mvp)) return true;
+
+        for (Vec3 v : vertices) {
+            if (isVertexInFrustum(v, mvp)) return true;
+        }
+
+        for (int i = 0; i < vertices.size() - 1; i++) {
+            Vec3 a = vertices.get(i);
+            Vec3 b = vertices.get(i + 1);
+            if (LineLikeShape.isSegmentInFrustum(a, b, mvp)) return true;
+        }
+
+        return false;
+    }
     @Override
     protected void drawInternal(VertexBuilder builder) {
         RenderSystem.lineWidth(getLineWidth(true));
@@ -74,11 +112,15 @@ public class CylinderWireframeShape extends CylinderShape implements DrawableLin
         }
     }
 
+    public void forceSetLineWidth(float width) {
+        setLineWidth(width);
+        ((CylinderWireframeTransformer)this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
+    @Override
     public void setLineWidth(float width) {
-
         ((CylinderWireframeTransformer)this.transformer).setWidth(width);
     }
-
     @Override
     public float getLineWidth(boolean lerp) {
         return ((CylinderWireframeTransformer)this.transformer).getWidth(lerp);

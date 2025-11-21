@@ -21,7 +21,7 @@ public class BoxFaceBuilder extends BaseBuilder<BoxFaceBuilder, BoxLikeShape.Box
     @Override public BoxFaceBuilder construction(BoxShape.BoxConstructionType type) { this.constructionType = type; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public BoxFaceShape build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         if(constructionType == BoxShape.BoxConstructionType.CORNERS){

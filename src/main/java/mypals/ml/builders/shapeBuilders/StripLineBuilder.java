@@ -20,7 +20,7 @@ public class StripLineBuilder extends BaseBuilder<StripLineBuilder, LineLikeShap
     public StripLineBuilder lineWidth(float lineWidth) { this.lineWidth = lineWidth; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public StripLineShape build(Shape.RenderingType type) {
         if (vertexes.size() < 2) throw new IllegalStateException("StripLine needs at least 2 vertices");
         @SuppressWarnings("unchecked")
         var t = getTransformer();

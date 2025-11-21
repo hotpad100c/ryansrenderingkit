@@ -3,11 +3,9 @@ package mypals.ml.shape.box;
 import mypals.ml.Helpers;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.BoxLikeShape;
-import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class BoxShape extends Shape implements BoxLikeShape {
@@ -82,7 +80,7 @@ public class BoxShape extends Shape implements BoxLikeShape {
     }
 
 
-    public void setDimensions(Vec3 dimensions) {
+    public void setDimension(Vec3 dimensions) {
         ((BoxTransformer) transformer).setDimension(
                 new Vec3(Math.abs(dimensions.x), Math.abs(dimensions.y), Math.abs(dimensions.z))
         );
@@ -98,6 +96,27 @@ public class BoxShape extends Shape implements BoxLikeShape {
         bt.setShapeWorldPivot(center);
         bt.setDimension(dims);
         
+    }
+
+    public void forceSetMax(Vec3 max) {
+        setMax(max);
+        ((BoxTransformer)this.transformer).boxModelInfo.syncLastToTarget();
+        generateRawGeometry(false);
+    }
+    public void forceSetMin(Vec3 min) {
+        setMax(min);
+        ((BoxTransformer)this.transformer).boxModelInfo.syncLastToTarget();
+        generateRawGeometry(false);
+    }
+    public void forceSetDimensions(Vec3 dim) {
+        setDimension(dim);
+        ((BoxTransformer)this.transformer).boxModelInfo.syncLastToTarget();
+        generateRawGeometry(false);
+    }
+    public void forceSetCorners(Vec3 c1,Vec3 c2) {
+        setCorners(c1,c2);
+        ((BoxTransformer)this.transformer).boxModelInfo.syncLastToTarget();
+        generateRawGeometry(false);
     }
 
     @Override

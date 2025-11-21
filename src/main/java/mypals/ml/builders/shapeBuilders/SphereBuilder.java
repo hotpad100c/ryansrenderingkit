@@ -14,7 +14,7 @@ public class SphereBuilder extends BaseBuilder<SphereBuilder, FaceCircleShape.Fa
     public SphereBuilder radius(float radius) { this.radius = radius; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public SphereShape build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new SphereShape(type, t, center, segments, radius, color, seeThrough);

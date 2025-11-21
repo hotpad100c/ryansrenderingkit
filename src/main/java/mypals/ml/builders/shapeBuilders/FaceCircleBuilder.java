@@ -16,7 +16,7 @@ public class FaceCircleBuilder extends BaseBuilder<FaceCircleBuilder,FaceCircleS
     public FaceCircleBuilder radius(float radius) { this.radius = radius; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public FaceCircleShape build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new FaceCircleShape(type, t, circleAxis, center, segments, radius, color, seeThrough);

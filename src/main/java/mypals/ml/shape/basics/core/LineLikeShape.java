@@ -5,7 +5,16 @@ import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.tags.DrawableLine;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.LineModelInfo;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
+
+import java.util.List;
+
+import static mypals.ml.Helpers.createViewMatrix;
 
 public interface LineLikeShape extends DrawableLine {
     void setLineWidth(float width);
@@ -45,5 +54,37 @@ public interface LineLikeShape extends DrawableLine {
             this.lineModelInfo.update(delta);
             super.updateTickDelta(delta);
         }
+    }
+
+
+    public static boolean isSegmentInFrustum(Vec3 a, Vec3 b, Matrix4f mvp) {
+        Vector4f ca = new Vector4f((float)a.x, (float)a.y, (float)a.z, 1f);
+        Vector4f cb = new Vector4f((float)b.x, (float)b.y, (float)b.z, 1f);
+
+        ca.mul(mvp);
+        cb.mul(mvp);
+
+        if (ca.w <= 0 && cb.w <= 0) return false;
+
+        int codeA = computeOutCode(ca);
+        int codeB = computeOutCode(cb);
+
+        if ((codeA & codeB) != 0) return false;
+
+        return true;
+    }
+
+    private static int computeOutCode(Vector4f c) {
+        int code = 0;
+        float x = c.x, y = c.y, z = c.z, w = c.w;
+
+        if (x < -w) code |= 1;
+        if (x >  w) code |= 2;
+        if (y < -w) code |= 4;
+        if (y >  w) code |= 8;
+        if (z < -w) code |= 16;
+        if (z >  w) code |= 32;
+
+        return code;
     }
 }

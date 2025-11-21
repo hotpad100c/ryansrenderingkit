@@ -1,0 +1,93 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ==== Maven Coordinates ==== -->
+    <groupId>io.github.hotpad100c</groupId>
+    <artifactId>ryansrenderingkit</artifactId>
+    <version>1.0.0</version>
+    <name>Ryan's Rendering Kit</name>
+    <description>A Fabric-based rendering toolkit for Minecraft</description>
+    <url>https://github.com/hotpad100c/ryansrenderingkit</url>
+
+    <!-- ==== Java 21 ==== -->
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- prevent "duplicate classes" in modding environment -->
+        <maven.jar.skipIfEmpty>true</maven.jar.skipIfEmpty>
+    </properties>
+
+    <!-- ==== GitHub Packages ==== -->
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/hotpad100c/ryansrenderingkit</url>
+        </repository>
+    </distributionManagement>
+
+    <!-- ==== Dependencies (Fabric API) ====
+    <dependencies>
+
+        <dependency>
+            <groupId>net.fabricmc</groupId>
+            <artifactId>fabric-api</artifactId>
+            <version>0.119.4+1.21.4</version>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+    -->
+
+    <!-- ==== Build configuration ==== -->
+    <build>
+        <plugins>
+
+            <!-- Source JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Javadoc JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <release>21</release>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

@@ -5,12 +5,21 @@ import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.CircleLikeShape;
 import mypals.ml.shape.basics.core.LineLikeShape;
+import mypals.ml.shape.basics.core.TwoPointsLineShape;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.CircleModelInfo;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.LineModelInfo;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+
 import java.awt.*;
+import java.util.List;
 import java.util.function.Consumer;
+
+import static mypals.ml.Helpers.createViewMatrix;
 
 public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeShape {
 
@@ -77,7 +86,21 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
     public void setRadius(float radius) {
         ((LineCircleTransformer) this.transformer).setRadius(radius);
     }
-
+    public void forceSetRadius(float radius) {
+        setRadius(radius);
+        ((LineCircleTransformer)this.transformer).circleModelInfo.radiusTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
+    public void forceSetSegments(float segments) {
+        setRadius(segments);
+        ((LineCircleTransformer)this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
+    public void forceSetLineWidth(float width) {
+        setLineWidth(width);
+        ((LineCircleTransformer)this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
     @Override
     public void setSegments(int segments) {
         ((LineCircleTransformer) this.transformer).setSegment(segments);
@@ -150,6 +173,39 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
         public boolean asyncModelInfo(){
             return circleModelInfo.async() || lineModelInfo.async();
         }
+    }
+    @Override
+    public boolean shouldDraw() {
+        List<Vec3> vertices = this.getModel(true);
+        if (vertices.isEmpty()) return false;
+
+        Minecraft client = Minecraft.getInstance();
+        Camera camera = client.gameRenderer.getMainCamera();
+        GameRenderer gameRenderer = client.gameRenderer;
+
+        Vec3 center = this.transformer.getWorldPivot().add(this.transformer.getLocalPivot());
+
+        Matrix4f viewMatrix = createViewMatrix(camera);
+
+        float fov = client.options.fov().get().floatValue();
+        Matrix4f projectionMatrix = gameRenderer.getProjectionMatrix(fov);
+
+        Matrix4f mvp = new Matrix4f(projectionMatrix);
+        mvp.mul(viewMatrix);
+
+        if (isVertexInFrustum(center, mvp)) return true;
+
+        for (Vec3 v : vertices) {
+            if (isVertexInFrustum(v, mvp)) return true;
+        }
+
+        for (int i = 0; i < vertices.size() - 1; i++) {
+            Vec3 a = vertices.get(i);
+            Vec3 b = vertices.get(i + 1);
+            if (LineLikeShape.isSegmentInFrustum(a, b, mvp)) return true;
+        }
+
+        return false;
     }
     @Override
     protected void drawInternal(VertexBuilder builder) {

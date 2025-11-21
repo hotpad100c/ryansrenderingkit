@@ -15,7 +15,7 @@ import java.util.function.IntConsumer;
 
 @Mixin(MeshData.class)
 public abstract class MeshDataMixin implements MeshDataExt {
-    @Shadow @Nullable private ByteBufferBuilder.@Nullable Result indexBuffer;
+    @Shadow @Nullable private ByteBufferBuilder.Result indexBuffer;
 
     @Shadow @Final private ByteBufferBuilder.Result vertexBuffer;
 
@@ -35,17 +35,17 @@ public abstract class MeshDataMixin implements MeshDataExt {
 
         for (int t = 0; t < triangles; t++) {
             int base = t * floatsPerVertex * 3 + posOffset;
-            float x0 = fb.get(base + 0);
+            float x0 = fb.get(base);
             float y0 = fb.get(base + 1);
             float z0 = fb.get(base + 2);
 
             int b1 = base + floatsPerVertex;
-            float x1 = fb.get(b1 + 0);
+            float x1 = fb.get(b1);
             float y1 = fb.get(b1 + 1);
             float z1 = fb.get(b1 + 2);
 
             int b2 = base + floatsPerVertex * 2;
-            float x2 = fb.get(b2 + 0);
+            float x2 = fb.get(b2);
             float y2 = fb.get(b2 + 1);
             float z2 = fb.get(b2 + 2);
 
@@ -80,7 +80,7 @@ public abstract class MeshDataMixin implements MeshDataExt {
 
             for (int i : sortedTriangleIndices) {
                 int baseVertex = i * 3;
-                intConsumer.accept(baseVertex + 0);
+                intConsumer.accept(baseVertex);
                 intConsumer.accept(baseVertex + 1);
                 intConsumer.accept(baseVertex + 2);
             }

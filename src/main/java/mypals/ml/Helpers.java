@@ -1,14 +1,17 @@
 package mypals.ml;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexSorting;
+import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ShapeRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -75,5 +78,63 @@ public class Helpers {
         return ndcX >= -1 && ndcX <= 1 &&
                 ndcY >= -1 && ndcY <= 1 &&
                 ndcZ >= -1  && ndcZ <= 1;
+    }
+    public static int multiplyRGB(int color, float shade) {
+        int alpha = color >>> 24 & 255;
+        int red = (int)((float)(color >>> 16 & 255) * shade);
+        int green = (int)((float)(color >>> 8 & 255) * shade);
+        int blue = (int)((float)(color & 255) * shade);
+        return alpha << 24 | red << 16 | green << 8 | blue;
+    }
+    public static void renderLineBox(PoseStack poseStack, VertexConsumer consumer,
+                                     Vec3 center, float size,
+                                     float red, float green, float blue, float alpha) {
+
+        double half = size / 2.0;
+
+        ShapeRenderer.renderLineBox(
+                poseStack, consumer,
+                center.x - half, center.y - half, center.z - half,
+                center.x + half, center.y + half, center.z + half,
+                red, green, blue,
+                alpha, red, green,
+                blue
+        );
+    }
+    public static void renderBillboardFrame(
+            PoseStack poseStack,
+            VertexConsumer vc,
+            Vec3 vec3,
+            float size,
+            float r, float g, float b, float a
+    ) {
+        poseStack.pushPose();
+        poseStack.translate(vec3);
+
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+
+        poseStack.mulPose(Axis.YP.rotationDegrees(-camera.getYRot()));
+        poseStack.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
+
+        PoseStack.Pose pose = poseStack.last();
+
+        float s = size / 2f;
+
+        Vec3 v1 = new Vec3(-s, -s, 0);
+        Vec3 v2 = new Vec3(s, -s, 0);
+        Vec3 v3 = new Vec3(s, s, 0);
+        Vec3 v4 = new Vec3(-s, s, 0);
+
+        Vec3 n = new Vec3(0, 0, -1);
+
+        addLine(pose, vc, v1, v2, r, g, b, a, n);
+        addLine(pose, vc, v2, v3, r, g, b, a, n);
+        addLine(pose, vc, v3, v4, r, g, b, a, n);
+        addLine(pose, vc, v4, v1, r, g, b, a, n);
+        poseStack.popPose();
+    }
+    private static void addLine(PoseStack.Pose pose, VertexConsumer vc, Vec3 a, Vec3 b, float r, float g, float b2, float a2, Vec3 normal) {
+        vc.addVertex(pose, (float)a.x, (float)a.y, (float)a.z).setColor(r, g, b2, a2).setNormal(pose, (float)normal.x, (float)normal.y, (float)normal.z);
+        vc.addVertex(pose, (float)b.x, (float)b.y, (float)b.z).setColor(r, g, b2, a2).setNormal(pose, (float)normal.x, (float)normal.y, (float)normal.z);
     }
 }

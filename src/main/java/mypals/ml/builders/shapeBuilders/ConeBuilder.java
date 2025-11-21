@@ -17,7 +17,7 @@ public class ConeBuilder extends BaseBuilder<ConeBuilder, CylinderShape.Cylinder
     public ConeBuilder height(float height) { this.height = height; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public ConeShape build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new ConeShape(type, t, circleAxis, center, segments, radius, height, color, seeThrough);

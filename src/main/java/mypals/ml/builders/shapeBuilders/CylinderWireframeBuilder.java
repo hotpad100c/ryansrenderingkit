@@ -19,7 +19,7 @@ public class CylinderWireframeBuilder extends BaseBuilder<CylinderWireframeBuild
     public CylinderWireframeBuilder width(float width) { this.width = width; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public CylinderWireframeShape build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new CylinderWireframeShape(type, t, circleAxis, center, segments, radius, height,width, color, seeThrough);

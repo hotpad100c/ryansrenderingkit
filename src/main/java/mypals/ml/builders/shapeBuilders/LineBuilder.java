@@ -17,7 +17,7 @@ public class LineBuilder extends BaseBuilder<LineBuilder,TwoPointsLineShape.TwoP
     public LineBuilder lineWidth(float lineWidth) { this.lineWidth = lineWidth; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public LineShape build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new LineShape(type, t, start, end, color, lineWidth, seeThrough);

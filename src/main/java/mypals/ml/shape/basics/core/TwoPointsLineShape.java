@@ -1,11 +1,7 @@
 package mypals.ml.shape.basics.core;
-
-import com.mojang.blaze3d.vertex.PoseStack;
-import mypals.ml.shape.Shape;
 import mypals.ml.shape.line.LineShape;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.LineModelInfo;
-import mypals.ml.transform.valueTransformers.Vec3Transformer;
 import net.minecraft.world.phys.Vec3;
 
 public interface TwoPointsLineShape extends LineLikeShape{
@@ -52,8 +48,8 @@ public interface TwoPointsLineShape extends LineLikeShape{
         }
         @Override
         public void updateTickDelta(float delta){
-            this.lineModelInfo.update(delta);
             super.updateTickDelta(delta);
+            this.lineModelInfo.update(delta);
         }
     }
 

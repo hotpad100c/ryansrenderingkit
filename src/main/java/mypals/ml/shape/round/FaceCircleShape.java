@@ -1,6 +1,7 @@
 package mypals.ml.shape.round;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.CircleLikeShape;
+import mypals.ml.shape.cylinder.CylinderShape;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.CircleModelInfo;
 import net.minecraft.world.phys.Vec3;
@@ -81,7 +82,16 @@ public class FaceCircleShape extends Shape implements CircleLikeShape {
     public void setSegments(int segments) {
         ((FaceCircleTransformer)this.transformer).setSegment(segments);
     }
-
+    public void forceSetRadius(float radius) {
+        setRadius(radius);
+        ((FaceCircleTransformer)this.transformer).circleModelInfo.radiusTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
+    public void forceSetSegments(float segments) {
+        setRadius(segments);
+        ((FaceCircleTransformer)this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
+        generateRawGeometry(false);
+    }
     @Override
     public float getRadius(boolean lerp) {
         return ((FaceCircleTransformer)this.transformer).getRadius(lerp);
