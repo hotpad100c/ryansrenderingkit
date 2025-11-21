@@ -3,14 +3,14 @@
 	"id": "ryansrenderingkit",
 	"version": "${version}",
 	"name": "RyansRenderingKit",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "A Fabric-based rendering toolkit for Minecraft!",
 	"access_widener": "ryansRenderingKit.accesswidener",
 	"authors": [
-		"Me!"
+		"Ryan100c!"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/hotpad100c/ryansrenderingkit/",
+		"sources": "https://github.com/hotpad100c/ryansrenderingkit"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/ryansrenderingkit/icon.png",
@@ -24,7 +24,7 @@
 		"ryansrenderingkit.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.17.3",
+		"fabricloader": "*",
 		"minecraft": "~1.21.4",
 		"java": ">=21",
 		"fabric-api": "*"
