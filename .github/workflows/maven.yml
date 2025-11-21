@@ -1,6 +1,9 @@
 name: Publish Maven to GitHub Pages
 
-on: [pull_request, push]
+on: 
+  push:
+    tags:
+      - "*"
 
 jobs:
   publish:
@@ -13,10 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: 21
+          java-version: 17
           distribution: temurin
 
       - name: Grant execute permission for gradlew
