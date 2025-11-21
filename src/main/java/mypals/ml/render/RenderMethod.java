@@ -13,13 +13,6 @@ public record RenderMethod(
         @NotNull VertexFormat format,
         boolean cullFace
 )  {
-    public static final RenderMethod QUADS = new RenderMethod(
-            CoreShaders.POSITION_COLOR,
-            VertexFormat.Mode.QUADS,
-            DefaultVertexFormat.POSITION_COLOR,
-            true
-    );
-
     public static final RenderMethod LINES = new RenderMethod(
             CoreShaders.RENDERTYPE_LINES,
             VertexFormat.Mode.LINES,
@@ -38,24 +31,6 @@ public record RenderMethod(
             CoreShaders.POSITION_COLOR,
             VertexFormat.Mode.TRIANGLES,
             DefaultVertexFormat.POSITION_COLOR,
-            true
-    );
-    public static final RenderMethod TRIANGLES_STRIP = new RenderMethod(
-            CoreShaders.POSITION_COLOR,
-            VertexFormat.Mode.TRIANGLE_STRIP,
-            DefaultVertexFormat.POSITION_COLOR,
-            true
-    );
-    public static final RenderMethod TRIANGLES_FAN = new RenderMethod(
-            CoreShaders.POSITION_COLOR,
-            VertexFormat.Mode.TRIANGLE_FAN,
-            DefaultVertexFormat.POSITION_COLOR,
-            true
-    );
-    public static final RenderMethod TEXT = new RenderMethod(
-            CoreShaders.RENDERTYPE_TEXT,
-            VertexFormat.Mode.QUADS,
-            DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR,
             true
     );
 }

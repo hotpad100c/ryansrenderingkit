@@ -25,7 +25,7 @@ public class BoxWireframeBuilder extends BaseBuilder<BoxWireframeBuilder, BoxLik
     public BoxWireframeBuilder edgeWidth(float edgeWidth) { this.edgeWidth = edgeWidth; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public BoxWireframeShape build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new BoxWireframeShape(

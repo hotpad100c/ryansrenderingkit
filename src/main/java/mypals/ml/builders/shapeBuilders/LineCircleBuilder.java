@@ -17,7 +17,7 @@ public class LineCircleBuilder extends BaseBuilder<LineCircleBuilder, LineCircle
     public LineCircleBuilder lineWidth(float lineWidth) { this.lineWidth = lineWidth; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public LineCircleShape build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new LineCircleShape(type, t, circleAxis, center, segments, radius, lineWidth, color, seeThrough);

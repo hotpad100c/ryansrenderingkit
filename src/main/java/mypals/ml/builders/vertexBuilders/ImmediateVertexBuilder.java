@@ -2,7 +2,10 @@ package mypals.ml.builders.vertexBuilders;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import mypals.ml.interfaces.MeshDataExt;
 import mypals.ml.render.RenderMethod;
 import mypals.ml.shape.Shape;
 import org.joml.Matrix4f;
@@ -15,16 +18,33 @@ public class ImmediateVertexBuilder extends VertexBuilder {
         super(modelViewMatrix, seeThrough);
     }
 
-    public void draw(Shape shape, Consumer<VertexBuilder> builder, RenderMethod renderMethod) {
+    public void draw(Shape shape, Consumer<VertexBuilder> vertexBuilderConsumer, RenderMethod renderMethod) {
         begin(renderMethod);
         RenderSystem.setShader(renderMethod.shader());
-        builder.accept(this);
+        vertexBuilderConsumer.accept(this);
 
-        setUpRendererSystem(shape);
+        if(this.getBufferBuilder().vertices == 0){
+            return;
+        }
+        MeshData meshData = this.getBufferBuilder().build();
 
-        MeshData builtBuffer = this.getBufferBuilder().buildOrThrow();
-        BufferUploader.drawWithShader(builtBuffer);
+        if(meshData!=null){
+            ByteBufferBuilder byteBufferBuilder = null;
 
-        restoreRendererSystem();
+            if(shape.baseColor.getAlpha() < 255 && renderMethod.mode() == VertexFormat.Mode.TRIANGLES){
+                int vertexCount = meshData.drawState().vertexCount();
+                int bufferSize = vertexCount * Integer.BYTES;
+                byteBufferBuilder = new ByteBufferBuilder(bufferSize);
+
+                ((MeshDataExt)meshData).ryansrenderingkit$sortTriangles(byteBufferBuilder,RenderSystem.getProjectionType().vertexSorting());
+            }
+            setUpRendererSystem(shape);
+            BufferUploader.drawWithShader(meshData);
+            if(byteBufferBuilder != null){
+                byteBufferBuilder.close();
+            }
+            meshData.close();
+            restoreRendererSystem();
+        }
     }
 }

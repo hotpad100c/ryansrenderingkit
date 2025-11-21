@@ -20,8 +20,8 @@ public class ShapeManager {
     public ShapeGroup bufferedShapeGroup;
     public BuilderManager builderManager;
     public static Comparator<Shape> SHAPE_ORDER_COMPARATOR = (s1, s2) -> {
-        Vec3 shape1Pos = s1.centerPoint;
-        Vec3 shape2Pos = s2.centerPoint;
+        Vec3 shape1Pos = s1.transformer.getWorldPivot();
+        Vec3 shape2Pos = s2.transformer.getWorldPivot();
         double distance1 = shape1Pos.lengthSqr(); // Square of distance for efficiency
         double distance2 = shape2Pos.lengthSqr();
         return Double.compare(distance2, distance1);
@@ -115,7 +115,7 @@ public class ShapeManager {
 
                 for (Shape shape : sortedShapes) {
                     builderManager.drawImmediate(shape, builder -> {
-                        shape.draw(builder, matrixStack,tickDelta);
+                        shape.draw(true, builder, matrixStack,tickDelta);
                     });
                 }
             }
@@ -125,7 +125,7 @@ public class ShapeManager {
 
                 for (Shape shape : sortedShapes) {
                     builderManager.drawImmediate(shape, builder -> {
-                        shape.draw(builder, matrixStack,tickDelta);
+                        shape.draw(true, builder, matrixStack,tickDelta);
                     });
                 }
             }
@@ -137,7 +137,7 @@ public class ShapeManager {
                     sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
                     for (Shape shape : sortedShapes) {
-                        shape.draw(builder, matrixStack,tickDelta);
+                        shape.draw(true,builder, matrixStack,tickDelta);
                     }
                 }, false);
             }
@@ -147,7 +147,7 @@ public class ShapeManager {
                     sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
                     for (Shape shape : sortedShapes) {
-                        shape.draw(builder, matrixStack,tickDelta);
+                        shape.draw(true,builder, matrixStack,tickDelta);
                     }
                 }, true);
             }

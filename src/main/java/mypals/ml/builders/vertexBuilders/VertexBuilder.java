@@ -64,11 +64,6 @@ public abstract class VertexBuilder {
         colors[3] = (argb & 0xFF) / 255f;
         return colors;
     }
-
-    protected boolean shouldApplyNormal(RenderMethod renderMethod) {
-        return renderMethod == RenderMethod.LINES || renderMethod == RenderMethod.LINE_STRIP;
-    }
-
     public void putVertex(Vector3f v, float r, float g, float b, float a) {
         this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
     }

@@ -31,7 +31,7 @@ public class WireframedBoxBuilder extends BaseBuilder<WireframedBoxBuilder,BoxLi
     public WireframedBoxBuilder lineSeeThrough(boolean lineSeeThrough) { this.lineSeeThrough = lineSeeThrough; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public WireframedBoxShape build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new WireframedBoxShape(

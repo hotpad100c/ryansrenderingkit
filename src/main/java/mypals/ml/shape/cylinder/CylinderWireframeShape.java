@@ -6,144 +6,146 @@ import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.core.LineLikeShape;
 import mypals.ml.shape.basics.tags.DrawableLine;
-import mypals.ml.transform.FloatValueTransformer;
-import mypals.ml.transform.IntValueTransformer;
+import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.LineModelInfo;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-public class CylinderWireframeShape extends CylinderShape implements DrawableLine,LineLikeShape {
-    public float lineWidth;
+import static mypals.ml.Helpers.createViewMatrix;
 
-    public CylinderWireframeShape(RenderingType type, BiConsumer<CylinderWireframeTransformer, Shape> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius, float height, float lineWidth, Color color, boolean seeThrough) {
+public class CylinderWireframeShape extends CylinderShape implements DrawableLine, LineLikeShape {
+
+    public CylinderWireframeShape(RenderingType type, Consumer<CylinderWireframeTransformer> transform,
+                                  CircleAxis circleAxis, Vec3 center, int segments,
+                                  float radius, float height, float lineWidth, Color color, boolean seeThrough) {
         super(type, seeThrough);
-        this.transformer = new CylinderWireframeTransformer(this,segments,radius,height,lineWidth);
-        this.transformFunction = (defaultTransformer,shape)->transform.accept((CylinderWireframeTransformer) this.transformer, shape);
-        this.segments = segments;
-        this.radius = radius;
-        this.height = height;
-        this.lineWidth = lineWidth;
-        this.color = color;
-        this.centerPoint = center;
-        this.transformer.setShapeCenterPos(center);
+        this.baseColor = color;
+        this.transformer = new CylinderWireframeTransformer(this, segments, radius, height, lineWidth,center);
+        this.transformFunction = t -> transform.accept((CylinderWireframeTransformer) this.transformer);
+
         this.setAxis(circleAxis);
+        this.setWorldPosition(center);
+
         syncLastToTarget();
     }
+
     @Override
-    public void draw(VertexBuilder builder) {
-        RenderSystem.lineWidth(lineWidth);
+    protected void generateRawGeometry(boolean lerp) {
+        generateCylinderVertices(lerp);
+
+        List<Integer> indices = new ArrayList<>();
+        int segments = getSegments(lerp);
+
+        int bottomStart = 0;
+        int topStart = segments;
+
+        for (int i = 0; i < segments; i++) {
+            int next = (i + 1) % segments;
+            indices.add(bottomStart + i);
+            indices.add(bottomStart + next);
+        }
+
+        for (int i = 0; i < segments; i++) {
+            int next = (i + 1) % segments;
+            indices.add(topStart + i);
+            indices.add(topStart + next);
+        }
+
+        for (int i = 0; i < segments; i++) {
+            indices.add(bottomStart + i);
+            indices.add(topStart + i);
+        }
+
+        this.indexBuffer = indices.stream().mapToInt(Integer::intValue).toArray();
+    }
+    @Override
+    public boolean shouldDraw() {
+        List<Vec3> vertices = this.getModel(true);
+        if (vertices.isEmpty()) return false;
+
+        Minecraft client = Minecraft.getInstance();
+        Camera camera = client.gameRenderer.getMainCamera();
+        GameRenderer gameRenderer = client.gameRenderer;
+
+        Vec3 center = this.transformer.getWorldPivot().add(this.transformer.getLocalPivot());
+
+        Matrix4f viewMatrix = createViewMatrix(camera);
+
+        float fov = client.options.fov().get().floatValue();
+        Matrix4f projectionMatrix = gameRenderer.getProjectionMatrix(fov);
+
+        Matrix4f mvp = new Matrix4f(projectionMatrix);
+        mvp.mul(viewMatrix);
+
+        if (isVertexInFrustum(center, mvp)) return true;
+
+        for (Vec3 v : vertices) {
+            if (isVertexInFrustum(v, mvp)) return true;
+        }
+
+        for (int i = 0; i < vertices.size() - 1; i++) {
+            Vec3 a = vertices.get(i);
+            Vec3 b = vertices.get(i + 1);
+            if (LineLikeShape.isSegmentInFrustum(a, b, mvp)) return true;
+        }
+
+        return false;
+    }
+    @Override
+    protected void drawInternal(VertexBuilder builder) {
+        RenderSystem.lineWidth(getLineWidth(true));
         builder.putColor(this.color);
-        for (int i = 0; i < vertexes.size(); i += 2) {
-            Vec3 a = vertexes.get(i);
-            Vec3 b = vertexes.get(i + 1);
-            addLineSegment(builder, a.add(getShapeCenterPos()), b.add(getShapeCenterPos()));
+
+        for (int i = 0; i < indexBuffer.length; i += 2) {
+            Vec3 a = model_vertexes.get(indexBuffer[i]);
+            Vec3 b = model_vertexes.get(indexBuffer[i + 1]);
+            addLineSegment(builder, a, b);
         }
     }
-    @Override
-    public void generateCylinder() {
-        ArrayList<Vec3> vs = new ArrayList<>();
-        double halfH = height / 2.0;
 
-        ArrayList<Vec3> baseRing = getBase(halfH);
-
-        ArrayList<Vec3> topRing = getTop(baseRing, halfH);
-
-        for (int i = 0; i < segments; i++) {
-            int next = (i + 1) % segments;
-            vs.add(baseRing.get(i));
-            vs.add(baseRing.get(next));
-        }
-
-        for (int i = 0; i < segments; i++) {
-            int next = (i + 1) % segments;
-            vs.add(topRing.get(i));
-            vs.add(topRing.get(next));
-        }
-
-        for (int i = 0; i < segments; i++) {
-            vs.add(baseRing.get(i));
-            vs.add(topRing.get(i));
-        }
-
-        vertexes = vs;
+    public void forceSetLineWidth(float width) {
+        setLineWidth(width);
+        ((CylinderWireframeTransformer)this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
+        generateRawGeometry(false);
     }
-
-    private @NotNull ArrayList<Vec3> getTop(ArrayList<Vec3> baseRing, double halfH) {
-        ArrayList<Vec3> topRing = new ArrayList<>();
-        for (int i = 0; i < segments; i++) {
-            Vec3 bottom = baseRing.get(i);
-            Vec3 top = switch (axis) {
-                case X -> new Vec3(halfH, bottom.y, bottom.z);
-                case Y -> new Vec3(bottom.x, halfH, bottom.z);
-                case Z -> new Vec3(bottom.x, bottom.y, halfH);
-            };
-            topRing.add(top);
-        }
-        return topRing;
-    }
-
-    private @NotNull ArrayList<Vec3> getBase(double halfH) {
-        ArrayList<Vec3> baseRing = new ArrayList<>();
-
-        for (int i = 0; i < segments; i++) {
-            double theta = 2 * Math.PI * i / segments;
-            double c = Math.cos(theta);
-            double s = Math.sin(theta);
-
-            Vec3 point = switch (axis) {
-                case X -> new Vec3(-halfH, radius * c, radius * s);
-                case Y -> new Vec3(radius * c, -halfH, radius * s);
-                case Z -> new Vec3(radius * c, radius * s, -halfH);
-            };
-            baseRing.add(point);
-        }
-        return baseRing;
-    }
-
     @Override
     public void setLineWidth(float width) {
-        lineWidth = width;
+        ((CylinderWireframeTransformer)this.transformer).setWidth(width);
+    }
+    @Override
+    public float getLineWidth(boolean lerp) {
+        return ((CylinderWireframeTransformer)this.transformer).getWidth(lerp);
     }
 
-    public static class CylinderWireframeTransformer extends LineLikeShape.DefaultLineTransformer {
-        public IntValueTransformer segmentTransformer = new IntValueTransformer();
-        public FloatValueTransformer radiusTransformer = new FloatValueTransformer();
-        public FloatValueTransformer heightTransformer = new FloatValueTransformer();
-        public CylinderWireframeTransformer(Shape managerShape,int seg,float rad,float height,float lineWidth) {
-            super(managerShape);
-            setSegment(seg);
-            setRadius(rad);
-            setHeight(height);
-            setWidth(lineWidth);
+    public static class CylinderWireframeTransformer extends CylinderTransformer {
+        public LineModelInfo lineModelInfo;
+
+        public CylinderWireframeTransformer(Shape managedShape, int seg, float rad, float height, float lineWidth,Vec3 vec3) {
+            super(managedShape,seg,rad,height,vec3);
+            lineModelInfo = new LineModelInfo(lineWidth);
         }
-        public void setSegment(int segment){
-            this.segmentTransformer.setTargetValue(segment);
-        }
-        public void setRadius(float radius){
-            this.radiusTransformer.setTargetValue(radius);
-        }
-        public void setHeight(float height){
-            this.heightTransformer.setTargetValue(height);
-        }
+
+        public void setWidth(float width) { lineModelInfo.setWidth(width); }
+        public float getWidth(boolean lerp) { return lineModelInfo.getWidth(lerp); }
+
         @Override
-        public void applyTransformations(PoseStack matrixStack){
-            super.applyTransformations(matrixStack);
-            float deltaTime = getTickDelta();
-            if(this.managedShape instanceof CylinderShape cylinderShape) {
-                this.segmentTransformer.updateValue(cylinderShape::setSegments,deltaTime);
-                this.radiusTransformer.updateValue(cylinderShape::setRadius,deltaTime);
-                this.heightTransformer.updateValue(cylinderShape::setHeight,deltaTime);
-            }
-        }
-        @Override
-        public void syncLastToTarget(){
-            this.segmentTransformer.syncLastToTarget();
-            this.radiusTransformer.syncLastToTarget();
-            this.heightTransformer.syncLastToTarget();
+        public void syncLastToTarget() {
+            lineModelInfo.syncLastToTarget();
             super.syncLastToTarget();
+        }
+        @Override
+        public boolean asyncModelInfo(){
+            return super.asyncModelInfo() || lineModelInfo.async();
         }
     }
 }
+

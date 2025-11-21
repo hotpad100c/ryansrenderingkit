@@ -1,146 +1,317 @@
 package mypals.ml.shape;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
-import mypals.ml.shape.basics.tags.ExtractableShape;
+import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shapeManagers.ShapeManagers;
-import mypals.ml.transform.Vec3dTransformer;
+import mypals.ml.transform.shapeTransformers.DefaultTransformer;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import mypals.ml.transform.QuaternionTransformer;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+import org.joml.Matrix4f;
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.util.function.BiConsumer;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
+import static mypals.ml.Helpers.*;
+import static mypals.ml.test.Tester.ENABLE_DEBUG;
 
 public abstract class Shape {
-    public enum RenderingType {
-        IMMEDIATE,   // Immediately rendered
-        BATCH,      // Stored in bufferBuilder, batch uploads every frame
-        BUFFERED    // Stored in VBO
-    }
+    public enum RenderingType { IMMEDIATE, BATCH, BUFFERED }
+
     public ResourceLocation id;
     public final RenderingType type;
-    public BiConsumer<DefaultTransformer,Shape> transformFunction;
     public DefaultTransformer transformer;
-    public boolean seeThrough;
-    public Vec3 centerPoint = Vec3.ZERO;
+    public Consumer<DefaultTransformer> transformFunction;
 
-    protected Shape(RenderingType type,BiConsumer<? super DefaultTransformer, Shape> transform) {
-        this(type);
-        this.transformFunction = (transformer, shape) -> transform.accept(this.transformer,shape);
+    public Shape parent;
+    public List<Shape> children = new ArrayList<>();
+
+    public boolean visible = true;
+    public Color baseColor;
+    public boolean seeThrough;
+
+    public List<Vec3> model_vertexes = new ArrayList<>();//This is the original model of our model.
+    public int[] indexBuffer = new int[0];
+    public Map<String, Object> customData = new HashMap<>();
+
+    protected Shape(RenderingType type, Consumer<DefaultTransformer> transform,Color color, Vec3 center, boolean seeThrough) {
+        this(type,color,seeThrough);
+        this.transformer = new DefaultTransformer(this,center);
+        this.transformFunction = transform;
     }
-    protected Shape(RenderingType type) {
-        this(type,false);
-    }
-    protected Shape(RenderingType type,boolean seeThrough) {
+    protected Shape(RenderingType type,Color color, boolean seeThrough) {
         this.type = type;
         this.seeThrough = seeThrough;
+        this.baseColor = color;
     }
-    protected Shape(RenderingType type,BiConsumer<? super DefaultTransformer, Shape> transform,boolean seeThrough) {
-        this(type,seeThrough);
-        this.transformFunction = (transformer, shape) -> transform.accept(this.transformer,shape);
+    public List<Shape> getChildren(){
+        return this.children;
     }
-    public DefaultTransformer getTransformer() {
-        return transformer;
+    public void addChild(Shape shape){
+        shape.setParent(this);
+        children.add(shape);
     }
-    public void setId(ResourceLocation identifier){
-        this.id = identifier;
+    public void setParent(Shape parent){
+        if(this.parent != null){
+            this.parent.children.remove(this);
+        }
+        this.parent = parent;
     }
-    public void draw(VertexBuilder builder, PoseStack matrixStack, float deltaTime) {
+    public void setLocalPosition(Vec3 pos) { this.transformer.setShapeLocalPivot(pos); }
+    public void setLocalRotation(Vector3f rot) { this.transformer.setShapeLocalRotationDegrees(rot.x,rot.y,rot.z); }
+    public void setLocalScale(Vec3 scale) { this.transformer.setShapeLocalScale(scale); }
+
+    public void setWorldPosition(Vec3 pos) {this.transformer.setShapeWorldPivot(pos);}
+
+    public void setWorldRotation(Vector3f rot) {this.transformer.setShapeWorldRotationDegrees(rot.x, rot.y, rot.z);}
+
+    public void setWorldScale(Vec3 scale) {this.transformer.setShapeWorldScale(scale);}
+
+    public void setRenderPivot(Vec3 pos) {this.transformer.setShapeMatrixPivot(pos);}
+
+    public void setRenderRotation(Vector3f rot) {this.transformer.setShapeMatrixRotationDegrees(rot.x, rot.y, rot.z);}
+
+    public void setRenderScale(Vec3 scale) {this.transformer.setShapeMatrixScale(scale);}
+
+    public void forceSetLocalPosition(Vec3 pos) {
+        setLocalPosition(pos);
+        this.transformer.local.position.syncLastToTarget();
+    }
+
+    public void forceSetLocalRotation(Vector3f rot) {
+        setLocalRotation(rot);
+        this.transformer.local.rotation.syncLastToTarget();
+    }
+
+    public void forceSetLocalScale(Vec3 scale) {
+        setLocalScale(scale);
+        this.transformer.local.scale.syncLastToTarget();
+    }
+
+    public void forceSetWorldPosition(Vec3 pos) {
+        setWorldPosition(pos);
+        this.transformer.world.position.syncLastToTarget();
+    }
+
+    public void forceSetWorldRotation(Vector3f rot) {
+        setWorldRotation(rot);
+        this.transformer.world.rotation.syncLastToTarget();
+    }
+
+    public void forceSetWorldScale(Vec3 scale) {
+        setWorldScale(scale);
+        this.transformer.world.scale.syncLastToTarget();
+    }
+
+    public void forceSetRenderPivot(Vec3 pos) {
+        setRenderPivot(pos);
+        this.transformer.matrix.position.syncLastToTarget();
+    }
+
+    public void forceSetRenderRotation(Vector3f rot) {
+        setRenderRotation(rot);
+        this.transformer.matrix.rotation.syncLastToTarget();
+    }
+
+    public void forceSetRenderScale(Vec3 scale) {
+        setRenderScale(scale);
+        this.transformer.matrix.scale.syncLastToTarget();
+    }
+
+
+    protected abstract void generateRawGeometry(boolean lerp);
+
+
+    public List<Vec3> getModel(boolean applyMatrixTransformer) {
+        if (this.transformer.asyncModelInfo()) {
+            model_vertexes.clear();
+            generateRawGeometry(false);
+        }
+
+        PoseStack poseStack = new PoseStack();
+
+
+        List<Shape> hierarchy = new ArrayList<>();
+        Shape current = this;
+        while (current != null) {
+            hierarchy.add(current);
+            current = current.parent;
+        }
+        for (int i = hierarchy.size() - 1; i >= 0; i--) {
+            Shape n = hierarchy.get(i);
+            if(applyMatrixTransformer){
+                n.transformer.applyTransformations(poseStack, true);
+            }else{
+                n.transformer.applyModelTransformations(poseStack, true);
+            }
+        }
+
+        Matrix4f matrix = poseStack.last().pose();
+
+        List<Vec3> transformed = new ArrayList<>(model_vertexes.size());
+        for (Vec3 local : model_vertexes) {
+            Vector3f vec = new Vector3f((float) local.x, (float) local.y, (float) local.z);
+            vec.mulPosition(matrix);
+            transformed.add(new Vec3(vec.x(), vec.y(), vec.z()));
+        }
+
+        return transformed;
+    }
+
+    public void beforeDraw(PoseStack matrixStack, float deltaTime) {
+
+        transformer.updateTickDelta(deltaTime);
+        transformFunction.accept(transformer);
+        if (this.transformer.asyncModelInfo()) {
+            model_vertexes.clear();
+            generateRawGeometry(true);
+        }
+
+        List<Shape> hierarchy = new ArrayList<>();
+        Shape current = this;
+        while (current != null) {
+            hierarchy.add(current);
+            current = current.parent;
+        }
+        for (int i = hierarchy.size() - 1; i >= 0; i--) {
+            Shape n = hierarchy.get(i);
+            n.transformer.applyTransformations(matrixStack, true);
+        }
+        //We'll apply all transformations to the matrix stack before drawing(With lerp!).
+    }
+    public void drawShapeDebugInfo(PoseStack matrixStack, float deltaTime){
+        VertexConsumer vertexConsumer = Minecraft.getInstance()
+                .renderBuffers().bufferSource().getBuffer(RenderType.LINES);
+
+        Vec3 localCenter = this.transformer.getShapeWorldPivot(true).add(this.transformer.getShapeLocalPivot(true));
+        Vec3 worldCenter = this.transformer.getShapeWorldPivot(true);
+        Vec3 visualCenter = this.transformer.getShapeMatrixPivot(true).add(worldCenter);
+        renderLineBox(matrixStack,vertexConsumer,localCenter,0.15f,1,0,0,1);
+
+        renderLineBox(matrixStack,vertexConsumer,worldCenter,0.1f,0,1,0,1);
+
+        renderLineBox(matrixStack,vertexConsumer,visualCenter,0.05f,0,0,1,1);
+
+        RenderSystem.depthMask(false);
+        for(Vec3 v : getModel(false)){
+            double distanceTo = v.distanceToSqr(Minecraft.getInstance().cameraEntity.position());
+            if(distanceTo < 50)
+                renderBillboardFrame(matrixStack,vertexConsumer,v, (float) (distanceTo * 0.01),1,0,1,1);
+        }
+        RenderSystem.depthMask(true);
+    }
+
+
+    public RayModelIntersection.HitResult isPlayerLookingAt(){
+        Minecraft minecraft = Minecraft.getInstance();
+        Player p = minecraft.player;
+        if(p == null) return new RayModelIntersection.HitResult(false,null, -1);;
+        Camera camera = minecraft.gameRenderer.getMainCamera();
+        RayModelIntersection.Ray r = new RayModelIntersection.Ray(camera.getPosition(), p.getForward());
+
+        return RayModelIntersection.rayIntersectsModel(
+                r,
+                this.getModel(false),
+                this.indexBuffer
+        );
+    }
+    public void draw(boolean frustumCull, VertexBuilder builder, PoseStack matrixStack, float deltaTime) {
+        boolean shouldDraw = shouldDraw();
+        Minecraft mc = Minecraft.getInstance();
+        if(mc.getEntityRenderDispatcher().shouldRenderHitBoxes() && ENABLE_DEBUG){
+            drawShapeDebugInfo(matrixStack,deltaTime);
+        }
+        if(!visible) return;
         matrixStack.pushPose();
-        beforeDraw(matrixStack,deltaTime);
+        beforeDraw(matrixStack, deltaTime);
         builder.setPositionMatrix(matrixStack.last().pose());
-        draw(builder);
+        if(!frustumCull || shouldDraw){
+            drawInternal(builder);
+        }
         matrixStack.popPose();
     }
-    public void discard(){
-        ShapeManagers.removeShape(this.id);
-    }
-    public void draw(VertexBuilder builder) {
-        if(this instanceof ExtractableShape) throw new UnsupportedOperationException("This shape cant be rendered directly, use addGroup to extract it.");
-    }
-    public void beforeDraw(PoseStack matrixStack,float deltaTime){
-        transformer.updateTickDelta(deltaTime);
-        transformFunction.accept(transformer,this);
-        transformer.applyTransformations(matrixStack);
-    }
-    public void setMatrixScale(Vector3f scale, PoseStack matrixStack){
-        matrixStack.scale(scale.x,scale.y,scale.z);
-    }
-    public void setMatrixRotation(Quaternionf rotation, PoseStack matrixStack){
-        matrixStack.mulPose(rotation);
-    }
-    public void setMatrixCenterPos(Vec3 pos, PoseStack matrixStack){
-        matrixStack.translate(pos.x, pos.y, pos.z);
-    }
-    public Vec3 calculateShapeCenterPos(){
-        return this.centerPoint;
-    }
-    public Vec3 getShapeCenterPos(){
-        return this.centerPoint;
-    }
-    public void setShapeCenterPos(Vec3 pos){
-        this.centerPoint = pos;
-    }
-    public void syncLastToTarget(){
-        this.transformer.syncLastToTarget();
-    }
-    public static class DefaultTransformer{
-        public float delta = 0;
-        public Shape managedShape;
-        public Vec3dTransformer shapeCenterTransformer = new Vec3dTransformer();
-        public Vec3dTransformer matrixCenterTransformer = new Vec3dTransformer();
-        public QuaternionTransformer matrixRotationTransformer = new QuaternionTransformer();
-        public Vec3dTransformer matrixScaleTransformer = new Vec3dTransformer(Vec3.ZERO.add(1));
-        public DefaultTransformer(Shape managerShape){
-            this.managedShape = managerShape;
-        }
-        public float getTickDelta(){
-            return this.delta;
-        }
-        public void updateTickDelta(float delta){
-            this.delta = delta;
-        }
-        public void applyTransformations(PoseStack matrixStack) {
-            float deltaTime = getTickDelta();
-            shapeCenterTransformer.updateVector(pos -> managedShape.setShapeCenterPos(pos), deltaTime);
-            matrixCenterTransformer.updateVector(pos -> managedShape.setMatrixCenterPos(pos, matrixStack), deltaTime);
+    public boolean shouldDraw() {
+        List<Vec3> vertices = this.getModel(true);
+        if (vertices.isEmpty()) return false;
 
-            Vec3 matrixCenter = matrixCenterTransformer.getCurrentVector().add(shapeCenterTransformer.getCurrentVector());
+        Minecraft client = Minecraft.getInstance();
+        Camera camera = client.gameRenderer.getMainCamera();
+        GameRenderer gameRenderer = client.gameRenderer;
 
-            matrixStack.translate(matrixCenter.x, matrixCenter.y, matrixCenter.z);
-            matrixRotationTransformer.updateRotation(rot -> managedShape.setMatrixRotation(rot, matrixStack), deltaTime);
-            matrixScaleTransformer.updateVector(scl -> managedShape.setMatrixScale(scl.toVector3f(), matrixStack), deltaTime);
-            matrixStack.translate(-matrixCenter.x, -matrixCenter.y, -matrixCenter.z);
+        Vec3 center = this.transformer.getWorldPivot().add(this.transformer.getLocalPivot());
+
+        Matrix4f viewMatrix = createViewMatrix(camera);
+
+        float fov = client.options.fov().get().floatValue();
+        Matrix4f projectionMatrix = gameRenderer.getProjectionMatrix(fov);
+
+        Matrix4f mvp = new Matrix4f(projectionMatrix);
+        mvp.mul(viewMatrix);
+
+        if (isVertexInFrustum(center, mvp)) return true;
+        for (Vec3 v : vertices) {
+            if (isVertexInFrustum(v, mvp)) return true;
         }
-        public void setShapeCenterPos(Vec3 pos){
-            shapeCenterTransformer.setTargetVector(pos);
+        return false;
+    }
+
+    public static boolean isVertexInFrustum(Vec3 v, Matrix4f mvp) {
+        Vector4f clip = new Vector4f((float)v.x, (float)v.y, (float)v.z, 1f);
+        clip.mul(mvp);
+
+        if (clip.w <= 0) return false;
+
+        float ndcX = clip.x / clip.w;
+        float ndcY = clip.y / clip.w;
+        float ndcZ = clip.z / clip.w;
+
+        return ndcX >= -1 && ndcX <= 1
+                && ndcY >= -1 && ndcY <= 1
+                && ndcZ >= -1 && ndcZ <= 1;
+    }
+    protected void drawInternal(VertexBuilder builder) {
+        builder.putColor(baseColor);
+        for (int i : indexBuffer) {
+            builder.putVertex(model_vertexes.get(i));
         }
-        public void setMatrixCenterPos(Vec3 pos){
-            matrixCenterTransformer.setTargetVector(pos);
-        }
-        public void setMatrixCenterPos(Vector3f pos){
-            matrixCenterTransformer.setTargetVector(new Vec3(pos.x,pos.y,pos.z));
-        }
-        public void setMatrixRotation(Quaternionf rotation){
-            matrixRotationTransformer.setTargetRotation(rotation);
-        }
-        public void setMatrixRotation(Vec3 rotation){
-            matrixRotationTransformer.setTargetRotation(new Quaternionf().rotationXYZ(
-                    (float)Math.toRadians(rotation.x),
-                    (float)Math.toRadians(rotation.y),
-                    (float)Math.toRadians(rotation.z)
-            ));
-        }
-        public void setMatrixScale(Vec3 scale) {
-            matrixScaleTransformer.setTargetVector(scale);
-        }
-        public void syncLastToTarget(){
-            this.shapeCenterTransformer.syncLastToTarget();
-            this.matrixCenterTransformer.syncLastToTarget();
-            this.matrixRotationTransformer.syncLastToTarget();
-            this.matrixScaleTransformer.syncLastToTarget();
-        }
+    }
+    public void setBaseColor(Color color){
+            this.baseColor = color;
+    }
+    public void setId(ResourceLocation id) { this.id = id; }
+    public void discard() {
+        children.forEach(Shape::discard);
+        ShapeManagers.removeShape(this.id); }
+    public void syncLastToTarget() { transformer.syncLastToTarget(); }
+
+    private Map<String, Object> data() {
+        if (customData == null) customData = new HashMap<>(1);
+        return customData;
+    }
+
+    public <T> void putCustomData(String key, T value) {
+        data().put(key , value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getCustomData(String key, T def) {
+        return (T) customData.getOrDefault(key, def);
+    }
+    @SuppressWarnings("unchecked")
+    public void removeCustomData(String key) {
+        customData.remove(key);
     }
 }
-

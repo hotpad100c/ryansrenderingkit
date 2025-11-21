@@ -8,9 +8,8 @@ import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 
-public class StripLineBuilder extends BaseBuilder<StripLineBuilder, LineLikeShape.DefaultLineTransformer> {
+public class StripLineBuilder extends BaseBuilder<StripLineBuilder, LineLikeShape.SimpleLineTransformer> {
     private final List<Vec3> vertexes = new ArrayList<>();
     private final List<Color> colors = new ArrayList<>();
     private float lineWidth = 1.0f;
@@ -21,7 +20,7 @@ public class StripLineBuilder extends BaseBuilder<StripLineBuilder, LineLikeShap
     public StripLineBuilder lineWidth(float lineWidth) { this.lineWidth = lineWidth; return this; }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public StripLineShape build(Shape.RenderingType type) {
         if (vertexes.size() < 2) throw new IllegalStateException("StripLine needs at least 2 vertices");
         @SuppressWarnings("unchecked")
         var t = getTransformer();

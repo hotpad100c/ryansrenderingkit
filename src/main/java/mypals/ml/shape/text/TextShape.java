@@ -1,111 +1,194 @@
 package mypals.ml.shape.text;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
+import mypals.ml.shape.basics.tags.EmptyMesh;
+import mypals.ml.transform.shapeTransformers.DefaultTransformer;
+import net.fabricmc.fabric.impl.client.indigo.renderer.helper.ColorHelper;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
+import net.minecraft.client.gui.screens.inventory.SignEditScreen;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.SignRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 import com.mojang.blaze3d.vertex.PoseStack;
+
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.function.BiConsumer;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
-public class TextShape extends Shape {
+import static mypals.ml.Helpers.multiplyRGB;
+
+public class TextShape extends Shape implements EmptyMesh {
+
     public ArrayList<String> contents = new ArrayList<>();
-    public ArrayList<Color> color = new ArrayList<>();
-    public BillBoardMode bill = BillBoardMode.ALL;
+    public ArrayList<Color> colors = new ArrayList<>();
+    public boolean shadow;
+    public boolean outline;
+
+    public Color backgroundColor = new Color(0,0,0,0);
+    public BillBoardMode billBoardMode = BillBoardMode.ALL;
+    @Nullable
+    private FormattedCharSequence[] renderMessages;
+
+
     public enum BillBoardMode {
-        VERTICAL,
-        HORIZONTAL,
-        ALL
+        FIXED, VERTICAL, HORIZONTAL, ALL
     }
 
-    protected TextShape(RenderingType type, BiConsumer<? super DefaultTransformer, Shape> transform, ArrayList<String> texts,ArrayList<Color> colors) {
-        super(type, transform);
-        this.color = colors;
-        this.contents = texts;
-    }
+    public TextShape(RenderingType type,
+                     Consumer<DefaultTransformer> transform,
+                     Vec3 center, List<String> texts, List<Color> textColors,
+                     Color backgroundColor,
+                     BillBoardMode mode, boolean seeThrough,
+                     boolean shadow,boolean outline) {
+        super(type, transform, Color.white, center, seeThrough);
+        this.seeThrough = seeThrough;
+        this.contents.addAll(texts);
+        this.colors.addAll(textColors);
+        this.billBoardMode = mode;
+        this.shadow = shadow;
+        this.outline = outline;
+        this.backgroundColor = backgroundColor;
 
-    protected TextShape(RenderingType type) {
-        super(type);
-    }
+        this.transformer.setShapeWorldPivot(center);
 
-    protected TextShape(RenderingType type, boolean seeThrough) {
-        super(type, seeThrough);
-    }
-
-    public TextShape(RenderingType type, BiConsumer<? super DefaultTransformer, Shape> transform, boolean seeThrough) {
-        super(type, transform, seeThrough);
-    }
-    public TextShape(RenderingType type, BiConsumer<DefaultTransformer, Shape> transform, BillBoardMode bill, Vec3 center,ArrayList<String> texts,ArrayList<Color> colors, boolean seeThrough) {
-        super(type,seeThrough);
-        this.transformer = new DefaultTransformer(this);
-        this.bill = bill;
-        this.color = colors;
-        this.contents = texts;
-        this.transformFunction = (defaultTransformer,shape)->transform.accept(this.transformer, shape);
-        this.centerPoint = center;
-        this.transformer.setShapeCenterPos(this.calculateShapeCenterPos());
         syncLastToTarget();
     }
-    @Override
-    public void beforeDraw(PoseStack matrixStack, float deltaTime) {
-        applyBillboard(matrixStack,this.bill);
-        super.beforeDraw(matrixStack,deltaTime);
+    public TextShape(RenderingType type,
+                     Consumer<DefaultTransformer> transform,
+                     Vec3 center, List<String> texts, List<Color> textColors,
+                     BillBoardMode mode, boolean seeThrough,boolean shadow,boolean outline) {
+
+    this(type,transform,center,texts,textColors,new Color(0,0,0,0),mode,seeThrough,shadow,outline);
     }
-    public Vec3 calculateShapeCenterPos(){
-        return centerPoint;
+    @Override
+    protected void generateRawGeometry(boolean lerp) {
+        model_vertexes.clear();
+    }
+    public FormattedCharSequence[] getRenderMessages() {
+        if (this.renderMessages == null) {
+            Minecraft mc = Minecraft.getInstance();
+            Font font = mc.font;
+            this.renderMessages = new FormattedCharSequence[contents.size()];
+            MutableComponent[] components = this.getMessages();
+            for (int i = 0; i < components.length; i++) {
+                this.renderMessages[i] = font.split(components[i],Integer.MAX_VALUE).getFirst();
+            }
+        }
+
+        return this.renderMessages;
     }
 
-    @Override
-    public void setMatrixScale(Vector3f scale, PoseStack matrixStack){
-        matrixStack.scale(scale.x,-scale.y,1);
+    public MutableComponent[] getMessages() {
+        MutableComponent[] components = new MutableComponent[contents.size()];
+        for (String string : contents){
+            components[contents.indexOf(string)] = Component.literal(string);
+        }
+        return components;
     }
     @Override
-    public void draw(VertexBuilder builder) {
-        Minecraft client = Minecraft.getInstance();
-        Font textRenderer = client.font;
+    protected void drawInternal(VertexBuilder builder) {
 
-        float[] lineHeights = new float[this.contents.size()];
-        float totalHeight = 0.0f;
-        for (int i = 0; i < this.contents.size(); i++) {
-            lineHeights[i] = textRenderer.wordWrapHeight(this.contents.get(i), Integer.MAX_VALUE) * 1.25f;
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance()
+                .renderBuffers().bufferSource();
+
+        Minecraft mc = Minecraft.getInstance();
+        Font font = mc.font;
+        float totalHeight = 0f;
+        float[] lineHeights = new float[contents.size()];
+
+        for (int i = 0; i < contents.size(); i++) {
+            String line = contents.get(i);
+            int wrappedHeight = font.wordWrapHeight(line, Integer.MAX_VALUE);
+            lineHeights[i] = wrappedHeight * 1.25f;
             totalHeight += lineHeights[i];
         }
-        float renderYBase = -totalHeight / 2.0f;
-        for (int i = 0; i < this.contents.size(); i++) {
-            String text = this.contents.get(i);
-            float renderX = -textRenderer.width(text) * 0.5f;
-            float renderY = renderYBase + (i > 0 ? lineHeights[i - 1] : 0);
-            int colorValue = (this.color.size() > i && this.color.get(i) != null) ? this.color.get(i).getRGB() : Color.WHITE.getRGB();
 
-            textRenderer.drawInBatch(
-                    text, renderX, renderY, colorValue, true,
-                    builder.getPositionMatrix(), new NonDrawVertexConsumerProvider(builder.getBufferBuilder()),
-                    seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL,
-                    0, 0xF000F0
-            );
+        float yOffset = -totalHeight / 2f;
 
-            if (i > 0) renderYBase += lineHeights[i - 1];
+        FormattedCharSequence[] renderMessages = getRenderMessages();
+        for (int i = 0; i < contents.size(); i++) {
+            String text = contents.get(i);
+            Color color = i < colors.size() ? colors.get(i) : baseColor;
+
+            float x = -font.width(text) / 2f;
+            float y = yOffset;
+            if(outline) {
+                font.drawInBatch8xOutline(renderMessages[i],x, y,
+                        color.getRGB(),
+                        multiplyRGB(color.getRGB(),0.8f),
+                        builder.getPositionMatrix(),
+                        bufferSource, LightTexture.FULL_BRIGHT);
+            }else {
+                font.drawInBatch(
+                        text,
+                        x, y,
+                        outline ? multiplyRGB(color.getRGB(), 0.9f) : color.getRGB(),
+                        shadow,
+                        builder.getPositionMatrix(),
+                        bufferSource,
+                        seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.POLYGON_OFFSET,
+                        backgroundColor.getRGB(),
+                        LightTexture.FULL_BRIGHT
+                );
+            }
+
+            yOffset += lineHeights[i];
+        }
+        RenderSystem.setShaderColor(1,1,1,1);
+    }
+    @Override
+    public void beforeDraw(PoseStack poseStack, float deltaTime) {
+        super.beforeDraw(poseStack, deltaTime);
+
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Quaternionf camRot = camera.rotation();
+
+        switch (billBoardMode) {
+            case ALL -> {
+                poseStack.mulPose(camRot);
+            }
+            case VERTICAL -> {
+                float yaw = (float) Math.toRadians(camera.getYRot() + 180);
+                poseStack.mulPose(new Quaternionf().rotateY(yaw));
+            }
+            case HORIZONTAL -> {
+                float pitch = (float) Math.toRadians(camera.getXRot());
+                poseStack.mulPose(new Quaternionf().rotateX(pitch));
+            }
+        }
+        poseStack.scale(0.015625F, -0.015625F, 0.015625F);
+    }
+    public void setText(int line, String text) {
+        line--;
+        if (line >= 0 && line < contents.size()) {
+            contents.set(line, text);
         }
     }
-    public void applyBillboard(PoseStack matrices, BillBoardMode mode) {
-        float yaw = Minecraft.getInstance().gameRenderer.getMainCamera().getYRot();
-        float pitch = Minecraft.getInstance().gameRenderer.getMainCamera().getXRot();
 
-        switch (mode) {
-            case VERTICAL:
-                matrices.mulPose(new Quaternionf().rotateY((float)Math.toRadians(yaw)));
-                break;
-            case HORIZONTAL:
-                matrices.mulPose(new Quaternionf().rotateX((float)Math.toRadians(pitch)));
-                break;
-            case ALL:
-                matrices.mulPose(Minecraft.getInstance().gameRenderer.getMainCamera().rotation());
-                break;
-        }
+    public void setColor(int line, Color color) {
+        while (colors.size() <= line) colors.add(Color.WHITE);
+        colors.set(line, color);
     }
 
+    public void setBillboardMode(BillBoardMode mode) {
+        this.billBoardMode = mode;
+    }
+    @Override
+    public boolean shouldDraw() {
+        return true;
+    }
 }

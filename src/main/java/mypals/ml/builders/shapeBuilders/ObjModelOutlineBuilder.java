@@ -5,9 +5,7 @@ import mypals.ml.shape.basics.core.LineLikeShape;
 import mypals.ml.shape.model.ObjModelShapeOutline;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.function.BiConsumer;
-
-public class ObjModelOutlineBuilder extends BaseBuilder<ObjModelOutlineBuilder, LineLikeShape.DefaultLineTransformer> {
+public class ObjModelOutlineBuilder extends BaseBuilder<ObjModelOutlineBuilder, LineLikeShape.SimpleLineTransformer> {
     private ResourceLocation resourceLocation;
     private float lineWidth = 1.0f;
 
@@ -21,7 +19,7 @@ public class ObjModelOutlineBuilder extends BaseBuilder<ObjModelOutlineBuilder, 
     }
 
     @Override
-    public Shape build(Shape.RenderingType type) {
+    public ObjModelShapeOutline build(Shape.RenderingType type) {
         @SuppressWarnings("unchecked")
         var t = getTransformer();
         return new ObjModelShapeOutline(type, t, resourceLocation, center, lineWidth, color, seeThrough);

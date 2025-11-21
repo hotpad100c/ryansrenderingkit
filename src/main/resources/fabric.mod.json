@@ -4,6 +4,7 @@
 	"version": "${version}",
 	"name": "RyansRenderingKit",
 	"description": "This is an example description! Tell everyone what your mod is about!",
+	"access_widener": "ryansRenderingKit.accesswidener",
 	"authors": [
 		"Me!"
 	],

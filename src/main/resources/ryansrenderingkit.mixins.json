@@ -11,6 +11,8 @@
     "requireAnnotations": true
   },
   "client": [
-    "ClientWorldMixin"
-    ]
+    "ClientWorldMixin",
+    "MeshDataMixin",
+    "MeshDataMixin$SortStateMixin"
+  ]
 }

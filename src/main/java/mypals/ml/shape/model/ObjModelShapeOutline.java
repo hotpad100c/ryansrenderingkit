@@ -4,72 +4,116 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.core.LineLikeShape;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import static mypals.ml.Helpers.createViewMatrix;
 
 public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape {
 
     public float lineWidth;
-    public Color color = Color.white;
-    public ObjModelShapeOutline(RenderingType type, BiConsumer<DefaultLineTransformer, Shape> transform, ResourceLocation resourceLocation, Vec3 center,float lineWidth, Color color) {
-        this(type, transform,resourceLocation,center,lineWidth,color,false);
-    }
 
-    protected ObjModelShapeOutline(RenderingType type) {
-        super(type);
-    }
+    public ObjModelShapeOutline(RenderingType type,
+                                Consumer<SimpleLineTransformer> transform,
+                                ResourceLocation resourceLocation,
+                                Vec3 center,
+                                float lineWidth,
+                                Color color,
+                                boolean seeThrough) {
+        super(type, (d) -> {}, resourceLocation, center, color, seeThrough);
 
-    protected ObjModelShapeOutline(RenderingType type, boolean seeThrough) {
-        super(type, seeThrough);
-    }
+        this.transformer = new SimpleLineTransformer(this,lineWidth,center);
+        this.transformFunction = (t) -> transform.accept((SimpleLineTransformer) this.transformer);
 
-    public ObjModelShapeOutline(RenderingType type, BiConsumer<DefaultLineTransformer, Shape> transform, ResourceLocation resourceLocation, Vec3 center,float lineWidth, Color color, boolean seeThrough) {
-        super(type, seeThrough);
-        this.transformer = new DefaultLineTransformer(this);
-        this.transformFunction = (tr,s)->{transform.accept((DefaultLineTransformer)this.transformer,this);};
-        try {
-            loadOBJ(resourceLocation);
-        }catch (IOException e){
-            e.printStackTrace();
-        }
         this.lineWidth = lineWidth;
-        ((DefaultLineTransformer)this.transformer).setWidth(this.lineWidth);
+        this.baseColor = color;
+
+        ((SimpleLineTransformer) this.transformer).setWidth(this.lineWidth);
+        this.transformer.setShapeWorldPivot(center);
+
         syncLastToTarget();
-        this.color = color;
-        this.centerPoint = center;
-        this.transformer.setShapeCenterPos(center);
     }
 
     @Override
     public void setLineWidth(float width) {
         this.lineWidth = width;
+        if (this.transformer instanceof SimpleLineTransformer slt) {
+            slt.setWidth(width);
+        }
     }
 
     @Override
-    public void draw(VertexBuilder builder) {
-        RenderSystem.lineWidth(this.lineWidth);
-        builder.putColor(this.color);
+    public float getLineWidth(boolean lerp) {
+       return  ((SimpleLineTransformer)this.transformer).getWidth(lerp);
+    }
 
-        if (model == null) return;
+    @Override
+    protected void generateRawGeometry(boolean lerp) {
+        super.generateRawGeometry(lerp);
+    }
+    @Override
+    public boolean shouldDraw() {
+        List<Vec3> vertices = this.getModel(true);
+        if (vertices.isEmpty()) return false;
+
+        Minecraft client = Minecraft.getInstance();
+        Camera camera = client.gameRenderer.getMainCamera();
+        GameRenderer gameRenderer = client.gameRenderer;
+
+        Vec3 center = this.transformer.getWorldPivot().add(this.transformer.getLocalPivot());
+
+        Matrix4f viewMatrix = createViewMatrix(camera);
+
+        float fov = client.options.fov().get().floatValue();
+        Matrix4f projectionMatrix = gameRenderer.getProjectionMatrix(fov);
+
+        Matrix4f mvp = new Matrix4f(projectionMatrix);
+        mvp.mul(viewMatrix);
+
+        if (isVertexInFrustum(center, mvp)) return true;
+
+        for (Vec3 v : vertices) {
+            if (isVertexInFrustum(v, mvp)) return true;
+        }
+
+        for (int i = 0; i < vertices.size() - 1; i++) {
+            Vec3 a = vertices.get(i);
+            Vec3 b = vertices.get(i + 1);
+            if (LineLikeShape.isSegmentInFrustum(a, b, mvp)) return true;
+        }
+
+        return false;
+    }
+    @Override
+    protected void drawInternal(VertexBuilder builder) {
+        if (model_vertexes.isEmpty() || indexBuffer == null || indexBuffer.length < 3)
+            return;
+
+        RenderSystem.lineWidth(this.lineWidth);
+        builder.putColor(this.baseColor);
 
         for (int[] face : model.faces) {
             int n = face.length;
             if (n < 2) continue;
 
             for (int i = 0; i < n; i++) {
-                int next = (i + 1) % n;
+                Vec3 v0 = model_vertexes.get(face[i]);
+                Vec3 v1 = model_vertexes.get(face[(i + 1) % n]);
 
-                Vec3 v0 = model.vertices.get(face[i]).subtract(modelCenter).add(centerPoint);
-                Vec3 v1 = model.vertices.get(face[next]).subtract(modelCenter).add(centerPoint);
-
-                addLineSegment(builder,v0,v1);
+                addLineSegment(builder, v0, v1);
             }
         }
+
     }
-
-
 }
+

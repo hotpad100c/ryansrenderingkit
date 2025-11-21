@@ -1,5 +1,6 @@
 package mypals.ml.builderManager;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import mypals.ml.builders.vertexBuilders.BatchVertexBuilder;
 import mypals.ml.builders.vertexBuilders.BufferedVertexBuilder;
 import mypals.ml.builders.vertexBuilders.ImmediateVertexBuilder;
@@ -38,7 +39,7 @@ public class BuilderManager {
         public void drawBatch(Consumer<BatchVertexBuilder> builder, RenderMethod renderMethod){
             batchVertexBuilder.beginBatch(renderMethod);
             builder.accept(batchVertexBuilder);
-            batchVertexBuilder.drawBatch();
+            batchVertexBuilder.drawBatch(renderMethod);
         }
         public void drawImmediate(Shape shape, Consumer<VertexBuilder> builder, RenderMethod renderMethod){
             immediateShapeBuilder.draw(shape,builder,renderMethod);
@@ -73,7 +74,7 @@ public class BuilderManager {
             sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
             for(Shape shape: sortedShapes){
-                shape.draw(builder);
+                shape.draw(false, builder,new PoseStack(),1);
             }
         });
         else normalBuilderGroup.bufferedVertexBuilder.rebuild(renderMethod, builder->{
@@ -82,7 +83,7 @@ public class BuilderManager {
             sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
             for(Shape shape: sortedShapes){
-                shape.draw(builder);
+                shape.draw(false, builder,new PoseStack(),1);
             }
         });
     }

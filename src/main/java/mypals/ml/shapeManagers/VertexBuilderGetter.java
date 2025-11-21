@@ -1,5 +1,6 @@
 package mypals.ml.shapeManagers;
 
+import mypals.ml.shape.basics.tags.EmptyMesh;
 import mypals.ml.shape.box.BoxFaceShape;
 import mypals.ml.shape.box.BoxWireframeShape;
 import mypals.ml.shape.Shape;
@@ -21,17 +22,22 @@ import java.util.Map;
 
 public class VertexBuilderGetter {
     public static Map<Class<? extends Shape>, ShapeManager> shapeManagerMap = new HashMap<>();
+    public static Map<Class<? extends Shape>, EmptyShapeManager> emptyShapeManagerMap = new HashMap<>();
+
     public static void registerShapeBuilder(Class<? extends Shape> shapeClass, ShapeManager manager){
         shapeManagerMap.put(shapeClass,manager);
     }
+    public static void registerEmptyShapeBuilder(Class<? extends Shape> shapeClass, EmptyShapeManager manager){
+        emptyShapeManagerMap.put(shapeClass,manager);
+    }
     public static void init(){
         registerShapeBuilder(BoxWireframeShape.class, ShapeManagers.LINES_SHAPE_MANAGER);
-        registerShapeBuilder(BoxFaceShape.class, ShapeManagers.QUADS_SHAPE_MANAGER);
+        registerShapeBuilder(BoxFaceShape.class, ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(LineShape.class,ShapeManagers.LINES_SHAPE_MANAGER);
         registerShapeBuilder(StripLineShape.class,ShapeManagers.LINE_STRIP_SHAPE_MANAGER);
         registerShapeBuilder(LineCircleShape.class,ShapeManagers.LINE_STRIP_SHAPE_MANAGER);
-        registerShapeBuilder(TextShape.class,ShapeManagers.TEXT);
-        registerShapeBuilder(FaceCircleShape.class,ShapeManagers.TRIANGLES_FAN_SHAPE_MANAGER);
+        //registerShapeBuilder(TextShape.class,ShapeManagers.TEXT);
+        registerShapeBuilder(FaceCircleShape.class,ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(SphereShape.class,ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(ObjModelShape.class,ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(ObjModelShapeOutline.class,ShapeManagers.LINES_SHAPE_MANAGER);
@@ -39,12 +45,14 @@ public class VertexBuilderGetter {
         registerShapeBuilder(ConeWireframeShape.class,ShapeManagers.LINES_SHAPE_MANAGER);
         registerShapeBuilder(CylinderShape.class,ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(ConeShape.class,ShapeManagers.TRIANGLES_SHAPE_MANAGER);
-
+        registerEmptyShapeBuilder(TextShape.class,ShapeManagers.NON_SHAPE_OBJECTS);
     }
     public static ShapeManager getBuilderManager(Shape shape){
         return shapeManagerMap.getOrDefault(shape.getClass(),null);
     }
-
+    public static EmptyShapeManager getEmptyBuilderManager(Shape shape){
+        return emptyShapeManagerMap.getOrDefault(shape.getClass(),null);
+    }
     public void removeShapes(ResourceLocation root){
 
     }
