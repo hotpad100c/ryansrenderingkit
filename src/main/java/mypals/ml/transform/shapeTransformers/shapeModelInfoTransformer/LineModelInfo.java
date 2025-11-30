@@ -7,19 +7,24 @@ import net.minecraft.world.phys.Vec3;
 
 public class LineModelInfo extends ModelInfoLayer {
     public FloatTransformer widthTransformer;
-    public LineModelInfo(float width){
+
+    public LineModelInfo(float width) {
         this.widthTransformer = new FloatTransformer(width);
     }
-    public boolean async(){
+
+    public boolean async() {
         return widthTransformer.async();
     }
-    public void update(float delta){
+
+    public void update(float delta) {
         widthTransformer.update(delta);
     }
-    public float getWidth(boolean lerp){
+
+    public float getWidth(boolean lerp) {
         return widthTransformer.getValue(lerp);
     }
-    public void setWidth(float target){
+
+    public void setWidth(float target) {
         widthTransformer.setTargetValue(target);
     }
 
@@ -28,32 +33,40 @@ public class LineModelInfo extends ModelInfoLayer {
         this.widthTransformer.syncLastToTarget();
         super.syncLastToTarget();
     }
+
     public static class TwoPointLineModelInfo extends LineModelInfo {
         public Vec3Transformer endPointTransformer;
         public Vec3Transformer startPointTransformer;
-        public TwoPointLineModelInfo(Vec3 start, Vec3 end,float width){
+
+        public TwoPointLineModelInfo(Vec3 start, Vec3 end, float width) {
             super(width);
             endPointTransformer = new Vec3Transformer(end);
             startPointTransformer = new Vec3Transformer(start);
         }
-        public boolean async(){
+
+        public boolean async() {
             return super.async() || endPointTransformer.async() || startPointTransformer.async();
         }
-        public void update(float delta){
+
+        public void update(float delta) {
             endPointTransformer.update(delta);
             startPointTransformer.update(delta);
             super.update(delta);
         }
-        public Vec3 getStart(boolean lerp){
+
+        public Vec3 getStart(boolean lerp) {
             return startPointTransformer.getValue(lerp);
         }
-        public Vec3 getEnd(boolean lerp){
+
+        public Vec3 getEnd(boolean lerp) {
             return endPointTransformer.getValue(lerp);
         }
-        public void setStart(Vec3 target){
+
+        public void setStart(Vec3 target) {
             startPointTransformer.setTargetVector(target);
         }
-        public void setEnd(Vec3 target){
+
+        public void setEnd(Vec3 target) {
             endPointTransformer.setTargetVector(target);
         }
 

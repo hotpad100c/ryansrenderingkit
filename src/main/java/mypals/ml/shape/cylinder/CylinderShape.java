@@ -1,9 +1,7 @@
 package mypals.ml.shape.cylinder;
 
-import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.CircleLikeShape;
-import mypals.ml.shape.basics.core.LineLikeShape;
 import mypals.ml.shape.basics.tags.DrawableTriangle;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.CircleModelInfo;
@@ -13,7 +11,6 @@ import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class CylinderShape extends Shape implements CircleLikeShape, DrawableTriangle {
@@ -24,9 +21,10 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
     public CylinderShape(RenderingType type, Consumer<CylinderTransformer> transform,
                          CircleAxis circleAxis, Vec3 center, int segments,
                          float radius, float height, Color color, boolean seeThrough) {
-        super(type, shape -> {}, color, center, seeThrough);
+        super(type, shape -> {
+        }, color, center, seeThrough);
 
-        this.transformer = new CylinderTransformer(this, segments, radius, height,center);
+        this.transformer = new CylinderTransformer(this, segments, radius, height, center);
         this.transformFunction = t -> transform.accept((CylinderTransformer) this.transformer);
         this.axis = circleAxis;
         generateRawGeometry(false);
@@ -64,9 +62,9 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
             double s = Math.sin(theta);
 
             Vec3 top = switch (axis) {
-                case X -> new Vec3( halfH, radius * c, radius * s);
-                case Y -> new Vec3(radius * c,  halfH, radius * s);
-                case Z -> new Vec3(radius * c, radius * s,  halfH);
+                case X -> new Vec3(halfH, radius * c, radius * s);
+                case Y -> new Vec3(radius * c, halfH, radius * s);
+                case Z -> new Vec3(radius * c, radius * s, halfH);
             };
             model_vertexes.add(top);
         }
@@ -78,9 +76,9 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
         });
 
         model_vertexes.add(switch (axis) {
-            case X -> new Vec3( halfH, 0, 0);
-            case Y -> new Vec3(0,  halfH, 0);
-            case Z -> new Vec3(0, 0,  halfH);
+            case X -> new Vec3(halfH, 0, 0);
+            case Y -> new Vec3(0, halfH, 0);
+            case Z -> new Vec3(0, 0, halfH);
         });
     }
 
@@ -103,8 +101,12 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
             int t0 = topStart + i;
             int t1 = topStart + next;
 
-            indices.add(b0); indices.add(t0); indices.add(t1);
-            indices.add(b0); indices.add(t1); indices.add(b1);
+            indices.add(b0);
+            indices.add(t0);
+            indices.add(t1);
+            indices.add(b0);
+            indices.add(t1);
+            indices.add(b1);
         }
 
         for (int i = 0; i < segments; i++) {
@@ -134,15 +136,23 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
         public CircleModelInfo circleModelInfo;
         public FloatTransformer heightTransformer;
 
-        public CylinderTransformer(Shape managedShape, int seg, float rad, float height,Vec3 vec3) {
-            super(managedShape,vec3);
-            circleModelInfo = new CircleModelInfo(seg,rad);
+        public CylinderTransformer(Shape managedShape, int seg, float rad, float height, Vec3 vec3) {
+            super(managedShape, vec3);
+            circleModelInfo = new CircleModelInfo(seg, rad);
             heightTransformer = new FloatTransformer(height);
         }
 
-        public void setSegment(int segment) { this.circleModelInfo.setSegment(segment); }
-        public void setRadius(float radius) { this.circleModelInfo.setRadius(radius); }
-        public void setHeight(float height) { this.heightTransformer.setTargetValue(height); }
+        public void setSegment(int segment) {
+            this.circleModelInfo.setSegment(segment);
+        }
+
+        public void setRadius(float radius) {
+            this.circleModelInfo.setRadius(radius);
+        }
+
+        public void setHeight(float height) {
+            this.heightTransformer.setTargetValue(height);
+        }
 
         public float getRadius(boolean lerp) {
             return circleModelInfo.getRadius(lerp);
@@ -151,58 +161,67 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
         public int getSegments(boolean lerp) {
             return circleModelInfo.getSegment(lerp);
         }
-        public float getHeight(boolean lerp) { return heightTransformer.getValue(lerp); }
+
+        public float getHeight(boolean lerp) {
+            return heightTransformer.getValue(lerp);
+        }
+
         @Override
         public void syncLastToTarget() {
             this.circleModelInfo.syncLastToTarget();
             this.heightTransformer.syncLastToTarget();
             super.syncLastToTarget();
         }
+
         @Override
-        public boolean asyncModelInfo(){
+        public boolean asyncModelInfo() {
             return circleModelInfo.async() || heightTransformer.async();
         }
     }
 
     @Override
     public void setRadius(float radius) {
-        ((CylinderTransformer)this.transformer).setRadius(radius);
+        ((CylinderTransformer) this.transformer).setRadius(radius);
     }
 
     public void setHeight(float height) {
-        ((CylinderTransformer)this.transformer).setHeight(height);
+        ((CylinderTransformer) this.transformer).setHeight(height);
     }
 
     @Override
     public void setSegments(int segments) {
-        ((CylinderTransformer)this.transformer).setSegment(segments);
+        ((CylinderTransformer) this.transformer).setSegment(segments);
     }
 
     @Override
     public float getRadius(boolean lerp) {
-        return ((CylinderTransformer)this.transformer).getRadius(lerp);
+        return ((CylinderTransformer) this.transformer).getRadius(lerp);
     }
 
     @Override
     public int getSegments(boolean lerp) {
-        return ((CylinderTransformer)this.transformer).getSegments(lerp);
+        return ((CylinderTransformer) this.transformer).getSegments(lerp);
     }
 
-    public float getHeight(boolean lerp) { return ((CylinderTransformer)this.transformer).getHeight(lerp); }
+    public float getHeight(boolean lerp) {
+        return ((CylinderTransformer) this.transformer).getHeight(lerp);
+    }
 
     public void forceSetRadius(float radius) {
         setRadius(radius);
-        ((CylinderTransformer)this.transformer).circleModelInfo.radiusTransformer.syncLastToTarget();
+        ((CylinderTransformer) this.transformer).circleModelInfo.radiusTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     public void forceSetSegments(float segments) {
         setRadius(segments);
-        ((CylinderTransformer)this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
+        ((CylinderTransformer) this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     public void forceSetHeight(float height) {
         setHeight(height);
-        ((CylinderTransformer)this.transformer).heightTransformer.syncLastToTarget();
+        ((CylinderTransformer) this.transformer).heightTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
 }

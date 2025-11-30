@@ -1,6 +1,7 @@
 package mypals.ml.shape.minecraftBuiltIn;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.tags.EmptyMesh;
@@ -16,7 +17,6 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class TextShape extends Shape implements EmptyMesh {
     public boolean shadow;
     public boolean outline;
 
-    public Color backgroundColor = new Color(0,0,0,0);
+    public Color backgroundColor = new Color(0, 0, 0, 0);
     public BillBoardMode billBoardMode = BillBoardMode.ALL;
     @Nullable
     private FormattedCharSequence[] renderMessages;
@@ -47,7 +47,7 @@ public class TextShape extends Shape implements EmptyMesh {
                      Vec3 center, List<String> texts, List<Color> textColors,
                      Color backgroundColor,
                      BillBoardMode mode, boolean seeThrough,
-                     boolean shadow,boolean outline) {
+                     boolean shadow, boolean outline) {
         super(type, transform, Color.white, center, seeThrough);
         this.seeThrough = seeThrough;
         this.contents.addAll(texts);
@@ -61,17 +61,20 @@ public class TextShape extends Shape implements EmptyMesh {
 
         syncLastToTarget();
     }
+
     public TextShape(RenderingType type,
                      Consumer<DefaultTransformer> transform,
                      Vec3 center, List<String> texts, List<Color> textColors,
-                     BillBoardMode mode, boolean seeThrough,boolean shadow,boolean outline) {
+                     BillBoardMode mode, boolean seeThrough, boolean shadow, boolean outline) {
 
-    this(type,transform,center,texts,textColors,new Color(0,0,0,0),mode,seeThrough,shadow,outline);
+        this(type, transform, center, texts, textColors, new Color(0, 0, 0, 0), mode, seeThrough, shadow, outline);
     }
+
     @Override
     protected void generateRawGeometry(boolean lerp) {
         model_vertexes.clear();
     }
+
     public FormattedCharSequence[] getRenderMessages() {
         if (this.renderMessages == null) {
             Minecraft mc = Minecraft.getInstance();
@@ -79,7 +82,7 @@ public class TextShape extends Shape implements EmptyMesh {
             this.renderMessages = new FormattedCharSequence[contents.size()];
             MutableComponent[] components = this.getMessages();
             for (int i = 0; i < components.length; i++) {
-                this.renderMessages[i] = font.split(components[i],Integer.MAX_VALUE).getFirst();
+                this.renderMessages[i] = font.split(components[i], Integer.MAX_VALUE).getFirst();
             }
         }
 
@@ -88,11 +91,12 @@ public class TextShape extends Shape implements EmptyMesh {
 
     public MutableComponent[] getMessages() {
         MutableComponent[] components = new MutableComponent[contents.size()];
-        for (String string : contents){
+        for (String string : contents) {
             components[contents.indexOf(string)] = Component.literal(string);
         }
         return components;
     }
+
     @Override
     protected void drawInternal(VertexBuilder builder) {
 
@@ -120,13 +124,13 @@ public class TextShape extends Shape implements EmptyMesh {
 
             float x = -font.width(text) / 2f;
             float y = yOffset;
-            if(outline) {
-                font.drawInBatch8xOutline(renderMessages[i],x, y,
+            if (outline) {
+                font.drawInBatch8xOutline(renderMessages[i], x, y,
                         color.getRGB(),
-                        multiplyRGB(color.getRGB(),0.8f),
+                        multiplyRGB(color.getRGB(), 0.8f),
                         builder.getPositionMatrix(),
                         bufferSource, LightTexture.FULL_BRIGHT);
-            }else {
+            } else {
                 font.drawInBatch(
                         text,
                         x, y,
@@ -142,8 +146,9 @@ public class TextShape extends Shape implements EmptyMesh {
 
             yOffset += lineHeights[i];
         }
-        RenderSystem.setShaderColor(1,1,1,1);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
     }
+
     @Override
     public void beforeDraw(PoseStack poseStack, float deltaTime) {
         super.beforeDraw(poseStack, deltaTime);
@@ -166,6 +171,7 @@ public class TextShape extends Shape implements EmptyMesh {
         }
         poseStack.scale(0.015625F, -0.015625F, 0.015625F);
     }
+
     public void setText(int line, String text) {
         line--;
         if (line >= 0 && line < contents.size()) {
@@ -181,6 +187,7 @@ public class TextShape extends Shape implements EmptyMesh {
     public void setBillboardMode(BillBoardMode mode) {
         this.billBoardMode = mode;
     }
+
     @Override
     public boolean shouldDraw() {
         return true;

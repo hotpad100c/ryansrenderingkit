@@ -32,8 +32,8 @@ public class ObjModelShape extends Shape {
     }
 
 
-    protected ObjModelShape(RenderingType type,Color color, boolean seeThrough) {
-        super(type,color, seeThrough);
+    protected ObjModelShape(RenderingType type, Color color, boolean seeThrough) {
+        super(type, color, seeThrough);
     }
 
     public ObjModelShape(RenderingType type,
@@ -42,7 +42,7 @@ public class ObjModelShape extends Shape {
                          Vec3 center,
                          Color color,
                          boolean seeThrough) {
-        super(type,transform, color,center, seeThrough);
+        super(type, transform, color, center, seeThrough);
         try {
             loadOBJ(resourceLocation);
         } catch (IOException e) {

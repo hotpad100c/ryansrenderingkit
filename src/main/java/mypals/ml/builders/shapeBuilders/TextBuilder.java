@@ -69,6 +69,7 @@ public class TextBuilder extends BaseBuilder<TextBuilder, DefaultTransformer> {
     public TextShape build(Shape.RenderingType type) {
         return build();
     }
+
     public TextShape build() {
         if (textColors.isEmpty() || textColors.size() < texts.size()) {
             List<Color> colors = new ArrayList<>(texts.size());
@@ -91,5 +92,5 @@ public class TextBuilder extends BaseBuilder<TextBuilder, DefaultTransformer> {
                 outline
         );
     }
-    
+
 }

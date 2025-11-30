@@ -26,7 +26,7 @@ public class CylinderWireframeShape extends CylinderShape implements DrawableLin
                                   float radius, float height, float lineWidth, Color color, boolean seeThrough) {
         super(type, seeThrough);
         this.baseColor = color;
-        this.transformer = new CylinderWireframeTransformer(this, segments, radius, height, lineWidth,center);
+        this.transformer = new CylinderWireframeTransformer(this, segments, radius, height, lineWidth, center);
         this.transformFunction = t -> transform.accept((CylinderWireframeTransformer) this.transformer);
 
         this.setAxis(circleAxis);
@@ -64,6 +64,7 @@ public class CylinderWireframeShape extends CylinderShape implements DrawableLin
 
         this.indexBuffer = indices.stream().mapToInt(Integer::intValue).toArray();
     }
+
     @Override
     public boolean shouldDraw() {
         List<Vec3> vertices = this.getModel(true);
@@ -97,6 +98,7 @@ public class CylinderWireframeShape extends CylinderShape implements DrawableLin
 
         return false;
     }
+
     @Override
     protected void drawInternal(VertexBuilder builder) {
         RenderSystem.lineWidth(getLineWidth(true));
@@ -111,36 +113,44 @@ public class CylinderWireframeShape extends CylinderShape implements DrawableLin
 
     public void forceSetLineWidth(float width) {
         setLineWidth(width);
-        ((CylinderWireframeTransformer)this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
+        ((CylinderWireframeTransformer) this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     @Override
     public void setLineWidth(float width) {
-        ((CylinderWireframeTransformer)this.transformer).setWidth(width);
+        ((CylinderWireframeTransformer) this.transformer).setWidth(width);
     }
+
     @Override
     public float getLineWidth(boolean lerp) {
-        return ((CylinderWireframeTransformer)this.transformer).getWidth(lerp);
+        return ((CylinderWireframeTransformer) this.transformer).getWidth(lerp);
     }
 
     public static class CylinderWireframeTransformer extends CylinderTransformer {
         public LineModelInfo lineModelInfo;
 
-        public CylinderWireframeTransformer(Shape managedShape, int seg, float rad, float height, float lineWidth,Vec3 vec3) {
-            super(managedShape,seg,rad,height,vec3);
+        public CylinderWireframeTransformer(Shape managedShape, int seg, float rad, float height, float lineWidth, Vec3 vec3) {
+            super(managedShape, seg, rad, height, vec3);
             lineModelInfo = new LineModelInfo(lineWidth);
         }
 
-        public void setWidth(float width) { lineModelInfo.setWidth(width); }
-        public float getWidth(boolean lerp) { return lineModelInfo.getWidth(lerp); }
+        public void setWidth(float width) {
+            lineModelInfo.setWidth(width);
+        }
+
+        public float getWidth(boolean lerp) {
+            return lineModelInfo.getWidth(lerp);
+        }
 
         @Override
         public void syncLastToTarget() {
             lineModelInfo.syncLastToTarget();
             super.syncLastToTarget();
         }
+
         @Override
-        public boolean asyncModelInfo(){
+        public boolean asyncModelInfo() {
             return super.asyncModelInfo() || lineModelInfo.async();
         }
     }

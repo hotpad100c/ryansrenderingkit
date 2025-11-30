@@ -1,7 +1,6 @@
 package mypals.ml.shapeManagers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mypals.ml.builderManager.BuilderManager;
 import mypals.ml.builderManager.EmptyBuilderManager;
 import mypals.ml.shape.Shape;
 import net.minecraft.resources.ResourceLocation;
@@ -26,58 +25,73 @@ public class EmptyShapeManager {
         double distance2 = shape2Pos.lengthSqr();
         return Double.compare(distance2, distance1);
     };
-    public EmptyShapeManager(EmptyBuilderManager builderManager, String id){
+
+    public EmptyShapeManager(EmptyBuilderManager builderManager, String id) {
         this.id = id;
         shapeGroup = new EmptyShapeGroup();
         this.builderManager = builderManager;
     }
-    public void syncShapeTransform(){
+
+    public void syncShapeTransform() {
         shapeGroup.syncShapeTransform();
     }
-    public void addShape(ResourceLocation identifier,Shape shape){
+
+    public void addShape(ResourceLocation identifier, Shape shape) {
         shapeGroup.addShape(identifier, shape);
     }
-    public void removeShape(ResourceLocation identifier){
+
+    public void removeShape(ResourceLocation identifier) {
         shapeGroup.removeShape(identifier);
     }
-    public void removeShapes(ResourceLocation root){
+
+    public void removeShapes(ResourceLocation root) {
         shapeGroup.removeShapes(root);
     }
-    public void draw(PoseStack matrixStack,float tickDelta){
-        shapeGroup.drawAll(builderManager,matrixStack,tickDelta);
+
+    public void draw(PoseStack matrixStack, float tickDelta) {
+        shapeGroup.drawAll(builderManager, matrixStack, tickDelta);
     }
-    public void clearTempAfterRender(){
+
+    public void clearTempAfterRender() {
         shapeGroup.clearTemp();
     }
-    public static class EmptyShapeGroup{
+
+    public static class EmptyShapeGroup {
         public ConcurrentHashMap<ResourceLocation, Shape> shapeMap = new ConcurrentHashMap<>();
-        public void addShape(ResourceLocation id,Shape shape){
-            shapeMap.put(id,shape);
+
+        public void addShape(ResourceLocation id, Shape shape) {
+            shapeMap.put(id, shape);
         }
-        public void removeShape(@NotNull ResourceLocation identifier){
+
+        public void removeShape(@NotNull ResourceLocation identifier) {
             shapeMap.remove(identifier);
         }
+
         public void removeShapes(@NotNull ResourceLocation identifier) {
             shapeMap.entrySet().removeIf(entry -> entry.getKey().getPath().startsWith(identifier.getPath()));
-            }
-        public void clear(){
+        }
+
+        public void clear() {
             shapeMap.clear();
         }
-        public void clearTemp(){
+
+        public void clearTemp() {
             shapeMap.entrySet().removeIf(entry -> entry.getKey().getPath().startsWith(TEMP_HEADER));
         }
-        public void syncShapeTransform(){
+
+        public void syncShapeTransform() {
             for (Shape shape : shapeMap.values()) {
                 shape.syncLastToTarget();
             }
         }
-        public void drawAll(EmptyBuilderManager builderManager, PoseStack matrixStack, float tickDelta){
-            if(!shapeMap.isEmpty()) {
+
+        public void drawAll(EmptyBuilderManager builderManager, PoseStack matrixStack, float tickDelta) {
+            if (!shapeMap.isEmpty()) {
                 List<Shape> sortedShapes = new ArrayList<>(shapeMap.values());
                 sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
                 for (Shape shape : sortedShapes) {
                     builderManager.draw(builder -> {
-                        shape.draw(true, builder, matrixStack,tickDelta);
+                        shape.draw(true, builder, matrixStack, tickDelta);
                     });
                 }
             }

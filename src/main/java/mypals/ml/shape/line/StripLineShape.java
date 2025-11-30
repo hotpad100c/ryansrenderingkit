@@ -32,7 +32,7 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
                           boolean seeThrough) {
         super(type, color, seeThrough);
         this.vertexes = new ArrayList<>(vertexes);
-        this.transformer = new SimpleLineTransformer(this,lineWidth,this.calculateShapeCenterPos());
+        this.transformer = new SimpleLineTransformer(this, lineWidth, this.calculateShapeCenterPos());
         this.transformFunction = (defaultTransformer) ->
                 transform.accept((SimpleLineTransformer) this.transformer);
 
@@ -54,10 +54,12 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
         double n = vertexes.size();
         return new Vec3(sumX / n, sumY / n, sumZ / n);
     }
+
     @Override
-    public RayModelIntersection.HitResult isPlayerLookingAt(){
-        return new RayModelIntersection.HitResult(false,null,-1);
+    public RayModelIntersection.HitResult isPlayerLookingAt() {
+        return new RayModelIntersection.HitResult(false, null, -1);
     }
+
     @Override
     protected void generateRawGeometry(boolean lerp) {
         model_vertexes.clear();
@@ -72,6 +74,7 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
         indexBuffer = new int[n];
         for (int i = 0; i < n; i++) indexBuffer[i] = i;
     }
+
     @Override
     public boolean shouldDraw() {
         List<Vec3> vertices = this.getModel(true);
@@ -112,7 +115,7 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
         RenderSystem.lineWidth(getLineWidth(true));
 
         int n = model_vertexes.size();
-        if (n < 2) return;;
+        if (n < 2) return;
 
         Vec3 first = model_vertexes.getFirst();
         builder.putColor(new Color(0, 0, 0, 0));
@@ -161,19 +164,21 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
     public void setVertexColors(List<Color> colors) {
         this.vertexColors = new ArrayList<>(colors);
     }
+
     public void forceSetLineWidth(float width) {
         setLineWidth(width);
-        ((SimpleLineTransformer)this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
+        ((SimpleLineTransformer) this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     @Override
     public void setLineWidth(float width) {
-        ((SimpleLineTransformer)this.transformer).setWidth(width);
+        ((SimpleLineTransformer) this.transformer).setWidth(width);
     }
 
     @Override
     public float getLineWidth(boolean lerp) {
-       return ((SimpleLineTransformer)this.transformer).getWidth(lerp);
+        return ((SimpleLineTransformer) this.transformer).getWidth(lerp);
     }
 }
 

@@ -32,7 +32,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
     }
 
     public void start(RenderMethod renderMethod) {
-        if(this.vertexBuffer != null){
+        if (this.vertexBuffer != null) {
             close();
         }
         this.vertexBuffer = new VertexBuffer(BufferUsage.DYNAMIC_WRITE);
@@ -62,14 +62,14 @@ public class BufferedVertexBuilder extends VertexBuilder {
             return;
         }
         ByteBufferBuilder byteBufferBuilder = null;
-        if(renderMethod.mode() == VertexFormat.Mode.TRIANGLES){
+        if (renderMethod.mode() == VertexFormat.Mode.TRIANGLES) {
             int vertexCount = builtBuffer.drawState().vertexCount();
             int bufferSize = vertexCount * Integer.BYTES;
             byteBufferBuilder = new ByteBufferBuilder(bufferSize);
-            ((MeshDataExt)builtBuffer).ryansrenderingkit$sortTriangles(byteBufferBuilder,RenderSystem.getProjectionType().vertexSorting());
+            ((MeshDataExt) builtBuffer).ryansrenderingkit$sortTriangles(byteBufferBuilder, RenderSystem.getProjectionType().vertexSorting());
         }
         this.vertexBuffer.upload(builtBuffer);
-        if(byteBufferBuilder != null){
+        if (byteBufferBuilder != null) {
             byteBufferBuilder.close();
         }
         builtBuffer.close();

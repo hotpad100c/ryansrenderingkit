@@ -23,24 +23,24 @@ public class ImmediateVertexBuilder extends VertexBuilder {
         RenderSystem.setShader(renderMethod.shader());
         vertexBuilderConsumer.accept(this);
 
-        if(this.getBufferBuilder().vertices == 0){
+        if (this.getBufferBuilder().vertices == 0) {
             return;
         }
         MeshData meshData = this.getBufferBuilder().build();
 
-        if(meshData!=null){
+        if (meshData != null) {
             ByteBufferBuilder byteBufferBuilder = null;
 
-            if(shape.baseColor.getAlpha() < 255 && renderMethod.mode() == VertexFormat.Mode.TRIANGLES){
+            if (shape.baseColor.getAlpha() < 255 && renderMethod.mode() == VertexFormat.Mode.TRIANGLES) {
                 int vertexCount = meshData.drawState().vertexCount();
                 int bufferSize = vertexCount * Integer.BYTES;
                 byteBufferBuilder = new ByteBufferBuilder(bufferSize);
 
-                ((MeshDataExt)meshData).ryansrenderingkit$sortTriangles(byteBufferBuilder,RenderSystem.getProjectionType().vertexSorting());
+                ((MeshDataExt) meshData).ryansrenderingkit$sortTriangles(byteBufferBuilder, RenderSystem.getProjectionType().vertexSorting());
             }
             setUpRendererSystem(shape);
             BufferUploader.drawWithShader(meshData);
-            if(byteBufferBuilder != null){
+            if (byteBufferBuilder != null) {
                 byteBufferBuilder.close();
             }
             meshData.close();

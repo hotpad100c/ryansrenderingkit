@@ -36,7 +36,7 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
         super(type, color, seeThrough);
         this.axis = axis;
 
-        this.transformer = new LineCircleTransformer(this, segments, radius,width, center);
+        this.transformer = new LineCircleTransformer(this, segments, radius, width, center);
         this.transformFunction = t -> transform.accept((LineCircleTransformer) this.transformer);
 
         generateRawGeometry(true);
@@ -85,21 +85,25 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
     public void setRadius(float radius) {
         ((LineCircleTransformer) this.transformer).setRadius(radius);
     }
+
     public void forceSetRadius(float radius) {
         setRadius(radius);
-        ((LineCircleTransformer)this.transformer).circleModelInfo.radiusTransformer.syncLastToTarget();
+        ((LineCircleTransformer) this.transformer).circleModelInfo.radiusTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     public void forceSetSegments(float segments) {
         setRadius(segments);
-        ((LineCircleTransformer)this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
+        ((LineCircleTransformer) this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     public void forceSetLineWidth(float width) {
         setLineWidth(width);
-        ((LineCircleTransformer)this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
+        ((LineCircleTransformer) this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     @Override
     public void setSegments(int segments) {
         ((LineCircleTransformer) this.transformer).setSegment(segments);
@@ -128,7 +132,8 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
     public static class LineCircleTransformer extends DefaultTransformer {
         private final CircleModelInfo circleModelInfo;
         private final LineModelInfo lineModelInfo;
-        public LineCircleTransformer(Shape managedShape, int segments, float radius,float width, Vec3 center) {
+
+        public LineCircleTransformer(Shape managedShape, int segments, float radius, float width, Vec3 center) {
             super(managedShape, center);
             circleModelInfo = new CircleModelInfo(segments, radius);
             lineModelInfo = new LineModelInfo(width);
@@ -141,6 +146,7 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
         public void setRadius(float radius) {
             circleModelInfo.setRadius(radius);
         }
+
         public void setWidth(float radius) {
             lineModelInfo.setWidth(radius);
         }
@@ -148,6 +154,7 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
         public float getWidth(boolean lerp) {
             return lineModelInfo.getWidth(lerp);
         }
+
         public int getSegment(boolean lerp) {
             return circleModelInfo.getSegment(lerp);
         }
@@ -169,10 +176,12 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
             lineModelInfo.syncLastToTarget();
             super.syncLastToTarget();
         }
-        public boolean asyncModelInfo(){
+
+        public boolean asyncModelInfo() {
             return circleModelInfo.async() || lineModelInfo.async();
         }
     }
+
     @Override
     public boolean shouldDraw() {
         List<Vec3> vertices = this.getModel(true);
@@ -206,6 +215,7 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
 
         return false;
     }
+
     @Override
     protected void drawInternal(VertexBuilder builder) {
         RenderSystem.lineWidth(getLineWidth(true));
@@ -237,15 +247,15 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
             }
 
             Vec3 pos = model_vertexes.get(i);
-            builder.putVertex(pos,normal);
+            builder.putVertex(pos, normal);
         }
         Vec3 finish = model_vertexes.getFirst();
 
-        builder.putVertex(finish,Vec3.ZERO);
+        builder.putVertex(finish, Vec3.ZERO);
 
         Vec3 last = model_vertexes.get(n - 1);
         builder.putColor(new Color(0, 0, 0, 0));
-        builder.putVertex(last,Vec3.ZERO);
+        builder.putVertex(last, Vec3.ZERO);
     }
 }
 

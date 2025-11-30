@@ -6,19 +6,24 @@ import net.minecraft.world.phys.Vec3;
 
 public class BoxModelInfo extends ModelInfoLayer {
     public Vec3Transformer boxDimensionTransformer;
-    public BoxModelInfo(Vec3 dim){
+
+    public BoxModelInfo(Vec3 dim) {
         boxDimensionTransformer = new Vec3Transformer(dim);
     }
-    public boolean async(){
+
+    public boolean async() {
         return boxDimensionTransformer.async();
     }
-    public void update(float delta){
+
+    public void update(float delta) {
         boxDimensionTransformer.update(delta);
     }
-    public Vec3 getDimension(boolean lerp){
+
+    public Vec3 getDimension(boolean lerp) {
         return boxDimensionTransformer.getValue(lerp);
     }
-    public void setDimension(Vec3 target){
+
+    public void setDimension(Vec3 target) {
         boxDimensionTransformer.setTargetVector(target);
     }
 

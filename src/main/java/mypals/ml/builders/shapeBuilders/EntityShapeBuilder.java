@@ -5,10 +5,12 @@ import mypals.ml.shape.minecraftBuiltIn.EntityShape;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.entity.Entity;
+
 public class EntityShapeBuilder extends BaseBuilder<EntityShapeBuilder, DefaultTransformer> {
 
     private Entity entity;
     private int light = LightTexture.FULL_BRIGHT;
+
     public EntityShapeBuilder entity(Entity entity) {
         this.entity = entity;
         return this;
@@ -24,12 +26,14 @@ public class EntityShapeBuilder extends BaseBuilder<EntityShapeBuilder, DefaultT
     public EntityShape build(Shape.RenderingType type) {
         return build();
     }
+
     public EntityShape build() {
         return new EntityShape(
                 getTransformer(),
                 center,
                 entity,
-                light);
+                light
+        );
     }
 
 }

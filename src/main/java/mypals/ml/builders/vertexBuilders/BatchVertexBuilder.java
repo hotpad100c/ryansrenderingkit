@@ -14,8 +14,9 @@ import java.util.function.Consumer;
 
 public class BatchVertexBuilder extends VertexBuilder {
     private boolean isBuilding = false;
+
     public BatchVertexBuilder(Matrix4f modelViewMatrix, boolean seeThrough) {
-        super(modelViewMatrix,seeThrough);
+        super(modelViewMatrix, seeThrough);
     }
 
     public void beginBatch(RenderMethod renderMethod) {
@@ -27,7 +28,7 @@ public class BatchVertexBuilder extends VertexBuilder {
     public void push(Consumer<VertexBuilder> builder) {
         if (isBuilding) {
             builder.accept(this);
-        }else{
+        } else {
             throw new IllegalStateException("BatchShapeBuilder is not building. Call beginBatch() before pushing shapes.");
         }
     }
@@ -45,17 +46,17 @@ public class BatchVertexBuilder extends VertexBuilder {
         //flushTransparent();
 
         MeshData builtBuffer = this.getBufferBuilder().build();
-        if(builtBuffer!=null){
+        if (builtBuffer != null) {
             ByteBufferBuilder byteBufferBuilder = null;
-            if(renderMethod.mode() == VertexFormat.Mode.TRIANGLES){
+            if (renderMethod.mode() == VertexFormat.Mode.TRIANGLES) {
                 int vertexCount = builtBuffer.drawState().vertexCount();
                 int bufferSize = vertexCount * Integer.BYTES;
                 byteBufferBuilder = new ByteBufferBuilder(bufferSize);
-                ((MeshDataExt)builtBuffer).ryansrenderingkit$sortTriangles(byteBufferBuilder, RenderSystem.getProjectionType().vertexSorting());
+                ((MeshDataExt) builtBuffer).ryansrenderingkit$sortTriangles(byteBufferBuilder, RenderSystem.getProjectionType().vertexSorting());
             }
             setUpRendererSystem(null);
             BufferUploader.drawWithShader(builtBuffer);
-            if(byteBufferBuilder != null){
+            if (byteBufferBuilder != null) {
                 byteBufferBuilder.close();
             }
             builtBuffer.close();

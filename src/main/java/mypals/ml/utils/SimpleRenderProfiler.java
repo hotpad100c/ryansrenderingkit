@@ -1,5 +1,9 @@
 package mypals.ml.utils;
-import java.util.*;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 
 public class SimpleRenderProfiler {
 
@@ -65,7 +69,7 @@ public class SimpleRenderProfiler {
         if (!section.name.equals("root")) {
             double ms = section.totalTime / 1_000_000.0;
             String pad = "> ".repeat(indent);
-            System.out.printf(pad+"\n");
+            System.out.printf(pad + "\n");
             System.out.printf("%s%s: %.3f ms, count=%d, avg=%.3f ms%n",
                     pad, section.name, ms, section.count, ms / section.count);
         }

@@ -9,20 +9,27 @@ public final class Vec3Transformer extends ValueTransformer<Vec3> {
         syncLastToTarget();
     }
 
-    public Vec3Transformer() { this(Vec3.ZERO); }
-
-    @Override public void updateVariables(float delta) {
-        current = last.lerp(target,delta);
+    public Vec3Transformer() {
+        this(Vec3.ZERO);
     }
 
-    @Override public void syncLastToTarget() {
+    @Override
+    public void updateVariables(float delta) {
+        current = last.lerp(target, delta);
+    }
+
+    @Override
+    public void syncLastToTarget() {
         this.last = this.target;
         this.current = this.target;
     }
 
-    @Override protected void setTarget(Vec3 value) {
+    @Override
+    protected void setTarget(Vec3 value) {
         this.target = value;
     }
 
-    public void setTargetVector(Vec3 v) { setTarget(v); }
+    public void setTargetVector(Vec3 v) {
+        setTarget(v);
+    }
 }

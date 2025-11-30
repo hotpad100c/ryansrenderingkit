@@ -16,7 +16,7 @@ public class MainRender {
 
         RENDER_PROFILER.push("renderAll");
 
-        if(Minecraft.getInstance().player == null || !camera.isInitialized()) return;
+        if (Minecraft.getInstance().player == null || !camera.isInitialized()) return;
         try {
 
             matrixStack.pushPose();
@@ -38,7 +38,7 @@ public class MainRender {
             matrixStack.popPose();
 
 
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Error during InformationRender.render:");
             System.err.println(e.getMessage());
         }

@@ -1,10 +1,11 @@
 package mypals.ml.shape.round;
+
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.CircleLikeShape;
-import mypals.ml.shape.cylinder.CylinderShape;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.CircleModelInfo;
 import net.minecraft.world.phys.Vec3;
+
 import java.awt.*;
 import java.util.function.Consumer;
 
@@ -23,7 +24,7 @@ public class FaceCircleShape extends Shape implements CircleLikeShape {
         super(type, color, seeThrough);
         this.axis = axis;
 
-        this.transformer = new FaceCircleTransformer(this, segments, radius,center);
+        this.transformer = new FaceCircleTransformer(this, segments, radius, center);
         this.transformFunction = (t) -> transform.accept((FaceCircleTransformer) this.transformer);
 
         generateRawGeometry(true);
@@ -75,56 +76,73 @@ public class FaceCircleShape extends Shape implements CircleLikeShape {
 
     @Override
     public void setRadius(float radius) {
-        ((FaceCircleTransformer)this.transformer).setRadius(radius);
+        ((FaceCircleTransformer) this.transformer).setRadius(radius);
     }
 
     @Override
     public void setSegments(int segments) {
-        ((FaceCircleTransformer)this.transformer).setSegment(segments);
+        ((FaceCircleTransformer) this.transformer).setSegment(segments);
     }
+
     public void forceSetRadius(float radius) {
         setRadius(radius);
-        ((FaceCircleTransformer)this.transformer).circleModelInfo.radiusTransformer.syncLastToTarget();
+        ((FaceCircleTransformer) this.transformer).circleModelInfo.radiusTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     public void forceSetSegments(float segments) {
         setRadius(segments);
-        ((FaceCircleTransformer)this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
+        ((FaceCircleTransformer) this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     @Override
     public float getRadius(boolean lerp) {
-        return ((FaceCircleTransformer)this.transformer).getRadius(lerp);
+        return ((FaceCircleTransformer) this.transformer).getRadius(lerp);
     }
 
     @Override
     public int getSegments(boolean lerp) {
-        return ((FaceCircleTransformer)this.transformer).getSegment(lerp);
+        return ((FaceCircleTransformer) this.transformer).getSegment(lerp);
     }
 
     public static class FaceCircleTransformer extends DefaultTransformer {
         public CircleModelInfo circleModelInfo;
-        public FaceCircleTransformer(Shape managedShape, int seg, float rad,Vec3 center) {
-            super(managedShape,center);
-            circleModelInfo = new CircleModelInfo(seg,rad);
+
+        public FaceCircleTransformer(Shape managedShape, int seg, float rad, Vec3 center) {
+            super(managedShape, center);
+            circleModelInfo = new CircleModelInfo(seg, rad);
         }
 
-        public void setSegment(int segment) { this.circleModelInfo.setSegment(segment); }
-        public void setRadius(float radius) { this.circleModelInfo.setRadius(radius); }
-        public int getSegment(boolean lerp) {return this.circleModelInfo.getSegment(lerp); }
-        public float getRadius(boolean lerp) {return this.circleModelInfo.getRadius(lerp); }
+        public void setSegment(int segment) {
+            this.circleModelInfo.setSegment(segment);
+        }
+
+        public void setRadius(float radius) {
+            this.circleModelInfo.setRadius(radius);
+        }
+
+        public int getSegment(boolean lerp) {
+            return this.circleModelInfo.getSegment(lerp);
+        }
+
+        public float getRadius(boolean lerp) {
+            return this.circleModelInfo.getRadius(lerp);
+        }
 
         @Override
         public void updateTickDelta(float delta) {
             this.circleModelInfo.update(delta);
             super.updateTickDelta(delta);
         }
+
         @Override
         public void syncLastToTarget() {
             this.circleModelInfo.syncLastToTarget();
             super.syncLastToTarget();
         }
-        public boolean asyncModelInfo(){
+
+        public boolean asyncModelInfo() {
             return circleModelInfo.async();
         }
     }

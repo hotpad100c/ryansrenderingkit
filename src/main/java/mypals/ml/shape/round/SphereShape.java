@@ -1,17 +1,12 @@
 package mypals.ml.shape.round;
 
-import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.CircleLikeShape;
 import mypals.ml.shape.basics.tags.DrawableTriangle;
 import net.minecraft.world.phys.Vec3;
-import com.mojang.blaze3d.vertex.PoseStack;
+
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 
@@ -22,9 +17,8 @@ public class SphereShape extends Shape implements CircleLikeShape, DrawableTrian
     }
 
 
-
     public SphereShape(RenderingType type, Consumer<FaceCircleShape.FaceCircleTransformer> transform, Vec3 center, int segments, float radius, Color color, boolean seeThrough) {
-        super(type,color, seeThrough);
+        super(type, color, seeThrough);
         this.transformer = new FaceCircleShape.FaceCircleTransformer(this, segments, radius, center);
         this.transformFunction = (defaultTransformer) -> transform.accept((FaceCircleShape.FaceCircleTransformer) this.transformer);
         syncLastToTarget();
@@ -58,8 +52,12 @@ public class SphereShape extends Shape implements CircleLikeShape, DrawableTrian
                 int v2 = i * (lonSegments + 1) + (j + 1);
                 int v3 = (i + 1) * (lonSegments + 1) + (j + 1);
 
-                indices.add(v0); indices.add(v1); indices.add(v2);
-                indices.add(v2); indices.add(v1); indices.add(v3);
+                indices.add(v0);
+                indices.add(v1);
+                indices.add(v2);
+                indices.add(v2);
+                indices.add(v1);
+                indices.add(v3);
             }
         }
 
@@ -77,21 +75,21 @@ public class SphereShape extends Shape implements CircleLikeShape, DrawableTrian
 
     @Override
     public void setRadius(float radius) {
-        ((FaceCircleShape.FaceCircleTransformer)this.transformer).setRadius(radius);
+        ((FaceCircleShape.FaceCircleTransformer) this.transformer).setRadius(radius);
     }
 
     @Override
     public void setSegments(int segments) {
-        ((FaceCircleShape.FaceCircleTransformer)this.transformer).setSegment(segments);
+        ((FaceCircleShape.FaceCircleTransformer) this.transformer).setSegment(segments);
     }
 
     @Override
     public float getRadius(boolean lerp) {
-        return ((FaceCircleShape.FaceCircleTransformer)this.transformer).getRadius(lerp);
+        return ((FaceCircleShape.FaceCircleTransformer) this.transformer).getRadius(lerp);
     }
 
     @Override
     public int getSegments(boolean lerp) {
-        return ((FaceCircleShape.FaceCircleTransformer)this.transformer).getSegment(lerp);
+        return ((FaceCircleShape.FaceCircleTransformer) this.transformer).getSegment(lerp);
     }
 }

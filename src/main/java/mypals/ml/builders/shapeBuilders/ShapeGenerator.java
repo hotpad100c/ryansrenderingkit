@@ -2,7 +2,9 @@ package mypals.ml.builders.shapeBuilders;
 
 public final class ShapeGenerator {
 
-    private ShapeGenerator() {}
+    private ShapeGenerator() {
+    }
+
     public static TextBuilder generateText() {
         return new TextBuilder();
     }
@@ -46,6 +48,7 @@ public final class ShapeGenerator {
     public static CylinderBuilder generateCylinder() {
         return new CylinderBuilder();
     }
+
     public static ConeWireframeBuilder generateConeWireframe() {
         return new ConeWireframeBuilder();
     }
@@ -53,6 +56,7 @@ public final class ShapeGenerator {
     public static CylinderWireframeBuilder generateCylinderWireframe() {
         return new CylinderWireframeBuilder();
     }
+
     public static LineBuilder generateLine() {
         return new LineBuilder();
     }

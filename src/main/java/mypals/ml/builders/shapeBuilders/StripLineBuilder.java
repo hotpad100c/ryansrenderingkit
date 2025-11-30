@@ -14,10 +14,27 @@ public class StripLineBuilder extends BaseBuilder<StripLineBuilder, LineLikeShap
     private final List<Color> colors = new ArrayList<>();
     private float lineWidth = 1.0f;
 
-    public StripLineBuilder vertexColors(List<Color> colors) { this.colors.clear(); this.colors.addAll(colors); return this; }
-    public StripLineBuilder addVertex(Vec3 v) { this.vertexes.add(v); return this; }
-    public StripLineBuilder vertexes(List<Vec3> vertexes) { this.vertexes.clear(); this.vertexes.addAll(vertexes); return this; }
-    public StripLineBuilder lineWidth(float lineWidth) { this.lineWidth = lineWidth; return this; }
+    public StripLineBuilder vertexColors(List<Color> colors) {
+        this.colors.clear();
+        this.colors.addAll(colors);
+        return this;
+    }
+
+    public StripLineBuilder addVertex(Vec3 v) {
+        this.vertexes.add(v);
+        return this;
+    }
+
+    public StripLineBuilder vertexes(List<Vec3> vertexes) {
+        this.vertexes.clear();
+        this.vertexes.addAll(vertexes);
+        return this;
+    }
+
+    public StripLineBuilder lineWidth(float lineWidth) {
+        this.lineWidth = lineWidth;
+        return this;
+    }
 
     @Override
     public StripLineShape build(Shape.RenderingType type) {

@@ -13,6 +13,7 @@ public class ObjModelOutlineBuilder extends BaseBuilder<ObjModelOutlineBuilder, 
         this.resourceLocation = resourceLocation;
         return this;
     }
+
     public ObjModelOutlineBuilder lineWidth(float lineWidth) {
         this.lineWidth = lineWidth;
         return this;

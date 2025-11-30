@@ -28,7 +28,7 @@ public class LineShape extends Shape implements TwoPointsLineShape {
 
         super(type, color, seeThrough);
 
-        this.transformer = new TwoPointsLineTransformer(this,start,end,lineWidth,Vec3.ZERO);
+        this.transformer = new TwoPointsLineTransformer(this, start, end, lineWidth, Vec3.ZERO);
         this.transformFunction = (defaultTransformer) ->
                 transform.accept((TwoPointsLineTransformer) this.transformer);
 
@@ -43,49 +43,58 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         double centerZ = (getStart(false).z + getEnd(false).z) / 2.0;
         return new Vec3(centerX, centerY, centerZ);
     }
+
     public void forceSetStart(Vec3 start) {
         setStart(start);
-        ((TwoPointsLineTransformer)this.transformer).lineModelInfo.startPointTransformer.syncLastToTarget();
+        ((TwoPointsLineTransformer) this.transformer).lineModelInfo.startPointTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
 
     public void forceSetEnd(Vec3 end) {
         setEnd(end);
-        ((TwoPointsLineTransformer)this.transformer).lineModelInfo.endPointTransformer.syncLastToTarget();
+        ((TwoPointsLineTransformer) this.transformer).lineModelInfo.endPointTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     public void forceSetLineWidth(float width) {
         setLineWidth(width);
-        ((TwoPointsLineTransformer)this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
+        ((TwoPointsLineTransformer) this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     @Override
     public void setStart(Vec3 start) {
-        ((TwoPointsLineTransformer)this.transformer).setStart(start);
+        ((TwoPointsLineTransformer) this.transformer).setStart(start);
     }
 
     @Override
     public void setEnd(Vec3 end) {
-        ((TwoPointsLineTransformer)this.transformer).setEnd(end);
+        ((TwoPointsLineTransformer) this.transformer).setEnd(end);
     }
 
     @Override
     public void setLineWidth(float width) {
-        ((TwoPointsLineTransformer)this.transformer).setWidth(width);
+        ((TwoPointsLineTransformer) this.transformer).setWidth(width);
     }
 
     @Override
     public float getLineWidth(boolean lerp) {
-        return ((TwoPointsLineTransformer)this.transformer).getWidth(lerp);
+        return ((TwoPointsLineTransformer) this.transformer).getWidth(lerp);
     }
 
     @Override
-    public Vec3 getStart(boolean lerp) { return ((TwoPointsLineTransformer)this.transformer).getStart(lerp);}
+    public Vec3 getStart(boolean lerp) {
+        return ((TwoPointsLineTransformer) this.transformer).getStart(lerp);
+    }
 
     @Override
-    public Vec3 getEnd(boolean lerp) { return ((TwoPointsLineTransformer)this.transformer).getEnd(lerp);}
+    public Vec3 getEnd(boolean lerp) {
+        return ((TwoPointsLineTransformer) this.transformer).getEnd(lerp);
+    }
 
-    public float getWidth(boolean lerp) { return ((TwoPointsLineTransformer)this.transformer).getWidth(lerp);}
+    public float getWidth(boolean lerp) {
+        return ((TwoPointsLineTransformer) this.transformer).getWidth(lerp);
+    }
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
@@ -104,8 +113,9 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         model_vertexes.add(localA);
         model_vertexes.add(localB);
 
-        this.indexBuffer = new int[] { 0, 1 };
+        this.indexBuffer = new int[]{0, 1};
     }
+
     @Override
     public boolean shouldDraw() {
         List<Vec3> vertices = this.getModel(true);
@@ -142,13 +152,14 @@ public class LineShape extends Shape implements TwoPointsLineShape {
 
 
     @Override
-    public RayModelIntersection.HitResult isPlayerLookingAt(){
-        return new RayModelIntersection.HitResult(false,null,-1);
+    public RayModelIntersection.HitResult isPlayerLookingAt() {
+        return new RayModelIntersection.HitResult(false, null, -1);
     }
+
     protected void drawInternal(VertexBuilder builder) {
         RenderSystem.lineWidth(getWidth(true));
         builder.putColor(baseColor);
-        addLineSegment(builder,model_vertexes.getFirst(),model_vertexes.getLast());
+        addLineSegment(builder, model_vertexes.getFirst(), model_vertexes.getLast());
     }
 }
 

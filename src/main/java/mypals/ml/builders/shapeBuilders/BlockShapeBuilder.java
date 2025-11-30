@@ -2,24 +2,16 @@ package mypals.ml.builders.shapeBuilders;
 
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.minecraftBuiltIn.BlockShape;
-import mypals.ml.shape.minecraftBuiltIn.TextShape;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class BlockShapeBuilder extends BaseBuilder<BlockShapeBuilder, DefaultTransformer> {
 
     private BlockState blockState = Blocks.AIR.defaultBlockState();
     private int light = LightTexture.FULL_BRIGHT;
+
     public BlockShapeBuilder block(BlockState blockState) {
         this.blockState = blockState;
         return this;
@@ -35,6 +27,7 @@ public class BlockShapeBuilder extends BaseBuilder<BlockShapeBuilder, DefaultTra
     public BlockShape build(Shape.RenderingType type) {
         return build();
     }
+
     public BlockShape build() {
         return new BlockShape(
                 getTransformer(),
@@ -42,5 +35,5 @@ public class BlockShapeBuilder extends BaseBuilder<BlockShapeBuilder, DefaultTra
                 blockState,
                 light);
     }
-    
+
 }

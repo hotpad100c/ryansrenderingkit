@@ -13,11 +13,11 @@ public class DefaultTransformer {
     private float delta = 0;
     public final Shape shape;
 
-    public final TransformLayer local  = new TransformLayer();
-    public final TransformLayer world  = new TransformLayer();
+    public final TransformLayer local = new TransformLayer();
+    public final TransformLayer world = new TransformLayer();
     public final TransformLayer matrix = new TransformLayer();
 
-    public DefaultTransformer(Shape s,Vec3 center) {
+    public DefaultTransformer(Shape s, Vec3 center) {
         this.shape = s;
         this.world.setPosition(center);
         this.world.syncLastToTarget();
@@ -31,7 +31,11 @@ public class DefaultTransformer {
         this.delta = d;
         updateAll(d);
     }
-    public float getTickDelta() { return delta; }
+
+    public float getTickDelta() {
+        return delta;
+    }
+
     public void updateAll(float t) {
         local.update(t);
         world.update(t);
@@ -44,14 +48,15 @@ public class DefaultTransformer {
         matrix.syncLastToTarget();
     }
 
-    public void applyTransformations(PoseStack stack,boolean lerp) {
-        applyLayer(stack,world,lerp);
-        applyLayer(stack,local, lerp);
+    public void applyTransformations(PoseStack stack, boolean lerp) {
+        applyLayer(stack, world, lerp);
+        applyLayer(stack, local, lerp);
         applyLayer(stack, matrix, lerp);
     }
-    public void applyModelTransformations(PoseStack stack,boolean lerp) {
-        applyLayer(stack,world,lerp);
-        applyLayer(stack,local,lerp);
+
+    public void applyModelTransformations(PoseStack stack, boolean lerp) {
+        applyLayer(stack, world, lerp);
+        applyLayer(stack, local, lerp);
     }
 
     private void applyLayer(PoseStack stack, TransformLayer layer, boolean lerp) {
@@ -65,9 +70,17 @@ public class DefaultTransformer {
     }
 
 
-    public TransformLayer local()  { return local; }
-    public TransformLayer world()  { return world; }
-    public TransformLayer matrix() { return matrix; }
+    public TransformLayer local() {
+        return local;
+    }
+
+    public TransformLayer world() {
+        return world;
+    }
+
+    public TransformLayer matrix() {
+        return matrix;
+    }
 
     public Vec3 getShapeWorldPivot(boolean lerp) {
         PoseStack poseStack = new PoseStack();
@@ -129,21 +142,51 @@ public class DefaultTransformer {
         return matrix.getScale(lerp);
     }
 
-    public Vec3 getWorldPivot() { return getShapeWorldPivot(true); }
-    public Quaternionf getWorldRotation() { return getShapeWorldRotation(true); }
-    public Vec3 getWorldScale() { return getShapeWorldScale(true); }
+    public Vec3 getWorldPivot() {
+        return getShapeWorldPivot(true);
+    }
 
-    public Vec3 getLocalPivot() { return getShapeLocalPivot(true); }
-    public Quaternionf getLocalRotation() { return getShapeLocalRotation(true); }
-    public Vec3 getLocalScale() { return getShapeLocalScale(true); }
+    public Quaternionf getWorldRotation() {
+        return getShapeWorldRotation(true);
+    }
 
-    public Vec3 getMatrixPivot() { return getShapeMatrixPivot(true); }
-    public Quaternionf getMatrixRotation() { return getShapeMatrixRotation(true); }
-    public Vec3 getMatrixScale() { return getShapeMatrixScale(true); }
+    public Vec3 getWorldScale() {
+        return getShapeWorldScale(true);
+    }
+
+    public Vec3 getLocalPivot() {
+        return getShapeLocalPivot(true);
+    }
+
+    public Quaternionf getLocalRotation() {
+        return getShapeLocalRotation(true);
+    }
+
+    public Vec3 getLocalScale() {
+        return getShapeLocalScale(true);
+    }
+
+    public Vec3 getMatrixPivot() {
+        return getShapeMatrixPivot(true);
+    }
+
+    public Quaternionf getMatrixRotation() {
+        return getShapeMatrixRotation(true);
+    }
+
+    public Vec3 getMatrixScale() {
+        return getShapeMatrixScale(true);
+    }
 
 
-    public void setShapeWorldPivot(Vec3 v)               { world.setPosition(v); }
-    public void setShapeWorldRotation(Quaternionf q)     { world.setRotation(q); }
+    public void setShapeWorldPivot(Vec3 v) {
+        world.setPosition(v);
+    }
+
+    public void setShapeWorldRotation(Quaternionf q) {
+        world.setRotation(q);
+    }
+
     public void setShapeWorldRotationDegrees(float x, float y, float z) {
         world.setRotation(new Quaternionf().rotateXYZ(
                 (float) Math.toRadians(x),
@@ -151,10 +194,19 @@ public class DefaultTransformer {
                 (float) Math.toRadians(z)
         ));
     }
-    public void setShapeWorldScale(Vec3 s)               { world.setScale(s); }
 
-    public void setShapeLocalPivot(Vec3 v)               { local.setPosition(v); }
-    public void setShapeLocalRotation(Quaternionf q)     { local.setRotation(q); }
+    public void setShapeWorldScale(Vec3 s) {
+        world.setScale(s);
+    }
+
+    public void setShapeLocalPivot(Vec3 v) {
+        local.setPosition(v);
+    }
+
+    public void setShapeLocalRotation(Quaternionf q) {
+        local.setRotation(q);
+    }
+
     public void setShapeLocalRotationDegrees(float x, float y, float z) {
         local.setRotation(new Quaternionf().rotateXYZ(
                 (float) Math.toRadians(x),
@@ -162,10 +214,19 @@ public class DefaultTransformer {
                 (float) Math.toRadians(z)
         ));
     }
-    public void setShapeLocalScale(Vec3 s)               { local.setScale(s); }
 
-    public void setShapeMatrixPivot(Vec3 v)              { matrix.setPosition(v); }
-    public void setShapeMatrixRotation(Quaternionf q)    { matrix.setRotation(q); }
+    public void setShapeLocalScale(Vec3 s) {
+        local.setScale(s);
+    }
+
+    public void setShapeMatrixPivot(Vec3 v) {
+        matrix.setPosition(v);
+    }
+
+    public void setShapeMatrixRotation(Quaternionf q) {
+        matrix.setRotation(q);
+    }
+
     public void setShapeMatrixRotationDegrees(float x, float y, float z) {
         matrix.setRotation(new Quaternionf().rotateXYZ(
                 (float) Math.toRadians(x),
@@ -173,8 +234,12 @@ public class DefaultTransformer {
                 (float) Math.toRadians(z)
         ));
     }
-    public void setShapeMatrixScale(Vec3 s)              { matrix.setScale(s); }
-    public boolean asyncModelInfo(){
+
+    public void setShapeMatrixScale(Vec3 s) {
+        matrix.setScale(s);
+    }
+
+    public boolean asyncModelInfo() {
         return false;
     }
 }

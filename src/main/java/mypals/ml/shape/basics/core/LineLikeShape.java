@@ -11,7 +11,9 @@ import org.joml.Vector4f;
 
 public interface LineLikeShape extends DrawableLine {
     void setLineWidth(float width);
+
     float getLineWidth(boolean lerp);
+
     default void addLineSegment(VertexBuilder vertexBuilder, Vec3 start, Vec3 end) {
         double dx = end.x() - start.x();
         double dy = end.y() - start.y();
@@ -23,36 +25,43 @@ public interface LineLikeShape extends DrawableLine {
         vertexBuilder.putVertex(start, normal);
         vertexBuilder.putVertex(end, normal);
     }
+
     class SimpleLineTransformer extends DefaultTransformer {
         public LineModelInfo lineModelInfo;
+
         public SimpleLineTransformer(Shape s, float width, Vec3 center) {
             super(s, center);
             lineModelInfo = new LineModelInfo(width);
         }
-        public void setWidth(float width){
+
+        public void setWidth(float width) {
             lineModelInfo.setWidth(width);
         }
-        public float getWidth(boolean lerp){
+
+        public float getWidth(boolean lerp) {
             return lineModelInfo.getWidth(lerp);
         }
-        public void syncLastToTarget(){
+
+        public void syncLastToTarget() {
             lineModelInfo.syncLastToTarget();
             super.syncLastToTarget();
         }
-        public boolean asyncModelInfo(){
+
+        public boolean asyncModelInfo() {
             return lineModelInfo.async();
         }
+
         @Override
-        public void updateTickDelta(float delta){
+        public void updateTickDelta(float delta) {
             this.lineModelInfo.update(delta);
             super.updateTickDelta(delta);
         }
     }
 
 
-    public static boolean isSegmentInFrustum(Vec3 a, Vec3 b, Matrix4f mvp) {
-        Vector4f ca = new Vector4f((float)a.x, (float)a.y, (float)a.z, 1f);
-        Vector4f cb = new Vector4f((float)b.x, (float)b.y, (float)b.z, 1f);
+    static boolean isSegmentInFrustum(Vec3 a, Vec3 b, Matrix4f mvp) {
+        Vector4f ca = new Vector4f((float) a.x, (float) a.y, (float) a.z, 1f);
+        Vector4f cb = new Vector4f((float) b.x, (float) b.y, (float) b.z, 1f);
 
         ca.mul(mvp);
         cb.mul(mvp);
@@ -62,9 +71,7 @@ public interface LineLikeShape extends DrawableLine {
         int codeA = computeOutCode(ca);
         int codeB = computeOutCode(cb);
 
-        if ((codeA & codeB) != 0) return false;
-
-        return true;
+        return (codeA & codeB) == 0;
     }
 
     private static int computeOutCode(Vector4f c) {
@@ -72,11 +79,11 @@ public interface LineLikeShape extends DrawableLine {
         float x = c.x, y = c.y, z = c.z, w = c.w;
 
         if (x < -w) code |= 1;
-        if (x >  w) code |= 2;
+        if (x > w) code |= 2;
         if (y < -w) code |= 4;
-        if (y >  w) code |= 8;
+        if (y > w) code |= 8;
         if (z < -w) code |= 16;
-        if (z >  w) code |= 32;
+        if (z > w) code |= 32;
 
         return code;
     }

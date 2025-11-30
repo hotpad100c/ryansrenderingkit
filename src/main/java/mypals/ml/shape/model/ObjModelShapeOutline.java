@@ -27,9 +27,10 @@ public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape
                                 float lineWidth,
                                 Color color,
                                 boolean seeThrough) {
-        super(type, (d) -> {}, resourceLocation, center, color, seeThrough);
+        super(type, (d) -> {
+        }, resourceLocation, center, color, seeThrough);
 
-        this.transformer = new SimpleLineTransformer(this,lineWidth,center);
+        this.transformer = new SimpleLineTransformer(this, lineWidth, center);
         this.transformFunction = (t) -> transform.accept((SimpleLineTransformer) this.transformer);
 
         this.lineWidth = lineWidth;
@@ -51,13 +52,14 @@ public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape
 
     @Override
     public float getLineWidth(boolean lerp) {
-       return  ((SimpleLineTransformer)this.transformer).getWidth(lerp);
+        return ((SimpleLineTransformer) this.transformer).getWidth(lerp);
     }
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
         super.generateRawGeometry(lerp);
     }
+
     @Override
     public boolean shouldDraw() {
         List<Vec3> vertices = this.getModel(true);
@@ -91,6 +93,7 @@ public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape
 
         return false;
     }
+
     @Override
     protected void drawInternal(VertexBuilder builder) {
         if (model_vertexes.isEmpty() || indexBuffer == null || indexBuffer.length < 3)

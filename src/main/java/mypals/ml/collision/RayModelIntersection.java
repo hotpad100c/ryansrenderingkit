@@ -18,6 +18,7 @@ public class RayModelIntersection {
             this.direction = direction.normalize();
         }
     }
+
     public static class HitResult {
         public boolean hit;
         @Nullable
@@ -32,7 +33,7 @@ public class RayModelIntersection {
     }
 
     public static boolean intersectTriangle(Ray ray, Vec3 v0, Vec3 v1, Vec3 v2, double[] outT) {
-        
+
 
         Vec3 e1 = v1.subtract(v0);
         Vec3 e2 = v2.subtract(v0);
@@ -91,7 +92,7 @@ public class RayModelIntersection {
         }
 
         if (!hit) {
-            return new HitResult(hit,null, -1);
+            return new HitResult(hit, null, -1);
         }
 
         Vec3 hitPoint = new Vec3(
@@ -99,6 +100,6 @@ public class RayModelIntersection {
                 (float) closestHitVec3d.y,
                 (float) closestHitVec3d.z
         );
-        return new HitResult(hit,hitPoint, closestT);
+        return new HitResult(hit, hitPoint, closestT);
     }
 }

@@ -28,9 +28,10 @@ public abstract class VertexBuilder {
         this.seeThrough = seeThrough;
     }
 
-    public Matrix4f getPositionMatrix(){
+    public Matrix4f getPositionMatrix() {
         return positionMatrix;
     }
+
     public void setPositionMatrix(Matrix4f modelViewMatrix) {
         this.positionMatrix = modelViewMatrix;
     }
@@ -64,6 +65,7 @@ public abstract class VertexBuilder {
         colors[3] = (argb & 0xFF) / 255f;
         return colors;
     }
+
     public void putVertex(Vector3f v, float r, float g, float b, float a) {
         this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
     }
@@ -73,6 +75,7 @@ public abstract class VertexBuilder {
                 .setColor(r, g, b, a)
                 .setNormal(normal.x, normal.y, normal.z);
     }
+
     public void putVertex(Vector3f v, Color color) {
         float[] argb = toARGB(color);
         putVertex(v, argb[1], argb[2], argb[3], argb[0]);
@@ -119,10 +122,12 @@ public abstract class VertexBuilder {
     public void putVertex(float x, float y, float z, float nx, float ny, float nz) {
         putVertex(new Vector3f(x, y, z), new Vector3f(nx, ny, nz));
     }
+
     public void draw(Shape shape, Consumer<VertexBuilder> builder, RenderMethod renderMethod) {
     }
+
     public void setUpRendererSystem(@Nullable Shape shape) {
-        if ( (shape != null && shape.seeThrough) || seeThrough) {
+        if ((shape != null && shape.seeThrough) || seeThrough) {
             RenderSystem.disableDepthTest();
         } else {
             RenderSystem.enableDepthTest();
@@ -132,6 +137,7 @@ public abstract class VertexBuilder {
         RenderSystem.polygonOffset(-1.0f, -1.0f);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
+
     public void restoreRendererSystem() {
         RenderSystem.enableDepthTest();
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);

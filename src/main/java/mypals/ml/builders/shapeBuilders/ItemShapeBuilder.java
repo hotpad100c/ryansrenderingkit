@@ -12,14 +12,17 @@ public class ItemShapeBuilder extends BaseBuilder<ItemShapeBuilder, DefaultTrans
     private ItemStack itemStack = ItemStack.EMPTY;
     private ItemDisplayContext displayContext = ItemDisplayContext.FIXED;
     private int light = LightTexture.FULL_BRIGHT;
+
     public ItemShapeBuilder itemStack(ItemStack itemStack) {
         this.itemStack = itemStack;
         return this;
     }
+
     public ItemShapeBuilder displayMode(ItemDisplayContext context) {
         this.displayContext = context;
         return this;
     }
+
     public ItemShapeBuilder light(int light) {
         this.light = light;
         return this;
@@ -30,6 +33,7 @@ public class ItemShapeBuilder extends BaseBuilder<ItemShapeBuilder, DefaultTrans
     public ItemShape build(Shape.RenderingType type) {
         return build();
     }
+
     public ItemShape build() {
         return new ItemShape(
                 getTransformer(),

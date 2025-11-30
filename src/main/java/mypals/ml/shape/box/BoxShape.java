@@ -1,8 +1,8 @@
 package mypals.ml.shape.box;
 
-import mypals.ml.utils.Helpers;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.BoxLikeShape;
+import mypals.ml.utils.Helpers;
 import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 public class BoxShape extends Shape implements BoxLikeShape {
 
-    public enum BoxConstructionType { CENTER_AND_DIMENSIONS, CORNERS }
+    public enum BoxConstructionType {CENTER_AND_DIMENSIONS, CORNERS}
 
     public BoxShape(RenderingType type,
                     Consumer<BoxTransformer> transform,
@@ -21,28 +21,30 @@ public class BoxShape extends Shape implements BoxLikeShape {
                     BoxConstructionType constructionType) {
         super(type, color, seeThrough);
 
-        this.transformFunction = (t)->{transform.accept((BoxTransformer)this.transformer);};
+        this.transformFunction = (t) -> {
+            transform.accept((BoxTransformer) this.transformer);
+        };
 
         if (constructionType == BoxConstructionType.CENTER_AND_DIMENSIONS) {
-            this.transformer = new BoxTransformer(this,new Vec3(Math.abs(vec2.x), Math.abs(vec2.y), Math.abs(vec2.z)),vec1);
+            this.transformer = new BoxTransformer(this, new Vec3(Math.abs(vec2.x), Math.abs(vec2.y), Math.abs(vec2.z)), vec1);
         } else {
             Vec3 min = Helpers.min(vec1, vec2);
             Vec3 max = Helpers.max(vec1, vec2);
             Vec3 dims = max.subtract(min);
             Vec3 center = min.add(dims.scale(0.5));
-            this.transformer = new BoxTransformer(this,dims,center);
+            this.transformer = new BoxTransformer(this, dims, center);
         }
 
-        
+
         syncLastToTarget();
     }
-
 
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
 
     }
+
     @Override
     public Vec3 getMin() {
         BoxTransformer bt = (BoxTransformer) transformer;
@@ -65,7 +67,7 @@ public class BoxShape extends Shape implements BoxLikeShape {
         BoxTransformer bt = (BoxTransformer) transformer;
         bt.setShapeWorldPivot(center);
         bt.setDimension(dims);
-        
+
     }
 
     @Override
@@ -76,7 +78,7 @@ public class BoxShape extends Shape implements BoxLikeShape {
         BoxTransformer bt = (BoxTransformer) transformer;
         bt.setShapeWorldPivot(center);
         bt.setDimension(dims);
-        
+
     }
 
 
@@ -84,7 +86,7 @@ public class BoxShape extends Shape implements BoxLikeShape {
         ((BoxTransformer) transformer).setDimension(
                 new Vec3(Math.abs(dimensions.x), Math.abs(dimensions.y), Math.abs(dimensions.z))
         );
-        
+
     }
 
     public void setCorners(Vec3 corner1, Vec3 corner2) {
@@ -95,27 +97,30 @@ public class BoxShape extends Shape implements BoxLikeShape {
         BoxTransformer bt = (BoxTransformer) transformer;
         bt.setShapeWorldPivot(center);
         bt.setDimension(dims);
-        
+
     }
 
     public void forceSetMax(Vec3 max) {
         setMax(max);
-        ((BoxTransformer)this.transformer).boxModelInfo.syncLastToTarget();
+        ((BoxTransformer) this.transformer).boxModelInfo.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     public void forceSetMin(Vec3 min) {
         setMax(min);
-        ((BoxTransformer)this.transformer).boxModelInfo.syncLastToTarget();
+        ((BoxTransformer) this.transformer).boxModelInfo.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     public void forceSetDimensions(Vec3 dim) {
         setDimension(dim);
-        ((BoxTransformer)this.transformer).boxModelInfo.syncLastToTarget();
+        ((BoxTransformer) this.transformer).boxModelInfo.syncLastToTarget();
         generateRawGeometry(false);
     }
-    public void forceSetCorners(Vec3 c1,Vec3 c2) {
-        setCorners(c1,c2);
-        ((BoxTransformer)this.transformer).boxModelInfo.syncLastToTarget();
+
+    public void forceSetCorners(Vec3 c1, Vec3 c2) {
+        setCorners(c1, c2);
+        ((BoxTransformer) this.transformer).boxModelInfo.syncLastToTarget();
         generateRawGeometry(false);
     }
 

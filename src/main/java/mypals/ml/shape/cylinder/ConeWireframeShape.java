@@ -1,13 +1,10 @@
 package mypals.ml.shape.cylinder;
 
-import mypals.ml.builders.vertexBuilders.VertexBuilder;
-import mypals.ml.shape.Shape;
 import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ConeWireframeShape extends CylinderWireframeShape {
@@ -19,6 +16,7 @@ public class ConeWireframeShape extends CylinderWireframeShape {
                               float lineWidth, Color color, boolean seeThrough) {
         super(type, transform, circleAxis, center, segments, radius, height, lineWidth, color, seeThrough);
     }
+
     private List<Vec3> generateConeVertices(double halfH, int segments, float radius, CircleAxis axis) {
         List<Vec3> vertices = new ArrayList<>();
 
@@ -51,14 +49,15 @@ public class ConeWireframeShape extends CylinderWireframeShape {
 
         return vertices;
     }
+
     @Override
     protected void generateRawGeometry(boolean lerp) {
         model_vertexes.clear();
         List<Integer> indices = new ArrayList<>();
 
-        float height = ((CylinderWireframeTransformer)this.transformer).getHeight(lerp);
-        int segments = ((CylinderWireframeTransformer)this.transformer).getSegments(lerp);
-        float radius = ((CylinderWireframeTransformer)this.transformer).getRadius(lerp);
+        float height = ((CylinderWireframeTransformer) this.transformer).getHeight(lerp);
+        int segments = ((CylinderWireframeTransformer) this.transformer).getSegments(lerp);
+        float radius = ((CylinderWireframeTransformer) this.transformer).getRadius(lerp);
         double halfH = height / 2.0;
 
         List<Vec3> verts = generateConeVertices(halfH, segments, radius, axis);

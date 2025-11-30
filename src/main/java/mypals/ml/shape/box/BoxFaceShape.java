@@ -1,24 +1,21 @@
 package mypals.ml.shape.box;
 
-import mypals.ml.builders.vertexBuilders.VertexBuilder;
-import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.tags.DrawableQuad;
 import net.minecraft.world.phys.Vec3;
+
 import java.awt.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 
-public class BoxFaceShape extends BoxShape implements DrawableQuad{
+public class BoxFaceShape extends BoxShape implements DrawableQuad {
 
     public BoxFaceShape(RenderingType type,
                         Consumer<BoxTransformer> transform,
                         Vec3 min,
                         Vec3 max,
                         Color faceputColor,
-                        boolean seeThrough, BoxConstructionType constructionType)
-    {
-        super(type, transform,min,max,faceputColor, seeThrough,constructionType);
+                        boolean seeThrough, BoxConstructionType constructionType) {
+        super(type, transform, min, max, faceputColor, seeThrough, constructionType);
         generateRawGeometry(false);
     }
 
@@ -42,7 +39,7 @@ public class BoxFaceShape extends BoxShape implements DrawableQuad{
         model_vertexes.add(new Vec3(c.x + hx, c.y + hy, c.z + hz)); // 6
         model_vertexes.add(new Vec3(c.x - hx, c.y + hy, c.z + hz)); // 7
 
-        indexBuffer = new int[] {
+        indexBuffer = new int[]{
                 // -Z
                 0, 1, 2, 2, 3, 0,
                 // +Z

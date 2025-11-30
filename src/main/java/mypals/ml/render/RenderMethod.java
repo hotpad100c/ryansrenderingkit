@@ -12,7 +12,7 @@ public record RenderMethod(
         @NotNull VertexFormat.Mode mode,
         @NotNull VertexFormat format,
         boolean cullFace
-)  {
+) {
     public static final RenderMethod LINES = new RenderMethod(
             CoreShaders.RENDERTYPE_LINES,
             VertexFormat.Mode.LINES,

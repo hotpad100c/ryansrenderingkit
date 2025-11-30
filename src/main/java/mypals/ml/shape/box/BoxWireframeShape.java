@@ -29,7 +29,7 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
                              float edgeWidth,
                              BoxConstructionType constructionType) {
 
-        super(type, transform, vec1, vec2,edgeColor, seeThrough, constructionType);
+        super(type, transform, vec1, vec2, edgeColor, seeThrough, constructionType);
         this.edgeWidth = Math.max(0.1f, edgeWidth);
         generateRawGeometry(false);
     }
@@ -67,14 +67,17 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
 
         return false;
     }
+
     public void forceSetLineWidth(float width) {
         setLineWidth(width);
-        ((LineLikeShape.SimpleLineTransformer)this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
+        ((LineLikeShape.SimpleLineTransformer) this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
+
     public void setLineWidth(float width) {
-        ((LineLikeShape.SimpleLineTransformer)this.transformer).setWidth(width);
+        ((LineLikeShape.SimpleLineTransformer) this.transformer).setWidth(width);
     }
+
     @Override
     protected void generateRawGeometry(boolean lerp) {
         model_vertexes.clear();
@@ -105,13 +108,13 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
         model_vertexes.add(v6); // 6
         model_vertexes.add(v7); // 7
 
-        indexBuffer = new int[] {
+        indexBuffer = new int[]{
                 // Bottom
-                0, 1,   1, 2,   2, 3,   3, 0,
+                0, 1, 1, 2, 2, 3, 3, 0,
                 // Top
-                4, 5,   5, 6,   6, 7,   7, 4,
+                4, 5, 5, 6, 6, 7, 7, 4,
                 // Vert
-                0, 4,   1, 5,   2, 6,   3, 7
+                0, 4, 1, 5, 2, 6, 3, 7
         };
     }
 
@@ -122,10 +125,11 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
 
         for (int i = 0; i < indexBuffer.length; i += 2) {
             Vec3 start = model_vertexes.get(indexBuffer[i]);
-            Vec3 end   = model_vertexes.get(indexBuffer[i + 1]);
+            Vec3 end = model_vertexes.get(indexBuffer[i + 1]);
             addLineSegment(builder, start, end);
         }
     }
+
     private void addLineSegment(VertexBuilder builder, Vec3 start, Vec3 end) {
         Vec3 dir = end.subtract(start);
         dir.normalize();

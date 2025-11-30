@@ -17,11 +17,17 @@ import static mypals.ml.RyansRenderingKit.RENDER_PROFILER;
 
 @Mixin(MeshData.class)
 public abstract class MeshDataMixin implements MeshDataExt {
-    @Shadow @Nullable private ByteBufferBuilder.Result indexBuffer;
+    @Shadow
+    @Nullable
+    private ByteBufferBuilder.Result indexBuffer;
 
-    @Shadow @Final private ByteBufferBuilder.Result vertexBuffer;
+    @Shadow
+    @Final
+    private ByteBufferBuilder.Result vertexBuffer;
 
-    @Shadow @Final private MeshData.DrawState drawState;
+    @Shadow
+    @Final
+    private MeshData.DrawState drawState;
 
     @Unique
     private static Vector3f[] unpackTriangleCentroids(ByteBuffer byteBuffer, int vertexCount, VertexFormat vertexFormat) {
@@ -59,20 +65,26 @@ public abstract class MeshDataMixin implements MeshDataExt {
 
 
     @Unique
-    public void ryansrenderingkit$sortTriangles(ByteBufferBuilder byteBufferBuilder,VertexSorting vertexSorting) {
+    public void ryansrenderingkit$sortTriangles(ByteBufferBuilder byteBufferBuilder, VertexSorting vertexSorting) {
         RENDER_PROFILER.push("sortMesh");
         Vector3f[] compactVectorArray = unpackTriangleCentroids(this.vertexBuffer.byteBuffer(), this.drawState.vertexCount(), this.drawState.format());
         MeshData.SortState sortState = new MeshData.SortState(compactVectorArray, this.drawState.indexType());
-        this.indexBuffer = ((MeshDataSortableExt)(Object)sortState).ryansrenderingkit$buildSortedIndexBufferTriangles(byteBufferBuilder, vertexSorting);
+        this.indexBuffer = ((MeshDataSortableExt) (Object) sortState).ryansrenderingkit$buildSortedIndexBufferTriangles(byteBufferBuilder, vertexSorting);
         RENDER_PROFILER.pop();
     }
+
     @Mixin(MeshData.SortState.class)
-    public static abstract class SortStateMixin implements MeshDataSortableExt{
-        @Shadow protected abstract it.unimi.dsi.fastutil.ints.IntConsumer indexWriter(long l, VertexFormat.IndexType indexType);
+    public static abstract class SortStateMixin implements MeshDataSortableExt {
+        @Shadow
+        protected abstract it.unimi.dsi.fastutil.ints.IntConsumer indexWriter(long l, VertexFormat.IndexType indexType);
 
-        @Shadow @Final private VertexFormat.IndexType indexType;
+        @Shadow
+        @Final
+        private VertexFormat.IndexType indexType;
 
-        @Shadow @Final private Vector3f[] centroids;
+        @Shadow
+        @Final
+        private Vector3f[] centroids;
 
         @Unique
         public ByteBufferBuilder.Result ryansrenderingkit$buildSortedIndexBufferTriangles(ByteBufferBuilder byteBufferBuilder, VertexSorting vertexSorting) {

@@ -1,9 +1,7 @@
 package mypals.ml.utils;
 
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -15,14 +13,18 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
 import static mypals.ml.RyansRenderingKit.MOD_ID;
 
 public class Helpers {
     public static ResourceLocation generateUniqueId(String prefix) {
         long timestamp = System.currentTimeMillis();
         int randomNum = ThreadLocalRandom.current().nextInt(10000);
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID,prefix.toLowerCase() +"_"+ timestamp + "_" + randomNum);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, prefix.toLowerCase() + "_" + timestamp + "_" + randomNum);
     }
+
     public static Vec3 max(Vec3 a, Vec3 b) {
         return new Vec3(
                 Math.max(a.x, b.x),
@@ -38,6 +40,7 @@ public class Helpers {
                 Math.min(a.z, b.z)
         );
     }
+
     public static Vec3 calculateCentroid(List<Vec3> vertices) {
         double sumX = 0, sumY = 0, sumZ = 0;
         for (Vec3 v : vertices) {
@@ -48,6 +51,7 @@ public class Helpers {
         double n = vertices.size();
         return new Vec3(sumX / n, sumY / n, sumZ / n);
     }
+
     public static Matrix4f createViewMatrix(Camera camera) {
         Matrix4f view = new Matrix4f();
 
@@ -64,8 +68,9 @@ public class Helpers {
 
         return view;
     }
+
     public static boolean isVertexInFrustum(Vec3 v, Matrix4f mvp) {
-        Vector4f clip = new Vector4f((float)v.x, (float)v.y, (float)v.z, 1f);
+        Vector4f clip = new Vector4f((float) v.x, (float) v.y, (float) v.z, 1f);
         clip.mul(mvp);
         if (clip.w <= 0) return false;
         float ndcX = clip.x / clip.w;
@@ -74,15 +79,17 @@ public class Helpers {
 
         return ndcX >= -1 && ndcX <= 1 &&
                 ndcY >= -1 && ndcY <= 1 &&
-                ndcZ >= -1  && ndcZ <= 1;
+                ndcZ >= -1 && ndcZ <= 1;
     }
+
     public static int multiplyRGB(int color, float shade) {
         int alpha = color >>> 24 & 255;
-        int red = (int)((float)(color >>> 16 & 255) * shade);
-        int green = (int)((float)(color >>> 8 & 255) * shade);
-        int blue = (int)((float)(color & 255) * shade);
+        int red = (int) ((float) (color >>> 16 & 255) * shade);
+        int green = (int) ((float) (color >>> 8 & 255) * shade);
+        int blue = (int) ((float) (color & 255) * shade);
         return alpha << 24 | red << 16 | green << 8 | blue;
     }
+
     public static void renderLineBox(PoseStack poseStack, VertexConsumer consumer,
                                      Vec3 center, float size,
                                      float red, float green, float blue, float alpha) {
@@ -98,6 +105,7 @@ public class Helpers {
                 blue
         );
     }
+
     public static void renderBillboardFrame(
             PoseStack poseStack,
             VertexConsumer vc,
@@ -130,8 +138,9 @@ public class Helpers {
         addLine(pose, vc, v4, v1, r, g, b, a, n);
         poseStack.popPose();
     }
+
     private static void addLine(PoseStack.Pose pose, VertexConsumer vc, Vec3 a, Vec3 b, float r, float g, float b2, float a2, Vec3 normal) {
-        vc.addVertex(pose, (float)a.x, (float)a.y, (float)a.z).setColor(r, g, b2, a2).setNormal(pose, (float)normal.x, (float)normal.y, (float)normal.z);
-        vc.addVertex(pose, (float)b.x, (float)b.y, (float)b.z).setColor(r, g, b2, a2).setNormal(pose, (float)normal.x, (float)normal.y, (float)normal.z);
+        vc.addVertex(pose, (float) a.x, (float) a.y, (float) a.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
+        vc.addVertex(pose, (float) b.x, (float) b.y, (float) b.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
     }
 }

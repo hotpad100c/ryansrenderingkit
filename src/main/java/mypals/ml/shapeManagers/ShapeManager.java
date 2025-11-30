@@ -1,18 +1,19 @@
 package mypals.ml.shapeManagers;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import mypals.ml.builderManager.BuilderManager;
 import mypals.ml.shape.Shape;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static mypals.ml.RyansRenderingKit.RENDER_PROFILER;
 import static mypals.ml.shapeManagers.ShapeManagers.TEMP_HEADER;
-
-import com.mojang.blaze3d.vertex.PoseStack;
 
 public class ShapeManager {
     public String id;
@@ -27,76 +28,88 @@ public class ShapeManager {
         double distance2 = shape2Pos.lengthSqr();
         return Double.compare(distance2, distance1);
     };
-    public ShapeManager(BuilderManager builderManager, String id){
+
+    public ShapeManager(BuilderManager builderManager, String id) {
         this.id = id;
         immediateShapeGroup = new ShapeGroup();
         batchShapeGroup = new ShapeGroup();
         bufferedShapeGroup = new ShapeGroup();
         this.builderManager = builderManager;
     }
-    public void syncShapeTransform(){
+
+    public void syncShapeTransform() {
         immediateShapeGroup.syncShapeTransform();
         batchShapeGroup.syncShapeTransform();
     }
-    public void addShape(ResourceLocation identifier,Shape shape){
-        switch (shape.type){
-            case IMMEDIATE -> immediateShapeGroup.addShape(identifier,shape);
-            case BATCH -> batchShapeGroup.addShape(identifier,shape);
+
+    public void addShape(ResourceLocation identifier, Shape shape) {
+        switch (shape.type) {
+            case IMMEDIATE -> immediateShapeGroup.addShape(identifier, shape);
+            case BATCH -> batchShapeGroup.addShape(identifier, shape);
             case BUFFERED -> {
-                if(identifier.getPath().startsWith(TEMP_HEADER)) throw new UnsupportedOperationException("Buffered shapes cant be temporary, use IMMEDIATE or BATCH types for temporary shapes.");
-                bufferedShapeGroup.addShape(identifier,shape);
+                if (identifier.getPath().startsWith(TEMP_HEADER))
+                    throw new UnsupportedOperationException("Buffered shapes cant be temporary, use IMMEDIATE or BATCH types for temporary shapes.");
+                bufferedShapeGroup.addShape(identifier, shape);
                 builderManager.rebuildVBO(
-                        shape.seeThrough?
+                        shape.seeThrough ?
                                 bufferedShapeGroup.seeThroughShapeMap.values()
                                 :
                                 bufferedShapeGroup.normalShapeMap.values()
                         , shape.seeThrough);
-                }
+            }
         }
     }
-    public void removeShape(ResourceLocation identifier){
+
+    public void removeShape(ResourceLocation identifier) {
         immediateShapeGroup.removeShape(identifier);
         batchShapeGroup.removeShape(identifier);
-        if(bufferedShapeGroup.removeShape(identifier)){
-            builderManager.rebuildVBO(bufferedShapeGroup.seeThroughShapeMap.values(),true);
-            builderManager.rebuildVBO(bufferedShapeGroup.normalShapeMap.values(),false);
-        };
+        if (bufferedShapeGroup.removeShape(identifier)) {
+            builderManager.rebuildVBO(bufferedShapeGroup.seeThroughShapeMap.values(), true);
+            builderManager.rebuildVBO(bufferedShapeGroup.normalShapeMap.values(), false);
+        }
     }
-    public void removeShapes(ResourceLocation root){
+
+    public void removeShapes(ResourceLocation root) {
         immediateShapeGroup.removeShapes(root);
         batchShapeGroup.removeShapes(root);
-        if(bufferedShapeGroup.removeShapes(root)){
-            builderManager.rebuildVBO(bufferedShapeGroup.seeThroughShapeMap.values(),true);
-            builderManager.rebuildVBO(bufferedShapeGroup.normalShapeMap.values(),false);
-        };
+        if (bufferedShapeGroup.removeShapes(root)) {
+            builderManager.rebuildVBO(bufferedShapeGroup.seeThroughShapeMap.values(), true);
+            builderManager.rebuildVBO(bufferedShapeGroup.normalShapeMap.values(), false);
+        }
     }
-    public void draw(PoseStack matrixStack,float tickDelta){
+
+    public void draw(PoseStack matrixStack, float tickDelta) {
         RENDER_PROFILER.push("batchDraw");
-        batchShapeGroup.drawBatched(this.builderManager,matrixStack,tickDelta);
+        batchShapeGroup.drawBatched(this.builderManager, matrixStack, tickDelta);
         RENDER_PROFILER.pop();
         RENDER_PROFILER.push("singleDraw");
-        immediateShapeGroup.drawImmediate(this.builderManager,matrixStack,tickDelta);
+        immediateShapeGroup.drawImmediate(this.builderManager, matrixStack, tickDelta);
         RENDER_PROFILER.pop();
         RENDER_PROFILER.push("bufferedDraw");
         bufferedShapeGroup.drawBuffered(this.builderManager);
         RENDER_PROFILER.pop();
     }
-    public static class ShapeGroup{
-        public ConcurrentHashMap<ResourceLocation, Shape> normalShapeMap = new ConcurrentHashMap<>(){};
-        public ConcurrentHashMap<ResourceLocation, Shape> seeThroughShapeMap = new ConcurrentHashMap<>();
-        public void addShape(ResourceLocation id,Shape shape){
-            if(shape.seeThrough){
-                seeThroughShapeMap.put(id,shape);
 
-            }else{
-                normalShapeMap.put(id,shape);
+    public static class ShapeGroup {
+        public ConcurrentHashMap<ResourceLocation, Shape> normalShapeMap = new ConcurrentHashMap<>() {
+        };
+        public ConcurrentHashMap<ResourceLocation, Shape> seeThroughShapeMap = new ConcurrentHashMap<>();
+
+        public void addShape(ResourceLocation id, Shape shape) {
+            if (shape.seeThrough) {
+                seeThroughShapeMap.put(id, shape);
+
+            } else {
+                normalShapeMap.put(id, shape);
             }
         }
+
         public boolean removeShape(@NotNull ResourceLocation identifier) {
             boolean removed1 = seeThroughShapeMap.remove(identifier) != null;
             boolean removed2 = normalShapeMap.remove(identifier) != null;
             return removed1 || removed2;
         }
+
         public boolean removeShapes(@NotNull ResourceLocation identifier) {
             String namespace = identifier.getNamespace();
             String path = identifier.getPath();
@@ -112,15 +125,17 @@ public class ShapeManager {
             return removed1 || removed2;
         }
 
-        public void clear(){
+        public void clear() {
             normalShapeMap.clear();
             seeThroughShapeMap.clear();
         }
-        public void clearTemp(){
+
+        public void clearTemp() {
             normalShapeMap.entrySet().removeIf(entry -> entry.getKey().getPath().startsWith(TEMP_HEADER));
             seeThroughShapeMap.entrySet().removeIf(entry -> entry.getKey().getPath().startsWith(TEMP_HEADER));
         }
-        public void syncShapeTransform(){
+
+        public void syncShapeTransform() {
             for (Shape shape : normalShapeMap.values()) {
                 shape.syncLastToTarget();
             }
@@ -128,51 +143,54 @@ public class ShapeManager {
                 shape.syncLastToTarget();
             }
         }
-        public void drawImmediate(BuilderManager builderManager, PoseStack matrixStack,float tickDelta){
-            if(!normalShapeMap.isEmpty()) {
+
+        public void drawImmediate(BuilderManager builderManager, PoseStack matrixStack, float tickDelta) {
+            if (!normalShapeMap.isEmpty()) {
                 List<Shape> sortedShapes = new ArrayList<>(normalShapeMap.values());
                 sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
                 for (Shape shape : sortedShapes) {
                     builderManager.drawImmediate(shape, builder -> {
-                        shape.draw(true, builder, matrixStack,tickDelta);
+                        shape.draw(true, builder, matrixStack, tickDelta);
                     });
                 }
             }
-            if(!seeThroughShapeMap.isEmpty()) {
+            if (!seeThroughShapeMap.isEmpty()) {
                 List<Shape> sortedShapes = new ArrayList<>(seeThroughShapeMap.values());
                 sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
                 for (Shape shape : sortedShapes) {
                     builderManager.drawImmediate(shape, builder -> {
-                        shape.draw(true, builder, matrixStack,tickDelta);
+                        shape.draw(true, builder, matrixStack, tickDelta);
                     });
                 }
             }
         }
-        public void drawBatched(BuilderManager builderManager, PoseStack matrixStack,float tickDelta){
-            if(!normalShapeMap.isEmpty()) {
+
+        public void drawBatched(BuilderManager builderManager, PoseStack matrixStack, float tickDelta) {
+            if (!normalShapeMap.isEmpty()) {
                 builderManager.drawBatch(builder -> {
                     List<Shape> sortedShapes = new ArrayList<>(normalShapeMap.values());
                     sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
                     for (Shape shape : sortedShapes) {
-                        shape.draw(true,builder, matrixStack,tickDelta);
+                        shape.draw(true, builder, matrixStack, tickDelta);
                     }
                 }, false);
             }
-            if(!seeThroughShapeMap.isEmpty()) {
+            if (!seeThroughShapeMap.isEmpty()) {
                 builderManager.drawBatch(builder -> {
                     List<Shape> sortedShapes = new ArrayList<>(seeThroughShapeMap.values());
                     sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
 
                     for (Shape shape : sortedShapes) {
-                        shape.draw(true,builder, matrixStack,tickDelta);
+                        shape.draw(true, builder, matrixStack, tickDelta);
                     }
                 }, true);
             }
         }
-        public void drawBuffered(BuilderManager builderManager){
+
+        public void drawBuffered(BuilderManager builderManager) {
             builderManager.drawVBO();
         }
     }

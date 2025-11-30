@@ -6,20 +6,11 @@ import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.tags.EmptyMesh;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
-import net.minecraft.Util;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.state.MapRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
@@ -32,10 +23,11 @@ public class EntityShape extends Shape implements EmptyMesh {
     public Entity entity;
     private final PoseStack poseStack = new PoseStack();
     public int light;
+
     public EntityShape(
-                      Consumer<DefaultTransformer> transform,
-                      Vec3 center, Entity entity,int light) {
-        super(RenderingType.BATCH, transform, Color.white, center,false);
+            Consumer<DefaultTransformer> transform,
+            Vec3 center, Entity entity, int light) {
+        super(RenderingType.BATCH, transform, Color.white, center, false);
         this.seeThrough = false;
         this.entity = entity;
         this.light = light;
@@ -43,21 +35,22 @@ public class EntityShape extends Shape implements EmptyMesh {
         generateRawGeometry(false);
         syncLastToTarget();
     }
+
     @Override
     protected void generateRawGeometry(boolean lerp) {
-        float w = entity.getBbWidth()/2;
+        float w = entity.getBbWidth() / 2;
         float h = entity.getBbHeight();
 
-        model_vertexes.add(new Vec3(- w, 0, - w));
-        model_vertexes.add(new Vec3(+ w, 0, - w));
-        model_vertexes.add(new Vec3(+ w, + h, - w));
-        model_vertexes.add(new Vec3(- w, + h, - w));
-        model_vertexes.add(new Vec3(- w, 0, + w));
-        model_vertexes.add(new Vec3(+ w, 0, + w));
-        model_vertexes.add(new Vec3(+ w, + h, + w));
-        model_vertexes.add(new Vec3(- w, + h, + w));
+        model_vertexes.add(new Vec3(-w, 0, -w));
+        model_vertexes.add(new Vec3(+w, 0, -w));
+        model_vertexes.add(new Vec3(+w, +h, -w));
+        model_vertexes.add(new Vec3(-w, +h, -w));
+        model_vertexes.add(new Vec3(-w, 0, +w));
+        model_vertexes.add(new Vec3(+w, 0, +w));
+        model_vertexes.add(new Vec3(+w, +h, +w));
+        model_vertexes.add(new Vec3(-w, +h, +w));
 
-        indexBuffer = new int[] {
+        indexBuffer = new int[]{
                 0, 1, 2, 2, 3, 0,
                 4, 6, 5, 6, 4, 7,
                 0, 4, 1, 1, 4, 5,
@@ -67,6 +60,7 @@ public class EntityShape extends Shape implements EmptyMesh {
         };
 
     }
+
     public static List<Vec3> decodeQuad(BakedQuad quad) {
         int[] v = quad.getVertices();
         int stride = 8;
@@ -81,6 +75,7 @@ public class EntityShape extends Shape implements EmptyMesh {
         }
         return result;
     }
+
     @Override
     protected void drawInternal(VertexBuilder builder) {
         Minecraft mc = Minecraft.getInstance();
@@ -88,17 +83,17 @@ public class EntityShape extends Shape implements EmptyMesh {
         EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
         MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
 
-        RenderSystem.setShaderColor((float) this.baseColor.getRed() /255,
-                (float) this.baseColor.getGreen() /255,
-                (float) this.baseColor.getBlue() /255,
-                (float) this.baseColor.getAlpha() /255);
+        RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
+                (float) this.baseColor.getGreen() / 255,
+                (float) this.baseColor.getBlue() / 255,
+                (float) this.baseColor.getAlpha() / 255);
         poseStack.pushPose();
         poseStack.mulPose(builder.getPositionMatrix());
-        dispatcher.render(entity,0,0,0,transformer.getTickDelta(),
-                poseStack,multiBufferSource, light);
+        dispatcher.render(entity, 0, 0, 0, transformer.getTickDelta(),
+                poseStack, multiBufferSource, light);
 
         poseStack.popPose();
-        RenderSystem.setShaderColor(1,1,1,1);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
     }
 
     @Override

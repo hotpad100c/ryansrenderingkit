@@ -1,35 +1,35 @@
 {
-	"schemaVersion": 1,
-	"id": "ryansrenderingkit",
-	"version": "${version}",
-	"name": "RyansRenderingKit",
-	"description": "A Fabric-based rendering toolkit for Minecraft!",
-	"accessWidener": "ryansRenderingKit.accesswidener",
-	"authors": [
-		"Ryan100c!"
-	],
-	"contact": {
-		"homepage": "https://github.com/hotpad100c/ryansrenderingkit/",
-		"sources": "https://github.com/hotpad100c/ryansrenderingkit"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/ryansrenderingkit/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"mypals.ml.RyansRenderingKit"
-		]
-	},
-	"mixins": [
-		"ryansrenderingkit.mixins.json"
-	],
-	"depends": {
-		"fabricloader": "*",
-		"minecraft": "~1.21.4",
-		"java": ">=21",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
-	}
+  "schemaVersion": 1,
+  "id": "ryansrenderingkit",
+  "version": "${version}",
+  "name": "RyansRenderingKit",
+  "description": "A Fabric-based rendering toolkit for Minecraft!",
+  "accessWidener": "ryansRenderingKit.accesswidener",
+  "authors": [
+    "Ryan100c!"
+  ],
+  "contact": {
+    "homepage": "https://github.com/hotpad100c/ryansrenderingkit/",
+    "sources": "https://github.com/hotpad100c/ryansrenderingkit"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/ryansrenderingkit/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "mypals.ml.RyansRenderingKit"
+    ]
+  },
+  "mixins": [
+    "ryansrenderingkit.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": "~1.21.4",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
 }

@@ -5,8 +5,6 @@ import mypals.ml.shape.model.ObjModelShape;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.function.BiConsumer;
-
 public class ObjModelBuilder extends BaseBuilder<ObjModelBuilder, DefaultTransformer> {
     private ResourceLocation resourceLocation;
 
