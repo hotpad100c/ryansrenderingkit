@@ -9,18 +9,14 @@ import mypals.ml.shape.basics.core.TwoPointsLineShape;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
-import org.joml.Vector4f;
 
 import java.awt.*;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static mypals.ml.Helpers.createViewMatrix;
+import static mypals.ml.utils.Helpers.createViewMatrix;
 
 public class LineShape extends Shape implements TwoPointsLineShape {
 

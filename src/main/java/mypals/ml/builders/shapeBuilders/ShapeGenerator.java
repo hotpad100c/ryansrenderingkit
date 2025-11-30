@@ -7,6 +7,18 @@ public final class ShapeGenerator {
         return new TextBuilder();
     }
 
+    public static BlockShapeBuilder generateBlock() {
+        return new BlockShapeBuilder();
+    }
+
+    public static EntityShapeBuilder generateEntity() {
+        return new EntityShapeBuilder();
+    }
+
+    public static ItemShapeBuilder generateItem() {
+        return new ItemShapeBuilder();
+    }
+
     public static FaceCircleBuilder generateFaceCircle() {
         return new FaceCircleBuilder();
     }

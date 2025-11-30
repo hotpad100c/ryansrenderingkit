@@ -2,23 +2,19 @@ package mypals.ml.shape.box;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
-import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.core.LineLikeShape;
 import mypals.ml.shape.basics.tags.DrawableLine;
-import mypals.ml.shape.cylinder.CylinderWireframeShape;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import java.awt.*;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static mypals.ml.Helpers.createViewMatrix;
+import static mypals.ml.utils.Helpers.createViewMatrix;
 
 public class BoxWireframeShape extends BoxShape implements DrawableLine {
 

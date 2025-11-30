@@ -5,7 +5,6 @@ import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.CircleLikeShape;
 import mypals.ml.shape.basics.core.LineLikeShape;
-import mypals.ml.shape.basics.core.TwoPointsLineShape;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.CircleModelInfo;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.LineModelInfo;
@@ -19,7 +18,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static mypals.ml.Helpers.createViewMatrix;
+import static mypals.ml.utils.Helpers.createViewMatrix;
 
 public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeShape {
 

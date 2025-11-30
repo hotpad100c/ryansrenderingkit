@@ -5,16 +5,9 @@ import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.tags.DrawableLine;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer.LineModelInfo;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
-
-import java.util.List;
-
-import static mypals.ml.Helpers.createViewMatrix;
 
 public interface LineLikeShape extends DrawableLine {
     void setLineWidth(float width);

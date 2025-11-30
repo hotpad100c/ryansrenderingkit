@@ -2,11 +2,12 @@ package mypals.ml.transform.shapeTransformers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mypals.ml.shape.Shape;
-import mypals.ml.transform.valueTransformers.QuaternionTransformer;
-import mypals.ml.transform.valueTransformers.Vec3Transformer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector4f;
+
+import java.util.List;
 
 public class DefaultTransformer {
     private float delta = 0;
@@ -69,8 +70,32 @@ public class DefaultTransformer {
     public TransformLayer matrix() { return matrix; }
 
     public Vec3 getShapeWorldPivot(boolean lerp) {
-        return world.getPosition(lerp);
+        PoseStack poseStack = new PoseStack();
+
+        List<Shape> hierarchy = this.shape.getHierarchy();
+        for (int i = hierarchy.size() - 1; i >= 1; i--) {
+            Shape n = hierarchy.get(i);
+            if (n.transformer != null) {
+                n.transformer.applyTransformations(poseStack, true);
+            }
+        }
+
+        Vec3 localPivot = this.world.getPosition(lerp);
+
+        Matrix4f mat = poseStack.last().pose();
+
+        Vector4f v = new Vector4f(
+                (float) localPivot.x,
+                (float) localPivot.y,
+                (float) localPivot.z,
+                1.0f
+        );
+
+        v.mul(mat);
+
+        return new Vec3(v.x(), v.y(), v.z());
     }
+
 
     public Quaternionf getShapeWorldRotation(boolean lerp) {
         return world.getRotation(lerp);

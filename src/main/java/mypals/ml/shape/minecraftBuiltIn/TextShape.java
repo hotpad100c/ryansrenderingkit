@@ -1,23 +1,18 @@
-package mypals.ml.shape.text;
+package mypals.ml.shape.minecraftBuiltIn;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.tags.EmptyMesh;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
-import net.fabricmc.fabric.impl.client.indigo.renderer.helper.ColorHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
-import net.minecraft.client.gui.screens.inventory.SignEditScreen;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.SignRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -27,9 +22,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-import static mypals.ml.Helpers.multiplyRGB;
+import static mypals.ml.utils.Helpers.multiplyRGB;
 
 public class TextShape extends Shape implements EmptyMesh {
 
@@ -102,10 +96,10 @@ public class TextShape extends Shape implements EmptyMesh {
     @Override
     protected void drawInternal(VertexBuilder builder) {
 
-        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance()
-                .renderBuffers().bufferSource();
 
         Minecraft mc = Minecraft.getInstance();
+
+        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
         Font font = mc.font;
         float totalHeight = 0f;
         float[] lineHeights = new float[contents.size()];

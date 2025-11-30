@@ -4,7 +4,7 @@
 	"version": "${version}",
 	"name": "RyansRenderingKit",
 	"description": "A Fabric-based rendering toolkit for Minecraft!",
-	"access_widener": "ryansRenderingKit.accesswidener",
+	"accessWidener": "ryansRenderingKit.accesswidener",
 	"authors": [
 		"Ryan100c!"
 	],

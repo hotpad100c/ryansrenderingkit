@@ -11,7 +11,7 @@ public final class FloatTransformer extends ValueTransformer<Float> {
 
     public FloatTransformer() { this(0f); }
 
-    @Override public void update(float delta) {
+    @Override public void updateVariables(float delta) {
         current = (float) Mth.lerp(delta, last, target);
     }
 

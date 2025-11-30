@@ -13,6 +13,8 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.function.IntConsumer;
 
+import static mypals.ml.RyansRenderingKit.RENDER_PROFILER;
+
 @Mixin(MeshData.class)
 public abstract class MeshDataMixin implements MeshDataExt {
     @Shadow @Nullable private ByteBufferBuilder.Result indexBuffer;
@@ -58,10 +60,11 @@ public abstract class MeshDataMixin implements MeshDataExt {
 
     @Unique
     public void ryansrenderingkit$sortTriangles(ByteBufferBuilder byteBufferBuilder,VertexSorting vertexSorting) {
-
+        RENDER_PROFILER.push("sortMesh");
         Vector3f[] compactVectorArray = unpackTriangleCentroids(this.vertexBuffer.byteBuffer(), this.drawState.vertexCount(), this.drawState.format());
         MeshData.SortState sortState = new MeshData.SortState(compactVectorArray, this.drawState.indexType());
         this.indexBuffer = ((MeshDataSortableExt)(Object)sortState).ryansrenderingkit$buildSortedIndexBufferTriangles(byteBufferBuilder, vertexSorting);
+        RENDER_PROFILER.pop();
     }
     @Mixin(MeshData.SortState.class)
     public static abstract class SortStateMixin implements MeshDataSortableExt{

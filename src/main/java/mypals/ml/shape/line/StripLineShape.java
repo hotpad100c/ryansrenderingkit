@@ -6,7 +6,6 @@ import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.core.LineLikeShape;
 import mypals.ml.shape.basics.core.StripLineLikeShape;
-import mypals.ml.shape.basics.core.TwoPointsLineShape;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -16,10 +15,9 @@ import org.joml.Matrix4f;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static mypals.ml.Helpers.createViewMatrix;
+import static mypals.ml.utils.Helpers.createViewMatrix;
 
 public class StripLineShape extends Shape implements StripLineLikeShape {
 

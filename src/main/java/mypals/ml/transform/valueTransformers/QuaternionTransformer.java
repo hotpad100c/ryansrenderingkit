@@ -10,7 +10,7 @@ public final class QuaternionTransformer extends ValueTransformer<Quaternionf> {
 
     public QuaternionTransformer() { this(new Quaternionf()); }
 
-    @Override public void update(float delta) {
+    @Override public void updateVariables(float delta) {
         current = new Quaternionf();
         last.slerp(target, delta, current);
     }

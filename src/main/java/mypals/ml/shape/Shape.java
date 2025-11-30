@@ -25,12 +25,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static mypals.ml.Helpers.*;
-import static mypals.ml.test.Tester.ENABLE_DEBUG;
+import static mypals.ml.RyansRenderingKit.RENDER_PROFILER;
+import static mypals.ml.utils.Helpers.*;
+import static mypals.ml.shapeManagers.ShapeManagers.TEMP_HEADER;
+import static mypals.ml.test.Debug.ENABLE_DEBUG;
 
 public abstract class Shape {
     public enum RenderingType { IMMEDIATE, BATCH, BUFFERED }
 
+    public boolean isTemp = false;
     public ResourceLocation id;
     public final RenderingType type;
     public DefaultTransformer transformer;
@@ -69,6 +72,7 @@ public abstract class Shape {
             this.parent.children.remove(this);
         }
         this.parent = parent;
+
     }
     public void setLocalPosition(Vec3 pos) { this.transformer.setShapeLocalPivot(pos); }
     public void setLocalRotation(Vector3f rot) { this.transformer.setShapeLocalRotationDegrees(rot.x,rot.y,rot.z); }
@@ -143,13 +147,8 @@ public abstract class Shape {
 
         PoseStack poseStack = new PoseStack();
 
+        List<Shape> hierarchy = getHierarchy();
 
-        List<Shape> hierarchy = new ArrayList<>();
-        Shape current = this;
-        while (current != null) {
-            hierarchy.add(current);
-            current = current.parent;
-        }
         for (int i = hierarchy.size() - 1; i >= 0; i--) {
             Shape n = hierarchy.get(i);
             if(applyMatrixTransformer){
@@ -170,18 +169,33 @@ public abstract class Shape {
 
         return transformed;
     }
-
+    public List<Shape> getHierarchy(){
+        Shape current = this;
+        List<Shape> hierarchy = new ArrayList<>();
+        while (current != null) {
+            hierarchy.add(current);
+            current = current.parent;
+        }
+        return hierarchy;
+    }
     public void beforeDraw(PoseStack matrixStack, float deltaTime) {
-
         transformer.updateTickDelta(deltaTime);
+
+        RENDER_PROFILER.push("applyCustomTransformer");
         transformFunction.accept(transformer);
+        RENDER_PROFILER.pop();
+
+        //RENDER_PROFILER.push("generateMesh");
         if (this.transformer.asyncModelInfo()) {
             model_vertexes.clear();
             generateRawGeometry(true);
         }
+        //RENDER_PROFILER.pop();
 
+        //RENDER_PROFILER.push("applyParentTransforms");
         List<Shape> hierarchy = new ArrayList<>();
         Shape current = this;
+
         while (current != null) {
             hierarchy.add(current);
             current = current.parent;
@@ -190,7 +204,7 @@ public abstract class Shape {
             Shape n = hierarchy.get(i);
             n.transformer.applyTransformations(matrixStack, true);
         }
-        //We'll apply all transformations to the matrix stack before drawing(With lerp!).
+        //RENDER_PROFILER.pop();
     }
     public void drawShapeDebugInfo(PoseStack matrixStack, float deltaTime){
         VertexConsumer vertexConsumer = Minecraft.getInstance()
@@ -214,7 +228,6 @@ public abstract class Shape {
         RenderSystem.depthMask(true);
     }
 
-
     public RayModelIntersection.HitResult isPlayerLookingAt(){
         Minecraft minecraft = Minecraft.getInstance();
         Player p = minecraft.player;
@@ -229,19 +242,38 @@ public abstract class Shape {
         );
     }
     public void draw(boolean frustumCull, VertexBuilder builder, PoseStack matrixStack, float deltaTime) {
+        /*if(RyansRenderingKit.isEndOfWorldTick()){
+            this.syncLastToTarget();
+        }*/
+
+        RENDER_PROFILER.push("pendingShouldDraw");
         boolean shouldDraw = shouldDraw();
+        RENDER_PROFILER.pop();
         Minecraft mc = Minecraft.getInstance();
+
+        if(mc.level == null) return;
+
         if(mc.getEntityRenderDispatcher().shouldRenderHitBoxes() && ENABLE_DEBUG){
+
+            //RENDER_PROFILER.push("renderDebugInfo");
             drawShapeDebugInfo(matrixStack,deltaTime);
+            //RENDER_PROFILER.pop();
         }
-        if(!visible) return;
         matrixStack.pushPose();
+
+        //RENDER_PROFILER.push("setUpShapeForDraw");
         beforeDraw(matrixStack, deltaTime);
         builder.setPositionMatrix(matrixStack.last().pose());
+        //RENDER_PROFILER.pop();
+
+        if(!visible) return;
         if(!frustumCull || shouldDraw){
+            //RENDER_PROFILER.push("drawShape");
             drawInternal(builder);
+            //RENDER_PROFILER.pop();
         }
         matrixStack.popPose();
+        if(isTemp) discard();
     }
     public boolean shouldDraw() {
         List<Vec3> vertices = this.getModel(true);
@@ -291,7 +323,10 @@ public abstract class Shape {
     public void setBaseColor(Color color){
             this.baseColor = color;
     }
-    public void setId(ResourceLocation id) { this.id = id; }
+    public void setId(ResourceLocation id) {
+        this.id = id;
+        this.isTemp = this.id.getPath().startsWith(TEMP_HEADER);
+    }
     public void discard() {
         children.forEach(Shape::discard);
         ShapeManagers.removeShape(this.id); }

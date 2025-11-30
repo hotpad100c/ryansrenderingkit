@@ -1,9 +1,8 @@
 package mypals.ml.builders.shapeBuilders;
 
 import mypals.ml.shape.Shape;
-import mypals.ml.shape.text.TextShape;
+import mypals.ml.shape.minecraftBuiltIn.TextShape;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
-import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -12,19 +11,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class TextBuilder extends BaseBuilder<TextBuilder, DefaultTransformer> {
-
-    private Shape.RenderingType type = Shape.RenderingType.IMMEDIATE;
     private List<String> texts = new ArrayList<>();
     private List<Color> textColors = new ArrayList<>();
     private TextShape.BillBoardMode billBoardMode = TextShape.BillBoardMode.FIXED;
     private boolean shadow = true;
     private boolean outline = false;
 
-
-    public TextBuilder type(Shape.RenderingType type) {
-        this.type = type;
-        return this;
-    }
 
     public TextBuilder texts(List<String> texts) {
         this.texts = new ArrayList<>(texts);
@@ -73,8 +65,11 @@ public class TextBuilder extends BaseBuilder<TextBuilder, DefaultTransformer> {
     }
 
     @Override
+    @Deprecated(since = "type is ignored, use build() instead")
     public TextShape build(Shape.RenderingType type) {
-        this.type = type;
+        return build();
+    }
+    public TextShape build() {
         if (textColors.isEmpty() || textColors.size() < texts.size()) {
             List<Color> colors = new ArrayList<>(texts.size());
             colors.addAll(textColors);
@@ -85,7 +80,7 @@ public class TextBuilder extends BaseBuilder<TextBuilder, DefaultTransformer> {
         }
 
         return new TextShape(
-                this.type,
+                Shape.RenderingType.IMMEDIATE,
                 getTransformer(),
                 center,
                 Collections.unmodifiableList(texts),

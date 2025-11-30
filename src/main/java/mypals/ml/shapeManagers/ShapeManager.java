@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static mypals.ml.RyansRenderingKit.RENDER_PROFILER;
 import static mypals.ml.shapeManagers.ShapeManagers.TEMP_HEADER;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -70,14 +71,15 @@ public class ShapeManager {
         };
     }
     public void draw(PoseStack matrixStack,float tickDelta){
+        RENDER_PROFILER.push("batchDraw");
         batchShapeGroup.drawBatched(this.builderManager,matrixStack,tickDelta);
+        RENDER_PROFILER.pop();
+        RENDER_PROFILER.push("singleDraw");
         immediateShapeGroup.drawImmediate(this.builderManager,matrixStack,tickDelta);
+        RENDER_PROFILER.pop();
+        RENDER_PROFILER.push("bufferedDraw");
         bufferedShapeGroup.drawBuffered(this.builderManager);
-    }
-    public void clearTempAfterRender(){
-        immediateShapeGroup.clearTemp();
-        batchShapeGroup.clearTemp();
-        bufferedShapeGroup.clearTemp();
+        RENDER_PROFILER.pop();
     }
     public static class ShapeGroup{
         public ConcurrentHashMap<ResourceLocation, Shape> normalShapeMap = new ConcurrentHashMap<>(){};

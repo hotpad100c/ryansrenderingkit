@@ -11,9 +11,8 @@ public final class IntTransformer extends ValueTransformer<Integer> {
 
     public IntTransformer() { this(0); }
 
-    @Override public void update(float delta) {
-        float lerped = Mth.lerp(delta, last.floatValue(), target.floatValue());
-        current = Math.round(lerped);
+    @Override public void updateVariables(float delta) {
+        current = Math.round(Mth.lerp(delta, last.floatValue(), target.floatValue()));
     }
 
     @Override public void syncLastToTarget() {

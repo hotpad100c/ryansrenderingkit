@@ -1,6 +1,5 @@
 package mypals.ml.transform.valueTransformers;
 
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 public final class Vec3Transformer extends ValueTransformer<Vec3> {
@@ -12,11 +11,8 @@ public final class Vec3Transformer extends ValueTransformer<Vec3> {
 
     public Vec3Transformer() { this(Vec3.ZERO); }
 
-    @Override public void update(float delta) {
-        double x = Mth.lerp(delta, last.x, target.x);
-        double y = Mth.lerp(delta, last.y, target.y);
-        double z = Mth.lerp(delta, last.z, target.z);
-        current = new Vec3(x, y, z);
+    @Override public void updateVariables(float delta) {
+        current = last.lerp(target,delta);
     }
 
     @Override public void syncLastToTarget() {

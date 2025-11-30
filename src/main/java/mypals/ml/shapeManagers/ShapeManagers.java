@@ -9,7 +9,8 @@ import mypals.ml.shape.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
-import static mypals.ml.Helpers.generateUniqueId;
+import static mypals.ml.RyansRenderingKit.RENDER_PROFILER;
+import static mypals.ml.utils.Helpers.generateUniqueId;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -30,13 +31,17 @@ public class ShapeManagers {
     public static void renderAll(PoseStack matrixStack, float tickDelta){
         for(ShapeManager manager : managers
         ){
+
+
+            RENDER_PROFILER.push("renderNormalShape");
             manager.draw(matrixStack, tickDelta);
-            manager.clearTempAfterRender();
+            RENDER_PROFILER.pop();
         }
         for(EmptyShapeManager manager : emptyManagers
         ){
+            RENDER_PROFILER.push("renderSpecialShape");
             manager.draw(matrixStack, tickDelta);
-            manager.clearTempAfterRender();
+            RENDER_PROFILER.pop();
         }
     }
     public static ShapeManager register(BuilderManager builderManager,String id){

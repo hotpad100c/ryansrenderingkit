@@ -1,7 +1,6 @@
 package mypals.ml.shape.cylinder;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.core.LineLikeShape;
@@ -11,16 +10,14 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static mypals.ml.Helpers.createViewMatrix;
+import static mypals.ml.utils.Helpers.createViewMatrix;
 
 public class CylinderWireframeShape extends CylinderShape implements DrawableLine, LineLikeShape {
 

@@ -3,7 +3,6 @@ package mypals.ml.test;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.CommandDispatcher;
 import mypals.ml.builders.shapeBuilders.ShapeGenerator;
-import mypals.ml.collision.RayModelIntersection;
 import mypals.ml.shape.basics.BoxLikeShape;
 import mypals.ml.shape.basics.CircleLikeShape;
 import mypals.ml.shape.basics.core.TwoPointsLineShape;
@@ -12,36 +11,40 @@ import mypals.ml.shape.box.BoxShape;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.line.LineShape;
 import mypals.ml.shape.line.StripLineShape;
-import mypals.ml.shape.round.SphereShape;
-import mypals.ml.shape.text.TextShape;
-import mypals.ml.shapeManagers.ShapeManager;
+import mypals.ml.shape.minecraftBuiltIn.BlockShape;
+import mypals.ml.shape.minecraftBuiltIn.EntityShape;
+import mypals.ml.shape.minecraftBuiltIn.ItemShape;
+import mypals.ml.shape.minecraftBuiltIn.TextShape;
 import mypals.ml.shapeManagers.ShapeManagers;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.MouseHandler;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static mypals.ml.RyansRenderingKit.MOD_ID;
+import static mypals.ml.RyansRenderingKit.RENDER_PROFILER;
 
-
-public class Tester {
+public class Debug {
     public static boolean added =true;
     public static Random random = new Random();
     public static float spacing = 8.0f;
@@ -80,6 +83,14 @@ public class Tester {
                                         Component.nullToEmpty("Ryan's Rendering Kit Debug Shapes Reloaded."));
                                 return 0;
                             })
+                        ).then(ClientCommandManager.literal("profile")
+                                .executes(ctx -> {
+                                    RENDER_PROFILER.print();
+                                    RENDER_PROFILER.reset();
+                                    ctx.getSource().sendFeedback(
+                                            Component.nullToEmpty("Ryan's Rendering Kit Profile printed to the console."));
+                                    return 0;
+                                })
                         )
         );
     }
@@ -129,7 +140,7 @@ public class Tester {
                             .lineWidth(3.0f)
                             .color(randomColor())
                             .seeThrough(false)
-                             .transform((t) -> {
+                            .transform((t) -> {
                                 float time = client.getGameTime();
                                  t.setShapeLocalRotationDegrees(0,time*4,0);
                                  t.setShapeWorldRotationDegrees(time*4, 0, 0);
@@ -447,7 +458,6 @@ public class Tester {
                     ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_text1"),
                     ShapeGenerator.generateText()
                             .pos(new Vec3(xPos(), 0, 0))
-                            .type(Shape.RenderingType.BATCH)
                             .billBoardMode(TextShape.BillBoardMode.ALL)
                             .seeThrough(false)
                             .shadow(true)
@@ -459,12 +469,48 @@ public class Tester {
                                     new Vec3(0, Math.sin(Minecraft.getInstance().level.getGameTime() * 0.05) * 0.3, 0)
                             ))
 
-                            .build(Shape.RenderingType.BATCH)
+                            .build()
             );
             generateLineTracker();
+
+            BlockShape blockShape = ShapeGenerator.generateBlock()
+                    .pos(new Vec3(xPos(), 0, 0))
+                    .transform(
+                    (t)->{handleMouseGrab(Minecraft.getInstance().player,
+                            t.shape,t);})
+                    .block(Blocks.GLASS.defaultBlockState())
+                    .light(LightTexture.FULL_BLOCK)
+                    .build();
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_block_shape"),
+                    blockShape
+            );
+
+            ItemShape itemShape = new ItemShape(
+                    (t)->{handleMouseGrab(Minecraft.getInstance().player,
+                            t.shape,t);},
+                    new Vec3(xPos(), 0, 0),
+                    Items.DRAGON_EGG.getDefaultInstance(), ItemDisplayContext.GROUND, LightTexture.FULL_BLOCK);
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_item_shape"),
+                    itemShape
+            );
+
+            EntityShape entityShape = new EntityShape(
+                    (t)->{
+                        handleMouseGrab(Minecraft.getInstance().player, t.shape,t);
+                        float time = client.getGameTime();
+                        t.setShapeWorldRotationDegrees(time * 2, time * 3, time * 1.5f);
+                    },
+                    new Vec3(xPos(), 0, 0),
+                    Minecraft.getInstance().player, LightTexture.FULL_BLOCK);
+            ShapeManagers.addShape(
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_entity_shape"),
+                    entityShape
+            );
+
             added = true;
         });
-
     }
     private static ArrayList<Vec3> generateSpiral(float centerX, int segments, float radius, float height, float offset) {
         ArrayList<Vec3> points = new ArrayList<>();
@@ -525,7 +571,6 @@ public class Tester {
 
         Shape text = ShapeGenerator.generateText()
                 .pos(new Vec3(xPos(), 0, 0))
-                .type(Shape.RenderingType.BATCH)
                 .billBoardMode(TextShape.BillBoardMode.ALL)
                 .seeThrough(false)
                 .shadow(true)
@@ -556,7 +601,7 @@ public class Tester {
                     double d = anchor1.transformer.getWorldPivot().distanceTo(anchor2.transformer.getWorldPivot());
                     ((TextShape)t.shape).setText(1,"Distance : " + String.format("%.2f", d));
                 })
-                .build(Shape.RenderingType.BATCH);
+                .build();
 
         ShapeManagers.addShape(
             ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_a1"),

@@ -1,6 +1,6 @@
 package mypals.ml.mixin;
 
-import mypals.ml.test.Tester;
+import mypals.ml.test.Debug;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,11 +12,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ClientWorldMixin {
     @Inject(method = "addEntity",at=@At("HEAD"))
     public void addEntity(Entity entity, CallbackInfo ci) {
-        Tester.addEntity(entity);
+        Debug.addEntity(entity);
     }
 
     @Inject(method = "removeEntity",at=@At("HEAD"))
     public void removeEntity(int entityId, Entity.RemovalReason removalReason, CallbackInfo ci) {
-        Tester.removeEntity(entityId);
+        Debug.removeEntity(entityId);
     }
 }

@@ -1,6 +1,6 @@
 package mypals.ml.shape.box;
 
-import mypals.ml.Helpers;
+import mypals.ml.utils.Helpers;
 import mypals.ml.shape.Shape;
 import mypals.ml.shape.basics.BoxLikeShape;
 import net.minecraft.world.phys.Vec3;
