@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "Ryan100c!"
+  ],
+  "contact": {
+    "homepage": "https://github.com/hotpad100c/ryansrenderingkit/",
+    "sources": "https://github.com/hotpad100c/ryansrenderingkit"
+  },
+  "license": "MIT",
+  "icon": "assets/ryansrenderingkit/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "mypals.ml.RyansRenderingKit"
+    ]
+  },
+  "mixins": [
+    "ryansrenderingkit.mixins.json"
+  ],
+  "accessWidener": "ryansRenderingKit.accesswidener",
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": "${minecraft}"
+  }
+}
