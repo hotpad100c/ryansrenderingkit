@@ -7,6 +7,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 
+
 //? if >1.21.1 {
 /*import net.minecraft.client.renderer.ShapeRenderer;
 *///?} else
@@ -14,8 +15,10 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -67,7 +70,7 @@ public class Helpers {
 
         Quaternionf camRot = camera.rotation();
         Quaternionf camRotInv = new Quaternionf(camRot).conjugate();
-        view.rotation(camRotInv);
+        view.rotation(camRot);
 
         Vec3 camPos = camera.getPosition();
 
@@ -82,8 +85,11 @@ public class Helpers {
     public static boolean isVertexInFrustum(Vec3 v, Matrix4f mvp) {
 
         //? <1.21.1 {
-        //TODO: Frustum cull dont work in 1.20.1, idk why.
-        return true;
+        //TODO: Original frustum cull dont work in 1.20.1, idk why.Or should I use Minecraft's instead like this?
+        Frustum frustum = Minecraft.getInstance().levelRenderer.cullingFrustum;
+
+        return frustum.isVisible(new AABB(v.subtract(-0.1,-0.1,-0.1),v.add(0.1,0.1,0.1)));
+
         //?} else {
 
         /*Vector4f clip = new Vector4f((float)v.x, (float)v.y, (float)v.z, 1f);
