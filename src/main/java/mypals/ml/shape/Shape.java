@@ -324,7 +324,6 @@ public abstract class Shape {
 
         Matrix4f mvp = new Matrix4f(projectionMatrix);
         mvp.mul(viewMatrix);
-
         if (isVertexInFrustum(center, mvp)) return true;
         for (Vec3 v : vertices) {
             if (isVertexInFrustum(v, mvp)) return true;

@@ -1,5 +1,6 @@
 package mypals.ml.utils;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -7,11 +8,14 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 
 //? if >1.21.1 {
-import net.minecraft.client.renderer.ShapeRenderer;
-//?} else
-/*import net.minecraft.client.renderer.LevelRenderer;*/
+/*import net.minecraft.client.renderer.ShapeRenderer;
+*///?} else
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -27,7 +31,7 @@ public class Helpers {
     public static ResourceLocation generateUniqueId(String prefix) {
         long timestamp = System.currentTimeMillis();
         int randomNum = ThreadLocalRandom.current().nextInt(10000);
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, prefix.toLowerCase() + "_" + timestamp + "_" + randomNum);
+        return ResourceLocation.tryBuild(MOD_ID, prefix.toLowerCase() + "_" + timestamp + "_" + randomNum);
     }
 
     public static Vec3 max(Vec3 a, Vec3 b) {
@@ -58,6 +62,7 @@ public class Helpers {
     }
 
     public static Matrix4f createViewMatrix(Camera camera) {
+
         Matrix4f view = new Matrix4f();
 
         Quaternionf camRot = camera.rotation();
@@ -75,20 +80,13 @@ public class Helpers {
         return view;
     }
     public static boolean isVertexInFrustum(Vec3 v, Matrix4f mvp) {
-        //? >=1.21 {
-        Vector4f clip = new Vector4f((float)v.x, (float)v.y, (float)v.z, 1f);
+
+        //? <1.21.1 {
+        //TODO: Frustum cull dont work in 1.20.1, idk why.
+        return true;
         //?} else {
-        /*Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        Vec3 rel = v.subtract(cam);
 
-        Vector4f clip = new Vector4f(
-                (float) rel.x,
-                (float) rel.y,
-                (float) rel.z,
-                1f
-        );
-
-        *///?}
+        /*Vector4f clip = new Vector4f((float)v.x, (float)v.y, (float)v.z, 1f);
         clip.mul(mvp);
 
         float x = clip.x;
@@ -101,21 +99,8 @@ public class Helpers {
         return x >= -w && x <= w &&
                 y >= -w && y <= w &&
                 z >= 0   && z <= w;
+        *///?}
     }
-    /*
-    public static boolean isVertexInFrustum(Vec3 v, Matrix4f mvp) {
-
-        Vector4f clip = new Vector4f((float) v.x, (float) v.y, (float) v.z, 1f);
-        clip.mul(mvp);
-        if (clip.w <= 0) return false;
-        float ndcX = clip.x / clip.w;
-        float ndcY = clip.y / clip.w;
-        float ndcZ = clip.z / clip.w;
-
-        return ndcX >= -1 && ndcX <= 1 &&
-                ndcY >= -1 && ndcY <= 1 &&
-                ndcZ >= -1 && ndcZ <= 1;
-    }*/
 
     public static int multiplyRGB(int color, float shade) {
         int alpha = color >>> 24 & 255;
@@ -132,10 +117,10 @@ public class Helpers {
         double half = size / 2.0;
 
         //? if >1.21.1 {
-        ShapeRenderer
-        //?} else {
-        /*LevelRenderer
-        *///?}
+        /*ShapeRenderer
+        *///?} else {
+        LevelRenderer
+        //?}
                 .renderLineBox(
                 poseStack, consumer,
                 center.x - half, center.y - half, center.z - half,
@@ -156,9 +141,9 @@ public class Helpers {
         poseStack.pushPose();
         poseStack.translate(
             //? if >1.21.1 {
-            vec3
-            //?} else
-            /*vec3.x,vec3.y,vec3.z*/
+            /*vec3
+            *///?} else
+            vec3.x,vec3.y,vec3.z
         );
 
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
@@ -183,14 +168,13 @@ public class Helpers {
         addLine(pose, vc, v4, v1, r, g, b, a, n);
         poseStack.popPose();
     }
-
     private static void addLine(PoseStack.Pose pose, VertexConsumer vc, Vec3 a, Vec3 b, float r, float g, float b2, float a2, Vec3 normal) {
         //? if > 1.20.1 {
-        vc.addVertex(pose, (float) a.x, (float) a.y, (float) a.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
+        /*vc.addVertex(pose, (float) a.x, (float) a.y, (float) a.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
         vc.addVertex(pose, (float) b.x, (float) b.y, (float) b.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
-        //?} else {
-        /*vc.vertex(pose.pose(), (float) a.x, (float) a.y, (float) a.z).color(r, g, b2, a2).normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
+        *///?} else {
+        vc.vertex(pose.pose(), (float) a.x, (float) a.y, (float) a.z).color(r, g, b2, a2).normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
         vc.vertex(pose.pose(), (float) b.x, (float) b.y, (float) b.z).color(r, g, b2, a2).normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
-        *///?}
+        //?}
     }
 }

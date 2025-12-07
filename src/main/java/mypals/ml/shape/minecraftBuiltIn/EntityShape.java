@@ -97,13 +97,13 @@ public class EntityShape extends Shape implements EmptyMesh {
                 (float) this.baseColor.getAlpha() / 255);
         poseStack.pushPose();
         //? > 1.20.1 {
-        poseStack.mulPose(builder.getPositionMatrix());
-         //?} else
-        /*poseStack.mulPoseMatrix(builder.getPositionMatrix());*/
+        /*poseStack.mulPose(builder.getPositionMatrix());
+         *///?} else
+        poseStack.mulPoseMatrix(builder.getPositionMatrix());
         dispatcher.render(entity, 0, 0, 0,
                 //? <= 1.20.1 {
-                /*entity.getPose().ordinal(),
-                *///?} else if <=1.21.1 {
+                entity.getPose().ordinal(),
+                //?} else if <=1.21.1 {
                 /*entity.getPose().id(),
                 *///?}
                 transformer.getTickDelta(),

@@ -129,9 +129,9 @@ public class BlockShape extends Shape implements EmptyMesh {
                 (float) this.baseColor.getAlpha() / 255);
         poseStack.pushPose();
         //? > 1.20.1 {
-        poseStack.mulPose(builder.getPositionMatrix());
-        //?} else
-        /*poseStack.mulPoseMatrix(builder.getPositionMatrix());*/
+        /*poseStack.mulPose(builder.getPositionMatrix());
+        *///?} else
+        poseStack.mulPoseMatrix(builder.getPositionMatrix());
 
 
         dispatcher.renderSingleBlock(blockState, poseStack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);

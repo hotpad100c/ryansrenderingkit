@@ -11,16 +11,16 @@ import static mypals.ml.render.MainRender.TRIANGLE_PIPLINE;
 /*import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 *///?} else if >1.21.1 {
-import net.minecraft.client.renderer.CoreShaders;
+/*import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.RenderType;
     //? if <1.21.5 {
 import net.minecraft.client.renderer.ShaderProgram;
     //?}
-//?} else {
-/*import net.minecraft.client.renderer.GameRenderer;
+*///?} else {
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import java.util.function.Supplier;
-*///?}
+//?}
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,10 +31,10 @@ public record RenderMethod(
         //? if >= 1.21.5 {
         /*@NotNull RenderType renderLayer,
         *///?} else if >1.21.1 {
-        @NotNull ShaderProgram shader,
-        //?} else {
-        /*@NotNull Supplier<ShaderInstance> shader,
-        *///?}
+        /*@NotNull ShaderProgram shader,
+        *///?} else {
+        @NotNull Supplier<ShaderInstance> shader,
+        //?}
         @NotNull VertexFormat.Mode mode,
         @NotNull VertexFormat format,
         boolean cullFace
@@ -43,9 +43,9 @@ public record RenderMethod(
             //? if >= 1.21.5 {
             /*RenderType.LINES,
             *///?} else if >1.21.1 {
-            CoreShaders.RENDERTYPE_LINES,
-            //?} else
-            /*GameRenderer::getRendertypeLinesShader,*/
+            /*CoreShaders.RENDERTYPE_LINES,
+            *///?} else
+            GameRenderer::getRendertypeLinesShader,
             VertexFormat.Mode.LINES,
             DefaultVertexFormat.POSITION_COLOR_NORMAL,
             false
@@ -55,9 +55,9 @@ public record RenderMethod(
             //? if >= 1.21.5 {
             /*RenderType.LINE_STRIP,
             *///?} else if >1.21.1 {
-            CoreShaders.RENDERTYPE_LINES,
-            //?} else
-            /*GameRenderer::getRendertypeLinesShader,*/
+            /*CoreShaders.RENDERTYPE_LINES,
+            *///?} else
+            GameRenderer::getRendertypeLinesShader,
             VertexFormat.Mode.LINE_STRIP,
             DefaultVertexFormat.POSITION_COLOR_NORMAL,
             false
@@ -67,9 +67,9 @@ public record RenderMethod(
             //? if >= 1.21.5 {
             /*TRIANGLE,
             *///?} else if >1.21.1 {
-            CoreShaders.POSITION_COLOR,
-            //?} else
-            /*GameRenderer::getPositionColorShader,*/
+            /*CoreShaders.POSITION_COLOR,
+            *///?} else
+            GameRenderer::getPositionColorShader,
             VertexFormat.Mode.TRIANGLES,
             DefaultVertexFormat.POSITION_COLOR,
             true

@@ -1,10 +1,10 @@
 package mypals.ml.mixin;
 
 //? if >1.20.1 {
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+/*import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.MeshData;
-//?}
+*///?}
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexSorting;
@@ -18,11 +18,11 @@ import org.spongepowered.asm.mixin.Unique;
 
 import java.util.function.IntConsumer;
 
-@Mixin(MeshData.SortState.class)
+@Mixin(BufferBuilder.SortState.class)
 public abstract class SortStateMixin implements MeshDataExt.BufferBuilderSortableExt {
     //? if >1.20.1 {
 
-    @Shadow
+    /*@Shadow
     protected abstract it.unimi.dsi.fastutil.ints.IntConsumer indexWriter(long l, VertexFormat.IndexType indexType);
 
     @Shadow
@@ -51,5 +51,5 @@ public abstract class SortStateMixin implements MeshDataExt.BufferBuilderSortabl
         return byteBufferBuilder.build();
     }
     
-    //?}
+    *///?}
 }

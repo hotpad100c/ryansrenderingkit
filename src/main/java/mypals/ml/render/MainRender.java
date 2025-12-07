@@ -62,20 +62,20 @@ public class MainRender {
 
             RENDER_PROFILER.push("renderShapes");
 
-            //?>=1.21.5{
-            GlStateManager._enableBlend();
+            //? >=1.21.5 {
+            /*GlStateManager._enableBlend();
             GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
                     GlStateManager.SourceFactor.ONE.value,
                     GlStateManager.DestFactor.ZERO.value);
-            //?}else{
+            *///?} else {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             //?}
             ShapeManagers.renderAll(matrixStack, tickDelta);
-            //?>=1.21.5{
-            GlStateManager._disableBlend();
-            //?}else{
+            //? >=1.21.5 {
+            /*GlStateManager._disableBlend();
+            *///?} else {
             RenderSystem.disableBlend();
             //?}
 
