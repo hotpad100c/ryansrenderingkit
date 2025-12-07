@@ -3,10 +3,9 @@ package mypals.ml.transform.shapeTransformers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mypals.ml.shape.Shape;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector4f;
+import org.joml.*;
 
+import java.lang.Math;
 import java.util.List;
 
 public class DefaultTransformer {
@@ -60,9 +59,10 @@ public class DefaultTransformer {
     }
 
     private void applyLayer(PoseStack stack, TransformLayer layer, boolean lerp) {
-        Vec3 p = layer.position.getValue(lerp);
+
+        Vector3d p = layer.position.getValue(lerp);
         Quaternionf r = layer.rotation.getValue(lerp);
-        Vec3 s = layer.scale.getValue(lerp);
+        Vector3d s = layer.scale.getValue(lerp);
 
         stack.translate(p.x, p.y, p.z);
         stack.mulPose(r);
@@ -82,16 +82,20 @@ public class DefaultTransformer {
         return matrix;
     }
 
-    public Vec3 getShapeWorldPivot(boolean lerp) {
-        PoseStack poseStack = new PoseStack();
-
+    public void applyHierarchy(PoseStack poseStack, boolean lerp) {
         List<Shape> hierarchy = this.shape.getHierarchy();
         for (int i = hierarchy.size() - 1; i >= 1; i--) {
             Shape n = hierarchy.get(i);
             if (n.transformer != null) {
-                n.transformer.applyTransformations(poseStack, true);
+                n.transformer.applyTransformations(poseStack, lerp);
             }
         }
+    }
+
+    public Vec3 getShapeWorldPivot(boolean lerp) {
+        PoseStack poseStack = new PoseStack();
+
+        applyHierarchy(poseStack,lerp);
 
         Vec3 localPivot = this.world.getPosition(lerp);
 
@@ -111,12 +115,43 @@ public class DefaultTransformer {
 
 
     public Quaternionf getShapeWorldRotation(boolean lerp) {
-        return world.getRotation(lerp);
+        PoseStack poseStack = new PoseStack();
+
+        applyHierarchy(poseStack,lerp);
+
+        Quaternionf localRot = this.world.getRotation(lerp);
+
+        poseStack.mulPose(localRot);
+
+        Matrix4f mat = poseStack.last().pose();
+
+        Quaternionf result = new Quaternionf();
+        mat.getNormalizedRotation(result);
+
+        return result;
     }
 
     public Vec3 getShapeWorldScale(boolean lerp) {
-        return world.getScale(lerp);
+        PoseStack poseStack = new PoseStack();
+
+        applyHierarchy(poseStack,lerp);
+
+        Vec3 localScale = this.world.getScale(lerp);
+        poseStack.scale(
+                (float) localScale.x,
+                (float) localScale.y,
+                (float) localScale.z
+        );
+
+        Matrix4f mat = poseStack.last().pose();
+
+        float sx = new Vector3f(mat.m00(), mat.m01(), mat.m02()).length();
+        float sy = new Vector3f(mat.m10(), mat.m11(), mat.m12()).length();
+        float sz = new Vector3f(mat.m20(), mat.m21(), mat.m22()).length();
+
+        return new Vec3(sx, sy, sz);
     }
+
 
     public Vec3 getShapeLocalPivot(boolean lerp) {
         return local.getPosition(lerp);

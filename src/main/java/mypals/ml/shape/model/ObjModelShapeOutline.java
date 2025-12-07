@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static mypals.ml.utils.Helpers.createViewMatrix;
+import static mypals.ml.utils.Helpers.isVertexInFrustum;
 
 public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape {
 

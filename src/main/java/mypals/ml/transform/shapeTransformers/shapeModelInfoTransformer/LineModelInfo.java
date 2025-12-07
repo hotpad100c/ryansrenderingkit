@@ -4,6 +4,7 @@ import mypals.ml.transform.shapeTransformers.ModelInfoLayer;
 import mypals.ml.transform.valueTransformers.FloatTransformer;
 import mypals.ml.transform.valueTransformers.Vec3Transformer;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
 
 public class LineModelInfo extends ModelInfoLayer {
     public FloatTransformer widthTransformer;
@@ -54,14 +55,15 @@ public class LineModelInfo extends ModelInfoLayer {
             super.update(delta);
         }
 
-        public Vec3 getStart(boolean lerp) {
-            return startPointTransformer.getValue(lerp);
+        public Vec3 getStart(boolean useLerp) {
+            Vector3d v = startPointTransformer.getValue(useLerp);
+            return new Vec3(v.x, v.y, v.z);
         }
 
-        public Vec3 getEnd(boolean lerp) {
-            return endPointTransformer.getValue(lerp);
+        public Vec3 getEnd(boolean useLerp) {
+            Vector3d v = endPointTransformer.getValue(useLerp);
+            return new Vec3(v.x, v.y, v.z);
         }
-
         public void setStart(Vec3 target) {
             startPointTransformer.setTargetVector(target);
         }

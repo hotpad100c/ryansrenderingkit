@@ -64,7 +64,11 @@ public class EntityShape extends Shape implements EmptyMesh {
     }
 
     public static List<Vec3> decodeQuad(BakedQuad quad) {
+        //? >=1.21.5 {
+        /*int[] v = quad.vertices();
+        *///?} else {
         int[] v = quad.getVertices();
+        //?}
         int stride = 8;
         int count = v.length / stride;
         List<Vec3> result = new ArrayList<>(count);
@@ -92,8 +96,17 @@ public class EntityShape extends Shape implements EmptyMesh {
                 (float) this.baseColor.getBlue() / 255,
                 (float) this.baseColor.getAlpha() / 255);
         poseStack.pushPose();
+        //? > 1.20.1 {
         poseStack.mulPose(builder.getPositionMatrix());
-        dispatcher.render(entity, 0, 0, 0, transformer.getTickDelta(),
+         //?} else
+        /*poseStack.mulPoseMatrix(builder.getPositionMatrix());*/
+        dispatcher.render(entity, 0, 0, 0,
+                //? <= 1.20.1 {
+                /*entity.getPose().ordinal(),
+                *///?} else if <=1.21.1 {
+                /*entity.getPose().id(),
+                *///?}
+                transformer.getTickDelta(),
                 poseStack, multiBufferSource, light);
 
         poseStack.popPose();

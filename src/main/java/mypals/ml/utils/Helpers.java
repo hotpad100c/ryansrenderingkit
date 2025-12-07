@@ -5,7 +5,12 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+
+//? if >1.21.1 {
 import net.minecraft.client.renderer.ShapeRenderer;
+//?} else
+/*import net.minecraft.client.renderer.LevelRenderer;*/
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -60,6 +65,7 @@ public class Helpers {
         view.rotation(camRotInv);
 
         Vec3 camPos = camera.getPosition();
+
         view.translate(new Vector3f(
                 (float) -camPos.x,
                 (float) -camPos.y,
@@ -68,8 +74,37 @@ public class Helpers {
 
         return view;
     }
-
     public static boolean isVertexInFrustum(Vec3 v, Matrix4f mvp) {
+        //? >=1.21 {
+        Vector4f clip = new Vector4f((float)v.x, (float)v.y, (float)v.z, 1f);
+        //?} else {
+        /*Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 rel = v.subtract(cam);
+
+        Vector4f clip = new Vector4f(
+                (float) rel.x,
+                (float) rel.y,
+                (float) rel.z,
+                1f
+        );
+
+        *///?}
+        clip.mul(mvp);
+
+        float x = clip.x;
+        float y = clip.y;
+        float z = clip.z;
+        float w = clip.w;
+
+        if (w <= 0) return false;
+
+        return x >= -w && x <= w &&
+                y >= -w && y <= w &&
+                z >= 0   && z <= w;
+    }
+    /*
+    public static boolean isVertexInFrustum(Vec3 v, Matrix4f mvp) {
+
         Vector4f clip = new Vector4f((float) v.x, (float) v.y, (float) v.z, 1f);
         clip.mul(mvp);
         if (clip.w <= 0) return false;
@@ -80,7 +115,7 @@ public class Helpers {
         return ndcX >= -1 && ndcX <= 1 &&
                 ndcY >= -1 && ndcY <= 1 &&
                 ndcZ >= -1 && ndcZ <= 1;
-    }
+    }*/
 
     public static int multiplyRGB(int color, float shade) {
         int alpha = color >>> 24 & 255;
@@ -96,7 +131,12 @@ public class Helpers {
 
         double half = size / 2.0;
 
-        ShapeRenderer.renderLineBox(
+        //? if >1.21.1 {
+        ShapeRenderer
+        //?} else {
+        /*LevelRenderer
+        *///?}
+                .renderLineBox(
                 poseStack, consumer,
                 center.x - half, center.y - half, center.z - half,
                 center.x + half, center.y + half, center.z + half,
@@ -114,7 +154,12 @@ public class Helpers {
             float r, float g, float b, float a
     ) {
         poseStack.pushPose();
-        poseStack.translate(vec3);
+        poseStack.translate(
+            //? if >1.21.1 {
+            vec3
+            //?} else
+            /*vec3.x,vec3.y,vec3.z*/
+        );
 
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
 
@@ -140,7 +185,12 @@ public class Helpers {
     }
 
     private static void addLine(PoseStack.Pose pose, VertexConsumer vc, Vec3 a, Vec3 b, float r, float g, float b2, float a2, Vec3 normal) {
+        //? if > 1.20.1 {
         vc.addVertex(pose, (float) a.x, (float) a.y, (float) a.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
         vc.addVertex(pose, (float) b.x, (float) b.y, (float) b.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
+        //?} else {
+        /*vc.vertex(pose.pose(), (float) a.x, (float) a.y, (float) a.z).color(r, g, b2, a2).normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
+        vc.vertex(pose.pose(), (float) b.x, (float) b.y, (float) b.z).color(r, g, b2, a2).normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
+        *///?}
     }
 }

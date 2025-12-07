@@ -20,4 +20,29 @@ stonecutter parameters {
     swaps["minecraft"] = "\"" + node.metadata.version + "\";"
     constants["release"] = property("mod.id") != "template"
     dependencies["fapi"] = node.project.property("deps.fabric_api") as String
+    replacements.string {
+        direction = eval(current.version, "<=1.20.1")
+        replace("MeshData.DrawState","BufferBuilder.DrawState")
+    }
+    replacements.string {
+        direction = eval(current.version, "<=1.20.1")
+        replace("MeshData.SortState","BufferBuilder.SortState")
+    }
+    replacements.string {
+        direction = eval(current.version, "<=1.20.1")
+        replace("MeshData.class","BufferBuilder.class")
+    }
+    replacements.string{
+        direction = eval(current.version, "<=1.20.1")
+        replace("ResourceLocation.fromNamespaceAndPath", "ResourceLocation.tryBuild")
+    }
+    /*replacements.string{
+        direction = eval(current.version, ">=1.21.5")
+        replace("VertexBuffer", "GpuBuffer")
+    }
+
+    replacements.string{
+        direction = eval(current.version, ">=1.21.5")
+        replace("import com.mojang.blaze3d.vertex.VertexBuffer;", "import com.mojang.blaze3d.buffers.GpuBuffer;")
+    }*/
 }

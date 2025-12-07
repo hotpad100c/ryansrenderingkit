@@ -3,6 +3,7 @@ package mypals.ml.transform.shapeTransformers.shapeModelInfoTransformer;
 import mypals.ml.transform.shapeTransformers.ModelInfoLayer;
 import mypals.ml.transform.valueTransformers.Vec3Transformer;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
 
 public class BoxModelInfo extends ModelInfoLayer {
     public Vec3Transformer boxDimensionTransformer;
@@ -19,8 +20,10 @@ public class BoxModelInfo extends ModelInfoLayer {
         boxDimensionTransformer.update(delta);
     }
 
-    public Vec3 getDimension(boolean lerp) {
-        return boxDimensionTransformer.getValue(lerp);
+    public Vec3 getDimension(boolean useLerp) {
+
+        Vector3d v = boxDimensionTransformer.getValue(useLerp);
+        return new Vec3(v.x, v.y, v.z);
     }
 
     public void setDimension(Vec3 target) {

@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -102,6 +103,7 @@ public abstract class Shape {
     public void setWorldScale(Vec3 scale) {
         this.transformer.setShapeWorldScale(scale);
     }
+
 
     public void setRenderPivot(Vec3 pos) {
         this.transformer.setShapeMatrixPivot(pos);
@@ -235,6 +237,9 @@ public abstract class Shape {
     }
 
     public void drawShapeDebugInfo(PoseStack matrixStack, float deltaTime) {
+        Entity entity = Minecraft.getInstance().cameraEntity;
+        if(entity == null)return;
+
         VertexConsumer vertexConsumer = Minecraft.getInstance()
                 .renderBuffers().bufferSource().getBuffer(RenderType.LINES);
 
@@ -247,13 +252,11 @@ public abstract class Shape {
 
         renderLineBox(matrixStack, vertexConsumer, visualCenter, 0.05f, 0, 0, 1, 1);
 
-        RenderSystem.depthMask(false);
         for (Vec3 v : getModel(false)) {
-            double distanceTo = v.distanceToSqr(Minecraft.getInstance().cameraEntity.position());
+            double distanceTo = v.distanceToSqr(entity.position());
             if (distanceTo < 50)
                 renderBillboardFrame(matrixStack, vertexConsumer, v, (float) (distanceTo * 0.01), 1, 0, 1, 1);
         }
-        RenderSystem.depthMask(true);
     }
 
     public RayModelIntersection.HitResult isPlayerLookingAt() {
@@ -283,7 +286,6 @@ public abstract class Shape {
         if (mc.level == null) return;
 
         if (mc.getEntityRenderDispatcher().shouldRenderHitBoxes() && ENABLE_DEBUG) {
-
             //RENDER_PROFILER.push("renderDebugInfo");
             drawShapeDebugInfo(matrixStack, deltaTime);
             //RENDER_PROFILER.pop();
@@ -329,22 +331,6 @@ public abstract class Shape {
         }
         return false;
     }
-
-    public static boolean isVertexInFrustum(Vec3 v, Matrix4f mvp) {
-        Vector4f clip = new Vector4f((float) v.x, (float) v.y, (float) v.z, 1f);
-        clip.mul(mvp);
-
-        if (clip.w <= 0) return false;
-
-        float ndcX = clip.x / clip.w;
-        float ndcY = clip.y / clip.w;
-        float ndcZ = clip.z / clip.w;
-
-        return ndcX >= -1 && ndcX <= 1
-                && ndcY >= -1 && ndcY <= 1
-                && ndcZ >= -1 && ndcZ <= 1;
-    }
-
     protected void drawInternal(VertexBuilder builder) {
         builder.putColor(baseColor);
         for (int i : indexBuffer) {

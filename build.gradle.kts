@@ -42,11 +42,14 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
     fapi("fabric-lifecycle-events-v1","fabric-rendering-v1","fabric-command-api-v2", "fabric-resource-loader-v0", "fabric-content-registries-v0")
 }
-
+val minecraft = stonecutter.current.version
+val accesswidener = when {
+    stonecutter.eval(minecraft, "<=1.20.1") -> "1.20.1.accesswidener"
+    else -> "1.21.4.accesswidener"
+}
 loom {
     fabricModJsonPath = rootProject.file("src/main/resources/fabric.mod.json") // Useful for interface injection
-    accessWidenerPath = rootProject.file("src/main/resources/ryansRenderingKit.accesswidener")
-
+    accessWidenerPath = rootProject.file("src/main/resources/accesswideners/$accesswidener")
     decompilerOptions.named("vineflower") {
         options.put("mark-corresponding-synthetics", "1") // Adds names to lambdas - useful for mixins
     }
@@ -75,7 +78,8 @@ tasks {
             "id" to project.property("mod.id"),
             "name" to project.property("mod.name"),
             "version" to project.property("mod.version"),
-            "minecraft" to project.property("mod.mc_dep")
+            "minecraft" to project.property("mod.mc_dep"),
+            "aw_file" to accesswidener
         )
 
         filesMatching("fabric.mod.json") { expand(props) }

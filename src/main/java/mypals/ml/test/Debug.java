@@ -53,7 +53,7 @@ public class Debug {
                 random.nextInt(256),
                 random.nextInt(256),
                 random.nextInt(256),
-                120 + random.nextInt(136)
+                10
         );
     }
 
@@ -142,8 +142,11 @@ public class Debug {
                             .seeThrough(false)
                             .transform((t) -> {
                                 float time = client.getGameTime();
+
+                                double offset = (Math.sin(time * 0.05));
                                 t.setShapeLocalRotationDegrees(0, time * 4, 0);
                                 t.setShapeWorldRotationDegrees(time * 4, 0, 0);
+                                t.setShapeWorldPivot(new Vec3(t.getWorldPivot().x(), 0, offset * 1));
                             })
                             .build(Shape.RenderingType.BUFFERED)
             );
@@ -665,57 +668,6 @@ public class Debug {
         float gameTime = Minecraft.getInstance().level.getGameTime();
         float rotationAngle = (gameTime % 3600) * 2f;
         boxTransformer.setShapeWorldRotationDegrees(rotationAngle, rotationAngle, rotationAngle);
-    }
-
-    public static void addEntity(Entity entity) {
-        Player player = Minecraft.getInstance().player;
-        if (player == null || entity == null || entity == player || !ENABLE_DEBUG) return;
-
-        int entityId = entity.getId();
-        EntityDimensions dimensions = entity.getDimensions(entity.getPose());
-        ShapeManagers.addShape(
-                ResourceLocation.fromNamespaceAndPath(MOD_ID, "entity_tracker_" + entityId + "/bounding_box"),
-                new BoxFaceShape(
-                        Shape.RenderingType.BATCH,
-                        (transformer) -> {
-                            Vec3 entityCenter = entity.position().add(0, dimensions.height() / 2, 0);
-                            if (entity.isRemoved() || !ENABLE_DEBUG) {
-                                transformer.shape.discard();
-                                return;
-                            }
-                            transformer.setShapeWorldPivot(entityCenter);
-                        },
-                        entity.position().add(0, dimensions.height() / 2, 0),
-                        new Vec3(dimensions.width(), dimensions.height(), dimensions.width()),
-                        new Color(191, 87, 0, 164),
-                        true,
-                        BoxShape.BoxConstructionType.CENTER_AND_DIMENSIONS
-                )
-        );
-
-        ShapeManagers.addShape(
-                ResourceLocation.fromNamespaceAndPath(MOD_ID, "entity_tracker_" + entityId + "/line"),
-                new LineShape(
-                        Shape.RenderingType.BATCH,
-                        (transformer) -> {
-                            if (entity.isRemoved() || !ENABLE_DEBUG) {
-                                transformer.getShape().discard();
-                                return;
-                            }
-                            if (Minecraft.getInstance().level != null && Minecraft.getInstance().player != null) {
-                                ((LineShape) transformer.getShape()).forceSetStart(player.getEyePosition(transformer.getTickDelta()).add(player.getLookAngle().scale(2)));
-                                transformer.setEnd(entity.position());
-                            }
-                        },
-                        player.getEyePosition().add(player.getLookAngle().scale(2)),
-                        entity.position(),
-                        new Color(255, 0, 0, 50),
-                        3,
-                        true
-                )
-        );
-
-        added = true;
     }
 
     public static void removeEntity(int entityId) {

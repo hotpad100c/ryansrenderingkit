@@ -4,11 +4,12 @@ import mypals.ml.transform.valueTransformers.QuaternionTransformer;
 import mypals.ml.transform.valueTransformers.Vec3Transformer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
+import org.joml.Vector3d;
 
 public class TransformLayer {
     public final Vec3Transformer position = new Vec3Transformer(Vec3.ZERO);
     public final QuaternionTransformer rotation = new QuaternionTransformer();
-    public final Vec3Transformer scale = new Vec3Transformer(Vec3.ZERO.add(1));
+    public final Vec3Transformer scale = new Vec3Transformer(new Vec3(1,1,1));
 
     public void update(float delta) {
         position.update(delta);
@@ -43,11 +44,13 @@ public class TransformLayer {
     }
 
     public Vec3 getPosition(boolean useLerp) {
-        return position.getValue(useLerp);
+        Vector3d v = position.getValue(useLerp);
+        return new Vec3(v.x, v.y, v.z);
     }
 
     public Vec3 getScale(boolean useLerp) {
-        return scale.getValue(useLerp);
+        Vector3d v = scale.getValue(useLerp);
+        return new Vec3(v.x, v.y, v.z);
     }
 
     public Quaternionf getRotation(boolean useLerp) {

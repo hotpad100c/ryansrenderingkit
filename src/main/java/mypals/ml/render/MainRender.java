@@ -1,16 +1,48 @@
 package mypals.ml.render;
 
+//? >=1.21.5 {
+/*import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.blaze3d.platform.DestFactor;
+import com.mojang.blaze3d.platform.SourceFactor;
+import net.minecraft.client.renderer.RenderPipelines;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+*///?}
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import mypals.ml.builderManager.BuilderManagers;
 import mypals.ml.shapeManagers.ShapeManagers;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix4f;
 
 import static mypals.ml.RyansRenderingKit.RENDER_PROFILER;
 
 public class MainRender {
+    //? >=1.21.5 {
+    /*public static final RenderType.CompositeRenderType TRIANGLE;
+    public static final RenderPipeline TRIANGLE_PIPLINE;
+    static{
+
+        /^TRIANGLE_PIPLINE = RenderPipelines
+                .register(RenderPipeline.builder(
+                        new RenderPipeline.Snippet[]{RenderPipelines.DEBUG_FILLED_SNIPPET})
+                        .withLocation("pipeline/debug_triangle")
+                        .withCull(false).withVertexFormat(DefaultVertexFormat.POSITION_COLOR,
+                                VertexFormat.Mode.TRIANGLES)
+                        .build());
+        TRIANGLE = RenderType.create("r_triangle",
+                1536,
+                false,
+                true,
+                TRIANGLE_PIPLINE, RenderType.CompositeState.builder().createCompositeState(false));
+        ^/
+    }
+    *///?}
+
     public static void render(PoseStack matrixStack, Camera camera, float tickDelta) {
         RENDER_PROFILER.reset();
 
@@ -27,13 +59,28 @@ public class MainRender {
             RENDER_PROFILER.push("updateMatrix");
             BuilderManagers.updateMatrix(pose);
             RENDER_PROFILER.pop();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
 
             RENDER_PROFILER.push("renderShapes");
+
+            //?>=1.21.5{
+            GlStateManager._enableBlend();
+            GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
+                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
+                    GlStateManager.SourceFactor.ONE.value,
+                    GlStateManager.DestFactor.ZERO.value);
+            //?}else{
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            //?}
             ShapeManagers.renderAll(matrixStack, tickDelta);
-            RENDER_PROFILER.pop();
+            //?>=1.21.5{
+            GlStateManager._disableBlend();
+            //?}else{
             RenderSystem.disableBlend();
+            //?}
+
+
+            RENDER_PROFILER.pop();
 
             matrixStack.popPose();
 

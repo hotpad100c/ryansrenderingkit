@@ -43,9 +43,7 @@ public class BuilderManager {
         }
 
         public void drawBatch(Consumer<BatchVertexBuilder> builder, RenderMethod renderMethod) {
-            batchVertexBuilder.beginBatch(renderMethod);
-            builder.accept(batchVertexBuilder);
-            batchVertexBuilder.drawBatch(renderMethod);
+            batchVertexBuilder.draw(builder,renderMethod);
         }
 
         public void drawImmediate(Shape shape, Consumer<VertexBuilder> builder, RenderMethod renderMethod) {

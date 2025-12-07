@@ -22,7 +22,7 @@
   "mixins": [
     "ryansrenderingkit.mixins.json"
   ],
-  "accessWidener": "ryansRenderingKit.accesswidener",
+  "accessWidener": "accesswideners/${aw_file}",
   "depends": {
     "fabricloader": "*",
     "minecraft": "${minecraft}"

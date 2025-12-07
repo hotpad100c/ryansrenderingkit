@@ -27,7 +27,12 @@ public class RyansRenderingKit implements ModInitializer {
         BuilderManagers.init();
         ShapeManagers.init();
         VertexBuilderGetter.init();
+
+        //? if >1.21.1 {
         WorldRenderEvents.LAST.register(this::handleRenderLast);
+        //?} else {
+        /*WorldRenderEvents.AFTER_ENTITIES.register(this::handleRenderLast);
+        *///?}
         ClientTickEvents.END_WORLD_TICK.register(c -> {
             if (c.getGameTime() % 20 == 0) {
                 RENDER_PROFILER.reset();
@@ -52,6 +57,12 @@ public class RyansRenderingKit implements ModInitializer {
     }
 
     private void handleRenderLast(WorldRenderContext ctx) {
-        MainRender.render(ctx.matrixStack(), ctx.camera(), ctx.tickCounter().getGameTimeDeltaPartialTick(true));
+        MainRender.render(ctx.matrixStack(), ctx.camera(),
+                //? if > 1.20.1 {
+                ctx.tickCounter().getGameTimeDeltaPartialTick(true)
+                //?} else {
+                /*ctx.tickDelta()
+                *///?}
+                );
     }
 }
