@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static mypals.ml.utils.Helpers.createViewMatrix;
-import static mypals.ml.utils.Helpers.isVertexInFrustum;
 
 public class LineShape extends Shape implements TwoPointsLineShape {
 
@@ -117,39 +116,6 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         this.indexBuffer = new int[]{0, 1};
     }
 
-    @Override
-    public boolean shouldDraw() {
-        List<Vec3> vertices = this.getModel(true);
-        if (vertices.isEmpty()) return false;
-
-        Minecraft client = Minecraft.getInstance();
-        Camera camera = client.gameRenderer.getMainCamera();
-        GameRenderer gameRenderer = client.gameRenderer;
-
-        Vec3 center = this.transformer.getWorldPivot().add(this.transformer.getLocalPivot());
-
-        Matrix4f viewMatrix = createViewMatrix(camera);
-
-        float fov = client.options.fov().get().floatValue();
-        Matrix4f projectionMatrix = gameRenderer.getProjectionMatrix(fov);
-
-        Matrix4f mvp = new Matrix4f(projectionMatrix);
-        mvp.mul(viewMatrix);
-
-        if (isVertexInFrustum(center, mvp)) return true;
-
-        for (Vec3 v : vertices) {
-            if (isVertexInFrustum(v, mvp)) return true;
-        }
-
-        for (int i = 0; i < vertices.size() - 1; i++) {
-            Vec3 a = vertices.get(i);
-            Vec3 b = vertices.get(i + 1);
-            if (LineLikeShape.isSegmentInFrustum(a, b, mvp)) return true;
-        }
-
-        return false;
-    }
 
 
     @Override

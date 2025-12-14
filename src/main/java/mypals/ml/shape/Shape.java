@@ -292,43 +292,22 @@ public abstract class Shape {
         }
         matrixStack.pushPose();
 
-        //RENDER_PROFILER.push("setUpShapeForDraw");
+        RENDER_PROFILER.push("setUpShapeForDraw");
         beforeDraw(matrixStack, deltaTime);
         builder.setPositionMatrix(matrixStack.last().pose());
-        //RENDER_PROFILER.pop();
+        RENDER_PROFILER.pop();
 
-        if (!visible) return;
-        if (!frustumCull || shouldDraw) {
-            //RENDER_PROFILER.push("drawShape");
+        if (shouldDraw) {
+            RENDER_PROFILER.push("drawShape");
             drawInternal(builder);
-            //RENDER_PROFILER.pop();
+            RENDER_PROFILER.pop();
         }
         matrixStack.popPose();
         if (isTemp) discard();
     }
 
     public boolean shouldDraw() {
-        List<Vec3> vertices = this.getModel(true);
-        if (vertices.isEmpty()) return false;
-
-        Minecraft client = Minecraft.getInstance();
-        Camera camera = client.gameRenderer.getMainCamera();
-        GameRenderer gameRenderer = client.gameRenderer;
-
-        Vec3 center = this.transformer.getWorldPivot().add(this.transformer.getLocalPivot());
-
-        Matrix4f viewMatrix = createViewMatrix(camera);
-
-        float fov = client.options.fov().get().floatValue();
-        Matrix4f projectionMatrix = gameRenderer.getProjectionMatrix(fov);
-
-        Matrix4f mvp = new Matrix4f(projectionMatrix);
-        mvp.mul(viewMatrix);
-        if (isVertexInFrustum(center, mvp)) return true;
-        for (Vec3 v : vertices) {
-            if (isVertexInFrustum(v, mvp)) return true;
-        }
-        return false;
+        return visible;
     }
     protected void drawInternal(VertexBuilder builder) {
         builder.putColor(baseColor);

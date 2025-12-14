@@ -82,31 +82,6 @@ public class Helpers {
 
         return view;
     }
-    public static boolean isVertexInFrustum(Vec3 v, Matrix4f mvp) {
-
-        //? <1.21.1 {
-        /*//TODO: Original frustum cull dont work in 1.20.1, idk why.Or should I use Minecraft's instead like this?
-        Frustum frustum = Minecraft.getInstance().levelRenderer.cullingFrustum;
-
-        return frustum.isVisible(new AABB(v.subtract(-0.1,-0.1,-0.1),v.add(0.1,0.1,0.1)));
-
-        *///?} else {
-
-        Vector4f clip = new Vector4f((float)v.x, (float)v.y, (float)v.z, 1f);
-        clip.mul(mvp);
-
-        float x = clip.x;
-        float y = clip.y;
-        float z = clip.z;
-        float w = clip.w;
-
-        if (w <= 0) return false;
-
-        return x >= -w && x <= w &&
-                y >= -w && y <= w &&
-                z >= 0   && z <= w;
-        //?}
-    }
 
     public static int multiplyRGB(int color, float shade) {
         int alpha = color >>> 24 & 255;
