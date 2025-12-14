@@ -34,7 +34,7 @@ public class Helpers {
     public static ResourceLocation generateUniqueId(String prefix) {
         long timestamp = System.currentTimeMillis();
         int randomNum = ThreadLocalRandom.current().nextInt(10000);
-        return ResourceLocation.tryBuild(MOD_ID, prefix.toLowerCase() + "_" + timestamp + "_" + randomNum);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, prefix.toLowerCase() + "_" + timestamp + "_" + randomNum);
     }
 
     public static Vec3 max(Vec3 a, Vec3 b) {
@@ -85,14 +85,14 @@ public class Helpers {
     public static boolean isVertexInFrustum(Vec3 v, Matrix4f mvp) {
 
         //? <1.21.1 {
-        //TODO: Original frustum cull dont work in 1.20.1, idk why.Or should I use Minecraft's instead like this?
+        /*//TODO: Original frustum cull dont work in 1.20.1, idk why.Or should I use Minecraft's instead like this?
         Frustum frustum = Minecraft.getInstance().levelRenderer.cullingFrustum;
 
         return frustum.isVisible(new AABB(v.subtract(-0.1,-0.1,-0.1),v.add(0.1,0.1,0.1)));
 
-        //?} else {
+        *///?} else {
 
-        /*Vector4f clip = new Vector4f((float)v.x, (float)v.y, (float)v.z, 1f);
+        Vector4f clip = new Vector4f((float)v.x, (float)v.y, (float)v.z, 1f);
         clip.mul(mvp);
 
         float x = clip.x;
@@ -105,7 +105,7 @@ public class Helpers {
         return x >= -w && x <= w &&
                 y >= -w && y <= w &&
                 z >= 0   && z <= w;
-        *///?}
+        //?}
     }
 
     public static int multiplyRGB(int color, float shade) {
@@ -176,11 +176,11 @@ public class Helpers {
     }
     private static void addLine(PoseStack.Pose pose, VertexConsumer vc, Vec3 a, Vec3 b, float r, float g, float b2, float a2, Vec3 normal) {
         //? if > 1.20.1 {
-        /*vc.addVertex(pose, (float) a.x, (float) a.y, (float) a.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
+        vc.addVertex(pose, (float) a.x, (float) a.y, (float) a.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
         vc.addVertex(pose, (float) b.x, (float) b.y, (float) b.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
-        *///?} else {
-        vc.vertex(pose.pose(), (float) a.x, (float) a.y, (float) a.z).color(r, g, b2, a2).normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
+        //?} else {
+        /*vc.vertex(pose.pose(), (float) a.x, (float) a.y, (float) a.z).color(r, g, b2, a2).normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
         vc.vertex(pose.pose(), (float) b.x, (float) b.y, (float) b.z).color(r, g, b2, a2).normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
-        //?}
+        *///?}
     }
 }

@@ -6,8 +6,9 @@ import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
 import net.minecraft.client.renderer.RenderPipelines;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-*///?}
+*///?}else{
 import com.mojang.blaze3d.platform.GlStateManager;
+//?}
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -27,7 +28,7 @@ public class MainRender {
     public static final RenderPipeline TRIANGLE_PIPLINE;
     static{
 
-        /^TRIANGLE_PIPLINE = RenderPipelines
+        TRIANGLE_PIPLINE = RenderPipelines
                 .register(RenderPipeline.builder(
                         new RenderPipeline.Snippet[]{RenderPipelines.DEBUG_FILLED_SNIPPET})
                         .withLocation("pipeline/debug_triangle")
@@ -39,7 +40,7 @@ public class MainRender {
                 false,
                 true,
                 TRIANGLE_PIPLINE, RenderType.CompositeState.builder().createCompositeState(false));
-        ^/
+
     }
     *///?}
 
@@ -64,10 +65,10 @@ public class MainRender {
 
             //? >=1.21.5 {
             /*GlStateManager._enableBlend();
-            GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
-                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
-                    GlStateManager.SourceFactor.ONE.value,
-                    GlStateManager.DestFactor.ZERO.value);
+            GlStateManager._blendFuncSeparate(SourceFactor.SRC_ALPHA.ordinal(),
+                    DestFactor.ONE_MINUS_SRC_ALPHA.ordinal(),
+                    SourceFactor.ONE.ordinal(),
+                    DestFactor.ZERO.ordinal());
             *///?} else {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();

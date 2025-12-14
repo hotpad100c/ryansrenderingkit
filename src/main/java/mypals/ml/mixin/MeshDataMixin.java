@@ -21,11 +21,11 @@ import java.util.function.IntConsumer;
 
 import static mypals.ml.RyansRenderingKit.RENDER_PROFILER;
 
-@Mixin(BufferBuilder.class)
+@Mixin(MeshData.class)
 public abstract class MeshDataMixin implements MeshDataExt {
 
     //? if >1.20.1 {
-    /*@Shadow
+    @Shadow
     @Nullable
     private ByteBufferBuilder.Result indexBuffer;
 
@@ -35,12 +35,12 @@ public abstract class MeshDataMixin implements MeshDataExt {
 
     @Shadow
     @Final
-    private BufferBuilder.DrawState drawState;
+    private MeshData.DrawState drawState;
 
-    *///?} else {
+    //?} else {
 
 
-    @Shadow @Final private VertexFormat.Mode mode;
+    /*@Shadow @Final private VertexFormat.Mode mode;
 
     @Shadow public int vertices;
 
@@ -63,11 +63,11 @@ public abstract class MeshDataMixin implements MeshDataExt {
     @Shadow protected abstract Vector3f[] makeQuadSortingPoints();
 
     @Shadow private ByteBuffer buffer;
-    //?}
+    *///?}
 
 
     //? if > 1.20.1 {
-    /*@Unique
+    @Unique
     private static Vector3f[] unpackTriangleCentroids(ByteBuffer byteBuffer, int vertexCount, VertexFormat vertexFormat) {
         int posOffset = vertexFormat.getOffset(VertexFormatElement.POSITION);
         if (posOffset == -1) {
@@ -108,12 +108,12 @@ public abstract class MeshDataMixin implements MeshDataExt {
             VertexSorting vertexSorting) {
         RENDER_PROFILER.push("sortMesh");
         Vector3f[] compactVectorArray = unpackTriangleCentroids(this.vertexBuffer.byteBuffer(), this.drawState.vertexCount(), this.drawState.format());
-        BufferBuilder.SortState sortState = new BufferBuilder.SortState(compactVectorArray, this.drawState.indexType());
+        MeshData.SortState sortState = new MeshData.SortState(compactVectorArray, this.drawState.indexType());
         this.indexBuffer = ((BufferBuilderSortableExt) (Object) sortState).ryansrenderingkit$buildSortedIndexBufferTriangles(byteBufferBuilder, vertexSorting);
         RENDER_PROFILER.pop();
     }
-    *///?} else {
-    @Inject(method = "storeRenderedBuffer",
+    //?} else {
+    /*@Inject(method = "storeRenderedBuffer",
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/mojang/blaze3d/vertex/VertexFormat$IndexType;least(I)Lcom/mojang/blaze3d/vertex/VertexFormat$IndexType;"
@@ -201,5 +201,5 @@ public abstract class MeshDataMixin implements MeshDataExt {
 
         }
     }
-    //?}
+    *///?}
 }

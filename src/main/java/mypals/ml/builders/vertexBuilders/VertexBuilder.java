@@ -44,12 +44,12 @@ public abstract class VertexBuilder {
         }
         //? if > 1.20.1 {
         
-        /*this.bufferBuilder = Tesselator.getInstance().begin(renderMethod.mode(), renderMethod.format());
+        this.bufferBuilder = Tesselator.getInstance().begin(renderMethod.mode(), renderMethod.format());
          
-        *///?} else {
-        this.bufferBuilder = Tesselator.getInstance().getBuilder();
+        //?} else {
+        /*this.bufferBuilder = Tesselator.getInstance().getBuilder();
         bufferBuilder.begin(renderMethod.mode(), renderMethod.format());
-        //?}
+        *///?}
     }
 
     public BufferBuilder getBufferBuilder() {
@@ -80,23 +80,23 @@ public abstract class VertexBuilder {
 
     public void putVertex(Vector3f v, float r, float g, float b, float a) {
         //? if > 1.20.1 {
-        /*this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
-        *///?} else {
-        this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z).color(r, g, b, a).endVertex();
-        //?}
+        this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
+        //?} else {
+        /*this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z).color(r, g, b, a).endVertex();
+        *///?}
         }
 
     public void putVertex(Vector3f v, float r, float g, float b, float a, Vector3f normal) {
         //? if > 1.20.1 {
-        /*this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z)
+        this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z)
                 .setColor(r, g, b, a)
                 .setNormal(normal.x, normal.y, normal.z);
-        *///?} else {
-        this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z)
+        //?} else {
+        /*this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z)
                 .color(r, g, b, a)
                 .normal(normal.x, normal.y, normal.z)
                 .endVertex();
-        //?}
+        *///?}
     }
 
     public void putVertex(Vector3f v, Color color) {
@@ -129,23 +129,23 @@ public abstract class VertexBuilder {
 
     public void putVertex(Vector3f v) {
         //? if > 1.20.1 {
-        /*this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
-         *///?} else {
-        this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z).color(r, g, b, a).endVertex();
-        //?}
+        this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
+         //?} else {
+        /*this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z).color(r, g, b, a).endVertex();
+        *///?}
     }
 
     public void putVertex(Vector3f v, Vector3f normal) {
         //? if > 1.20.1 {
-        /*this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z)
+        this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z)
                 .setColor(r, g, b, a)
                 .setNormal(normal.x, normal.y, normal.z);
-        *///?} else {
-        this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z)
+        //?} else {
+        /*this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z)
                 .color(r, g, b, a)
                 .normal(normal.x, normal.y, normal.z)
                 .endVertex();
-        //?}
+        *///?}
     }
 
     public void putVertex(float x, float y, float z) {

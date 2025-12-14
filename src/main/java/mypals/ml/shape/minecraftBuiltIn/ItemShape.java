@@ -77,9 +77,9 @@ public class ItemShape extends Shape implements EmptyMesh {
                 (float) this.baseColor.getAlpha() / 255);
         poseStack.pushPose();
         //? > 1.20.1 {
-        /*poseStack.mulPose(builder.getPositionMatrix());
-         *///?} else
-        poseStack.mulPoseMatrix(builder.getPositionMatrix());
+        poseStack.mulPose(builder.getPositionMatrix());
+         //?} else
+        /*poseStack.mulPoseMatrix(builder.getPositionMatrix());*/
         poseStack.translate(0, -(ItemEntity.DEFAULT_BB_HEIGHT / 16), -0);
         itemRenderer.renderStatic(item, itemDisplayContext, light, OverlayTexture.NO_OVERLAY, poseStack, multiBufferSource, mc.level, mc.level.random.nextInt());
         poseStack.popPose();

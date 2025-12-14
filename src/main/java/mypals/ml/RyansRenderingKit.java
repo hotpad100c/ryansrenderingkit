@@ -59,10 +59,10 @@ public class RyansRenderingKit implements ModInitializer {
     private void handleRenderLast(WorldRenderContext ctx) {
         MainRender.render(ctx.matrixStack(), ctx.camera(),
                 //? if > 1.20.1 {
-                /*ctx.tickCounter().getGameTimeDeltaPartialTick(true)
-                *///?} else {
-                ctx.tickDelta()
-                //?}
+                ctx.tickCounter().getGameTimeDeltaPartialTick(true)
+                //?} else {
+                /*ctx.tickDelta()
+                *///?}
                 );
     }
 }

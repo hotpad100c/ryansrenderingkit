@@ -3,24 +3,22 @@ package mypals.ml.render;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 //? if >=1.21.5 {
-/*
+
+/*import net.minecraft.client.renderer.RenderType;
 import static mypals.ml.render.MainRender.TRIANGLE;
 import static mypals.ml.render.MainRender.TRIANGLE_PIPLINE;
-*/
-//?} else if =1.21.1 {
-/*import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ShaderInstance;
-*///?} else if >1.21.1 {
-/*import net.minecraft.client.renderer.CoreShaders;
-import net.minecraft.client.renderer.RenderType;
-    //? if <1.21.5 {
-import net.minecraft.client.renderer.ShaderProgram;
-    //?}
-*///?} else {
+
+*///?} else if =1.21.1 {
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
+//?} else if >1.21.1 {
+/*import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.ShaderProgram;
+*///?} else {
+/*import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
 import java.util.function.Supplier;
-//?}
+*///?}
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import org.jetbrains.annotations.NotNull;
 
