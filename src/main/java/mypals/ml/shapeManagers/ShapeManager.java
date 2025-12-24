@@ -146,20 +146,14 @@ public class ShapeManager {
 
         public void drawImmediate(BuilderManager builderManager, PoseStack matrixStack, float tickDelta) {
             if (!normalShapeMap.isEmpty()) {
-                List<Shape> sortedShapes = new ArrayList<>(normalShapeMap.values());
-                sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
-
-                for (Shape shape : sortedShapes) {
+                for (Shape shape : normalShapeMap.values()) {
                     builderManager.drawImmediate(shape, builder -> {
                         shape.draw(true, builder, matrixStack, tickDelta);
                     });
                 }
             }
             if (!seeThroughShapeMap.isEmpty()) {
-                List<Shape> sortedShapes = new ArrayList<>(seeThroughShapeMap.values());
-                sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
-
-                for (Shape shape : sortedShapes) {
+                for (Shape shape : seeThroughShapeMap.values()) {
                     builderManager.drawImmediate(shape, builder -> {
                         shape.draw(true, builder, matrixStack, tickDelta);
                     });
@@ -170,20 +164,14 @@ public class ShapeManager {
         public void drawBatched(BuilderManager builderManager, PoseStack matrixStack, float tickDelta) {
             if (!normalShapeMap.isEmpty()) {
                 builderManager.drawBatch(builder -> {
-                    List<Shape> sortedShapes = new ArrayList<>(normalShapeMap.values());
-                    sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
-
-                    for (Shape shape : sortedShapes) {
+                    for (Shape shape : normalShapeMap.values()) {
                         shape.draw(true, builder, matrixStack, tickDelta);
                     }
                 }, false);
             }
             if (!seeThroughShapeMap.isEmpty()) {
                 builderManager.drawBatch(builder -> {
-                    List<Shape> sortedShapes = new ArrayList<>(seeThroughShapeMap.values());
-                    sortedShapes.sort(SHAPE_ORDER_COMPARATOR);
-
-                    for (Shape shape : sortedShapes) {
+                    for (Shape shape : seeThroughShapeMap.values()) {
                         shape.draw(true, builder, matrixStack, tickDelta);
                     }
                 }, true);

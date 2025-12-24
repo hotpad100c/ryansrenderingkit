@@ -98,7 +98,7 @@ public class Debug {
         if (!ENABLE_DEBUG) {
             added = true;
             ShapeManagers.removeShapes(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test")
+                    ResourceLocation.tryBuild(MOD_ID, "test")
             );
         } else {
             added = false;
@@ -111,11 +111,11 @@ public class Debug {
             if (added || !ENABLE_DEBUG) return;
             index = 0;
             ShapeManagers.removeShapes(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test")
+                    ResourceLocation.tryBuild(MOD_ID, "test")
             );
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_face_circle"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_face_circle"),
                     ShapeGenerator.generateFaceCircle()
                             .pos(new Vec3(xPos(), 0, 0))
                             .radius(2.0f)
@@ -131,7 +131,7 @@ public class Debug {
             );
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_line_circle"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_line_circle"),
                     ShapeGenerator.generateLineCircle()
                             .pos(new Vec3(xPos(), 0, 0))
                             .radius(2.0f)
@@ -152,7 +152,7 @@ public class Debug {
             );
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_sphere"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_sphere"),
                     ShapeGenerator.generateSphere()
                             .pos(new Vec3(xPos(), 0, 0))
                             .radius(2.0f)
@@ -215,23 +215,23 @@ public class Debug {
             s1.addChild(s2);
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_sphere_2"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_sphere_2"),
                     s1
             );
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_sphere_2_child"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_sphere_2_child"),
                     s2
             );
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_sphere_3_child"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_sphere_3_child"),
                     s3
             );
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_obj_model"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_obj_model"),
                     ShapeGenerator.generateObjModel()
                             .pos(new Vec3(xPos(), 0, 0))
-                            .model(ResourceLocation.fromNamespaceAndPath(MOD_ID, "models/monkey.obj"))
+                            .model(ResourceLocation.tryBuild(MOD_ID, "models/monkey.obj"))
                             .color(randomColor())
                             .seeThrough(false)
                             .transform((transformer) -> {
@@ -270,10 +270,10 @@ public class Debug {
             );
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_obj_outline"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_obj_outline"),
                     ShapeGenerator.generateObjModelOutline()
                             .pos(new Vec3(xPos(), 0, 0))
-                            .model(ResourceLocation.fromNamespaceAndPath(MOD_ID, "models/monkey.obj"))
+                            .model(ResourceLocation.tryBuild(MOD_ID, "models/monkey.obj"))
                             .lineWidth(4.0f)
                             .color(randomColor())
                             .seeThrough(false)
@@ -290,7 +290,7 @@ public class Debug {
             );
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_cone"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_cone"),
                     ShapeGenerator.generateCone()
                             .pos(new Vec3(xPos(), 0, 0))
                             .radius(2.0f)
@@ -317,7 +317,7 @@ public class Debug {
 
             float fixedCylX = xPos();
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_cylinder"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_cylinder"),
                     ShapeGenerator.generateCylinder()
                             .pos(new Vec3(fixedCylX, 0, 0))
                             .radius(1.5f)
@@ -338,7 +338,7 @@ public class Debug {
             );
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_cone_wire"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_cone_wire"),
                     ShapeGenerator.generateConeWireframe()
                             .pos(new Vec3(xPos(), 0, 0))
                             .radius(2.0f)
@@ -361,7 +361,7 @@ public class Debug {
             );
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_cylinder_wire"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_cylinder_wire"),
                     ShapeGenerator.generateCylinderWireframe()
                             .pos(new Vec3(xPos(), 0, 0))
                             .radius(1.5f)
@@ -379,7 +379,7 @@ public class Debug {
 
             float linex = xPos();
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_line"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_line"),
                     ShapeGenerator.generateLine()
                             .start(new Vec3(linex - 2, 0, 0))
                             .end(new Vec3(linex + 2, 4, 0))
@@ -396,7 +396,7 @@ public class Debug {
 
             float cx = xPos();
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_strip_line"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_strip_line"),
                     ShapeGenerator.generateStripLine()
                             .vertexes(generateSpiral(xPos(), 100, 2.0f, 5.0f))
                             .lineWidth(2.0f)
@@ -410,7 +410,7 @@ public class Debug {
             );
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_box_face"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_box_face"),
                     ShapeGenerator.generateBoxFace()
                             .pos(new Vec3(xPos(), 0, 0))
                             .size(new Vec3(2, 2, 2))
@@ -425,7 +425,7 @@ public class Debug {
             );
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_box_wire"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_box_wire"),
                     ShapeGenerator.generateBoxWireframe()
                             .aabb(new Vec3(xPos() - 2, 0, -2),
                                     new Vec3(xPos() + 2, 4, 2))
@@ -441,7 +441,7 @@ public class Debug {
             );
 
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_wireframed_box"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_wireframed_box"),
                     ShapeGenerator.generateWireframedBox()
                             .aabb(new Vec3(xPos() - 2, 0, -2),
                                     new Vec3(xPos() + 2, 4, 2))
@@ -458,7 +458,7 @@ public class Debug {
                             .build(Shape.RenderingType.BATCH)
             );
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_text1"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_text1"),
                     ShapeGenerator.generateText()
                             .pos(new Vec3(xPos(), 0, 0))
                             .billBoardMode(TextShape.BillBoardMode.ALL)
@@ -487,7 +487,7 @@ public class Debug {
                     .light(LightTexture.FULL_BLOCK)
                     .build();
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_block_shape"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_block_shape"),
                     blockShape
             );
 
@@ -499,7 +499,7 @@ public class Debug {
                     new Vec3(xPos(), 0, 0),
                     Items.DRAGON_EGG.getDefaultInstance(), ItemDisplayContext.GROUND, LightTexture.FULL_BLOCK);
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_item_shape"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_item_shape"),
                     itemShape
             );
 
@@ -512,7 +512,7 @@ public class Debug {
                     new Vec3(xPos(), 0, 0),
                     Minecraft.getInstance().player, LightTexture.FULL_BLOCK);
             ShapeManagers.addShape(
-                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_entity_shape"),
+                    ResourceLocation.tryBuild(MOD_ID, "test/demo_entity_shape"),
                     entityShape
             );
 
@@ -574,8 +574,9 @@ public class Debug {
                 .color(Color.WHITE)
                 .seeThrough(false)
                 .transform((transformer) -> {
-                    transformer.setStart(anchor1.transformer.getShapeWorldPivot(true));
-                    transformer.setEnd(anchor2.transformer.getShapeWorldPivot(true));
+                    LineShape shape = (LineShape) transformer.getShape();
+                    shape.forceSetStart(anchor1.transformer.getShapeWorldPivot(false));
+                    shape.forceSetEnd(anchor2.transformer.getShapeWorldPivot(false));
                 })
                 .build(Shape.RenderingType.BATCH);
 
@@ -614,19 +615,19 @@ public class Debug {
                 .build();
 
         ShapeManagers.addShape(
-                ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_a1"),
+                ResourceLocation.tryBuild(MOD_ID, "test/demo_a1"),
                 anchor1
         );
         ShapeManagers.addShape(
-                ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_a2"),
+                ResourceLocation.tryBuild(MOD_ID, "test/demo_a2"),
                 anchor2
         );
         ShapeManagers.addShape(
-                ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_l1"),
+                ResourceLocation.tryBuild(MOD_ID, "test/demo_l1"),
                 line
         );
         ShapeManagers.addShape(
-                ResourceLocation.fromNamespaceAndPath(MOD_ID, "test/demo_t1"),
+                ResourceLocation.tryBuild(MOD_ID, "test/demo_t1"),
                 text
         );
     }
@@ -671,6 +672,6 @@ public class Debug {
     }
 
     public static void removeEntity(int entityId) {
-        ShapeManagers.removeShapes(ResourceLocation.fromNamespaceAndPath(MOD_ID, "entity_tracker_" + entityId));
+        ShapeManagers.removeShapes(ResourceLocation.tryBuild(MOD_ID, "entity_tracker_" + entityId));
     }
 }

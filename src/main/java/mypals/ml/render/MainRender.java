@@ -1,12 +1,12 @@
 package mypals.ml.render;
 
-//? >=1.21.5 {
+//? >= 1.21.5 {
 /*import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
 import net.minecraft.client.renderer.RenderPipelines;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-*///?}else{
+*///?} else {
 import com.mojang.blaze3d.platform.GlStateManager;
 //?}
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -23,7 +23,7 @@ import org.joml.Matrix4f;
 import static mypals.ml.RyansRenderingKit.RENDER_PROFILER;
 
 public class MainRender {
-    //? >=1.21.5 {
+    //? >= 1.21.5 {
     /*public static final RenderType.CompositeRenderType TRIANGLE;
     public static final RenderPipeline TRIANGLE_PIPLINE;
     static{
@@ -65,10 +65,11 @@ public class MainRender {
 
             //? >=1.21.5 {
             /*GlStateManager._enableBlend();
-            GlStateManager._blendFuncSeparate(SourceFactor.SRC_ALPHA.ordinal(),
+            /^GlStateManager._blendFuncSeparate(
+                    SourceFactor.SRC_ALPHA.ordinal(),
                     DestFactor.ONE_MINUS_SRC_ALPHA.ordinal(),
                     SourceFactor.ONE.ordinal(),
-                    DestFactor.ZERO.ordinal());
+                    DestFactor.ZERO.ordinal());^/
             *///?} else {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();

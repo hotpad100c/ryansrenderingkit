@@ -4,7 +4,7 @@ plugins {
     // id("me.modmuss50.mod-publish-plugin") version "1.0.+" apply false
 }
 
-stonecutter active "1.21.1"
+stonecutter active "1.20.1"
 
 /*
 // Make newer versions be published last
@@ -21,19 +21,19 @@ stonecutter parameters {
     constants["release"] = property("mod.id") != "template"
     dependencies["fapi"] = node.project.property("deps.fabric_api") as String
     replacements.string {
-        direction = eval(current.version, "<=1.20.1")
+        direction = eval(current.version, "<=1.20.6")
         replace("MeshData.DrawState","BufferBuilder.DrawState")
     }
     replacements.string {
-        direction = eval(current.version, "<=1.20.1")
+        direction = eval(current.version, "<=1.20.6")
         replace("MeshData.SortState","BufferBuilder.SortState")
     }
     replacements.string {
-        direction = eval(current.version, "<=1.20.1")
+        direction = eval(current.version, "<=1.20.6")
         replace("MeshData.class","BufferBuilder.class")
     }
     replacements.string{
-        direction = eval(current.version, "<=1.20.1")
+        direction = eval(current.version, "<=1.20.6")
         replace("ResourceLocation.fromNamespaceAndPath", "ResourceLocation.tryBuild")
     }
     /*replacements.string{

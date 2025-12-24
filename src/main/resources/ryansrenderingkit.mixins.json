@@ -11,6 +11,7 @@
     "requireAnnotations": true
   },
   "client": [
+    "LevelRendererMixin",
     "MeshDataMixin",
     "SortStateMixin"
   ]

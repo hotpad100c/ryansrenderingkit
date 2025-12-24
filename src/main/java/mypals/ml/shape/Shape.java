@@ -1,6 +1,5 @@
 package mypals.ml.shape;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mypals.ml.builders.vertexBuilders.VertexBuilder;
@@ -9,7 +8,8 @@ import mypals.ml.shapeManagers.ShapeManagers;
 import mypals.ml.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
+//? if >=1.21.9
+/*import net.minecraft.client.gui.components.debug.DebugScreenEntries;*/
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -17,7 +17,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public abstract class Shape {
     public Shape parent;
     public List<Shape> children = new ArrayList<>();
 
-    public boolean visible = true;
+    public boolean enabled = true;
     public Color baseColor;
     public boolean seeThrough;
 
@@ -237,7 +236,7 @@ public abstract class Shape {
     }
 
     public void drawShapeDebugInfo(PoseStack matrixStack, float deltaTime) {
-        Entity entity = Minecraft.getInstance().cameraEntity;
+        Entity entity = Minecraft.getInstance()./*? <1.21.9 {*/cameraEntity/*?} else {*//*getCameraEntity()*//*?}*/;
         if(entity == null)return;
 
         VertexConsumer vertexConsumer = Minecraft.getInstance()
@@ -274,9 +273,8 @@ public abstract class Shape {
     }
 
     public void draw(boolean frustumCull, VertexBuilder builder, PoseStack matrixStack, float deltaTime) {
-        /*if(RyansRenderingKit.isEndOfWorldTick()){
-            this.syncLastToTarget();
-        }*/
+
+        if(!enabled) return;
 
         RENDER_PROFILER.push("pendingShouldDraw");
         boolean shouldDraw = shouldDraw();
@@ -285,7 +283,13 @@ public abstract class Shape {
 
         if (mc.level == null) return;
 
-        if (mc.getEntityRenderDispatcher().shouldRenderHitBoxes() && ENABLE_DEBUG) {
+        if (
+            //? <1.21.9 {
+            mc.getEntityRenderDispatcher().shouldRenderHitBoxes()
+            //?} else {
+            /*mc.debugEntries.isCurrentlyEnabled(DebugScreenEntries.ENTITY_HITBOXES)
+            *///?}
+            && ENABLE_DEBUG) {
             //RENDER_PROFILER.push("renderDebugInfo");
             drawShapeDebugInfo(matrixStack, deltaTime);
             //RENDER_PROFILER.pop();
@@ -307,7 +311,7 @@ public abstract class Shape {
     }
 
     public boolean shouldDraw() {
-        return visible;
+        return enabled;
     }
     protected void drawInternal(VertexBuilder builder) {
         builder.putColor(baseColor);

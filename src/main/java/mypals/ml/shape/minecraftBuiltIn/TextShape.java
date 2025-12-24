@@ -146,7 +146,6 @@ public class TextShape extends Shape implements EmptyMesh {
 
             yOffset += lineHeights[i];
         }
-        RenderSystem.setShaderColor(1, 1, 1, 1);
     }
 
     @Override
@@ -169,7 +168,7 @@ public class TextShape extends Shape implements EmptyMesh {
                 poseStack.mulPose(new Quaternionf().rotateX(pitch));
             }
         }
-        poseStack.scale(/*? <1.21 {*//*-*//*?}*/0.015625F, -0.015625F, 0.015625F);
+        poseStack.scale(/*? <1.21 {*/-/*?}*/0.015625F, -0.015625F, 0.015625F);
     }
 
     public void setText(int line, String text) {

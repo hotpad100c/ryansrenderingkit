@@ -116,7 +116,11 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         this.indexBuffer = new int[]{0, 1};
     }
 
-
+    @Override
+    public void syncLastToTarget() {
+        super.syncLastToTarget();
+        generateRawGeometry(false);
+    }
 
     @Override
     public RayModelIntersection.HitResult isPlayerLookingAt() {

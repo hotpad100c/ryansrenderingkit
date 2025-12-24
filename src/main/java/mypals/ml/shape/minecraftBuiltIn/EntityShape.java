@@ -17,6 +17,12 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+//? if >=1.21.9 {
+/*import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollection;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.CameraRenderState;
+*///?}
 
 import static mypals.ml.RyansRenderingKit.isEndOfWorldTick;
 
@@ -91,26 +97,37 @@ public class EntityShape extends Shape implements EmptyMesh {
         if(isEndOfWorldTick() && entity != mc.player){
             entity.tick();
         }
+        //? <1.21.6 {
         RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
                 (float) this.baseColor.getGreen() / 255,
                 (float) this.baseColor.getBlue() / 255,
                 (float) this.baseColor.getAlpha() / 255);
+        //?}
         poseStack.pushPose();
-        //? > 1.20.1 {
-        poseStack.mulPose(builder.getPositionMatrix());
-         //?} else
-        /*poseStack.mulPoseMatrix(builder.getPositionMatrix());*/
+        //? > 1.20.4 {
+        /*poseStack.mulPose(builder.getPositionMatrix());
+         *///?} else {
+        poseStack.mulPoseMatrix(builder.getPositionMatrix());
+        //?}
+        //? if <1.21.9 {
         dispatcher.render(entity, 0, 0, 0,
-                //? <= 1.20.1 {
-                /*entity.getPose().ordinal(),
-                *///?} else if <=1.21.1 {
-                entity.getPose().id(),
-                //?}
+                //? <= 1.20.4 {
+                entity.getPose().ordinal(),
+                //?} else if <=1.21.1 {
+                /*entity.getPose().id(),
+                *///?}
                 transformer.getTickDelta(),
                 poseStack, multiBufferSource, light);
-
+        //?} else {
+        /*EntityRenderState entityRenderState = dispatcher.extractEntity(entity, transformer.getTickDelta());
+        SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
+        CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
+        dispatcher.submit(entityRenderState,cameraRenderState,0,0,0,poseStack,submitNodeCollector);
+        *///?}
         poseStack.popPose();
+        //? <1.21.6 {
         RenderSystem.setShaderColor(1, 1, 1, 1);
+         //?}
     }
 
     @Override

@@ -46,8 +46,10 @@ dependencies {
 }
 val minecraft = stonecutter.current.version
 val accesswidener = when {
-    stonecutter.eval(minecraft, "<=1.20.1") -> "1.20.1.accesswidener"
-    else -> "1.21.4.accesswidener"
+
+    stonecutter.eval(minecraft, "<=1.20.6") -> "1.20.1.accesswidener"
+    stonecutter.eval(minecraft, "<=1.21.4") -> "1.21.4.accesswidener"
+    else -> "1.21.10.accesswidener"
 }
 loom {
     fabricModJsonPath = rootProject.file("src/main/resources/fabric.mod.json") // Useful for interface injection
@@ -134,11 +136,11 @@ publishMods {
  */
 
 // Publishes builds to a maven repository under `com.example:template:0.1.0+mc`
-
-/*publishing {
+/*
+publishing {
     repositories {
         maven("https://mvnrepository.com/artifact/io.github.hotpad100c/ryansrenderingkit/releases") {
-            name = "Ryan's RenderingKit"
+            name = "RyansRenderingKit"
             // To authenticate, create `myMavenUsername` and `myMavenPassword` properties in your Gradle home properties.
             // See https://stonecutter.kikugie.dev/wiki/tips/properties#defining-properties
             credentials(PasswordCredentials::class.java)
@@ -157,7 +159,7 @@ publishMods {
             from(components["java"])
 
             pom {
-                name = "Ryan's RenderingKit"
+                name = "Ryan's Rendering Kit"
                 description = "A powerful rendering utility library for Fabric"
                 url = "https://github.com/hotpad100c/ryansrenderingkit"
                 licenses {
@@ -169,7 +171,7 @@ publishMods {
                 developers {
                     developer {
                         id = "hotpad100c"
-                        name = "Ryan"
+                        name = "Ryan100C"
                     }
                 }
                 scm {
@@ -181,56 +183,10 @@ publishMods {
         }
     }
 }*/
-
 mavenPublishing {
-    coordinates(
-        project.group as String,           // io.github.hotpad100c
-        project.name,              // ryansrenderingkit
-        project.version as String
-    )
-
-    pom {
-        name.set("Ryan's RenderingKit")
-        description.set("A powerful rendering utility library for Fabric")
-        url.set("https://github.com/hotpad100c/ryansrenderingkit")
-
-        licenses {
-            license {
-                name.set("MIT")
-                url.set("https://opensource.org/licenses/MIT")
-            }
-        }
-        developers {
-            developer {
-                id.set("hotpad100c")
-                name.set("Ryan")
-            }
-        }
-        scm {
-            connection.set("scm:git:git://github.com/hotpad100c/ryansrenderingkit.git")
-            developerConnection.set("scm:git:ssh://git@github.com:hotpad100c/ryansrenderingkit.git")
-            url.set("https://github.com/hotpad100c/ryansrenderingkit")
-        }
-    }
+    publishToMavenCentral()
+    signAllPublications()
 }
-
-publishing {
-    repositories {
-        maven {
-            name = "OSSRH"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-
-            credentials(PasswordCredentials::class) {
-                username = providers.gradleProperty("ossrhUsername").get()
-                password = providers.gradleProperty("ossrhPassword").get()
-            }
-            authentication {
-                create<BasicAuthentication>("basic")
-            }
-        }
-    }
-}
-
 signing {
     useGpgCmd()
     sign(publishing.publications)

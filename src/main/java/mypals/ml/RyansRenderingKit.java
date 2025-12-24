@@ -9,8 +9,16 @@ import mypals.ml.utils.SimpleRenderProfiler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+//? if >=1.21.10 {
+/*import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+*///?} else if =1.21.9 {
+/*import mypals.ml.render.nine.WorldRenderContext;
+*///?} else {
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+//?}
+import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +36,11 @@ public class RyansRenderingKit implements ModInitializer {
         ShapeManagers.init();
         VertexBuilderGetter.init();
 
-        //? if >1.21.1 {
+        //? if >= 1.21.10 {
+        /*WorldRenderEvents.END_MAIN.register(this::handleRenderLast);
+        *///?} else if > 1.21.1 && < 1.21.9 {
         /*WorldRenderEvents.LAST.register(this::handleRenderLast);
-        *///?} else {
+        *///?} else if <= 1.21.1 {
         WorldRenderEvents.AFTER_ENTITIES.register(this::handleRenderLast);
         //?}
         ClientTickEvents.END_WORLD_TICK.register(c -> {
@@ -56,13 +66,20 @@ public class RyansRenderingKit implements ModInitializer {
         return endOfWorldTick;
     }
 
-    private void handleRenderLast(WorldRenderContext ctx) {
-        MainRender.render(ctx.matrixStack(), ctx.camera(),
-                //? if > 1.20.1 {
-                ctx.tickCounter().getGameTimeDeltaPartialTick(true)
-                //?} else {
-                /*ctx.tickDelta()
-                *///?}
+    public /*? if = 1.21.9 {*//*static*//*?}*/ void handleRenderLast(WorldRenderContext ctx) {
+        MainRender.render(
+                //? >=1.21.9 {
+                /*ctx.matrices(), /^? if != 1.21.9 {^/ctx.gameRenderer().getMainCamera()/^?} else {^//^ctx.camera()^//^?}^/,
+                *///?} else {
+                ctx.matrixStack(), ctx.camera(),
+                //?}
+                //? >=1.21.6 {
+                /*Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true)
+                *///?} else if > 1.20.6 {
+                /*ctx.tickCounter().getGameTimeDeltaPartialTick(true)
+                *///?} else {
+                ctx.tickDelta()
+                //?}
                 );
     }
 }

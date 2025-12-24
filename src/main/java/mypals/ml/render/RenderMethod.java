@@ -6,28 +6,26 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 
 /*import net.minecraft.client.renderer.RenderType;
 import static mypals.ml.render.MainRender.TRIANGLE;
-import static mypals.ml.render.MainRender.TRIANGLE_PIPLINE;
 
 *///?} else if =1.21.1 {
-import net.minecraft.client.renderer.GameRenderer;
+/*import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
-//?} else if >1.21.1 {
+*///?} else if >1.21.1 {
 /*import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.ShaderProgram;
 *///?} else {
-/*import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
-import java.util.function.Supplier;
-*///?}
-import net.minecraft.client.renderer.entity.layers.RenderLayer;
+//?}
 import org.jetbrains.annotations.NotNull;
-
 import java.util.function.Supplier;
 
 
 public record RenderMethod(
-        //? if >= 1.21.5 {
-        /*@NotNull RenderType renderLayer,
+        //? if >= 1.21.6 {
+        /*RenderType.CompositeRenderType renderType,
+        *///?} else if >= 1.21.5 {
+        /*@NotNull RenderType renderType,
         *///?} else if >1.21.1 {
         /*@NotNull ShaderProgram shader,
         *///?} else {

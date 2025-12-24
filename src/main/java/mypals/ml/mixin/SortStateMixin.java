@@ -1,13 +1,6 @@
 package mypals.ml.mixin;
 
-//? if >1.20.1 {
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.MeshData;
-//?}
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexSorting;
+import com.mojang.blaze3d.vertex.*;
 import mypals.ml.interfaces.MeshDataExt;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -18,11 +11,11 @@ import org.spongepowered.asm.mixin.Unique;
 
 import java.util.function.IntConsumer;
 
-@Mixin(MeshData.SortState.class)
+@Mixin(BufferBuilder.SortState.class)
 public abstract class SortStateMixin implements MeshDataExt.BufferBuilderSortableExt {
-    //? if >1.20.1 {
+    //? if >1.20.6 {
 
-    @Shadow
+    /*@Shadow
     protected abstract it.unimi.dsi.fastutil.ints.IntConsumer indexWriter(long l, VertexFormat.IndexType indexType);
 
     @Shadow
@@ -31,7 +24,7 @@ public abstract class SortStateMixin implements MeshDataExt.BufferBuilderSortabl
 
     @Shadow
     @Final
-    private Vector3f[] centroids;
+    private /^? if <1.21.9 {^/Vector3f[]/^?} else {^/ /^CompactVectorArray^//^?}^/centroids;
 
     @Unique
     public ByteBufferBuilder.Result
@@ -51,5 +44,5 @@ public abstract class SortStateMixin implements MeshDataExt.BufferBuilderSortabl
         return byteBufferBuilder.build();
     }
     
-    //?}
+    *///?}
 }

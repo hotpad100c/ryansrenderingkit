@@ -33,6 +33,13 @@ import java.util.function.Consumer;
 
 import static mypals.ml.shape.minecraftBuiltIn.EntityShape.decodeQuad;
 
+
+//? if >=1.21.9 {
+/*import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
+*///?}
+
 public class BlockShape extends Shape implements EmptyMesh {
 
     public BlockState blockState;
@@ -123,15 +130,17 @@ public class BlockShape extends Shape implements EmptyMesh {
         BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
         MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
 
+        //? < 1.21.6 {
         RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
                 (float) this.baseColor.getGreen() / 255,
                 (float) this.baseColor.getBlue() / 255,
                 (float) this.baseColor.getAlpha() / 255);
+        //?}
         poseStack.pushPose();
-        //? > 1.20.1 {
-        poseStack.mulPose(builder.getPositionMatrix());
-        //?} else
-        /*poseStack.mulPoseMatrix(builder.getPositionMatrix());*/
+        //? > 1.20.4 {
+        /*poseStack.mulPose(builder.getPositionMatrix());
+        *///?} else
+        poseStack.mulPoseMatrix(builder.getPositionMatrix());
 
 
         dispatcher.renderSingleBlock(blockState, poseStack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);
@@ -139,11 +148,22 @@ public class BlockShape extends Shape implements EmptyMesh {
         if (blockState.getBlock() instanceof EntityBlock) {
             BlockEntityRenderDispatcher blockEntityRenderDispatcher = mc.getBlockEntityRenderDispatcher();
             BlockEntity blockEntity = ((EntityBlock) blockState.getBlock()).newBlockEntity(BlockPos.ZERO, blockState);
+
+            //? if <1.21.9 {
             blockEntityRenderDispatcher.render(blockEntity, transformer.getTickDelta(), poseStack, multiBufferSource);
+            //?} else {
+            /*BlockEntityRenderState blockEntityRenderState = blockEntityRenderDispatcher.tryExtractRenderState(blockEntity, transformer.getTickDelta(),null);
+            SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
+            CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
+            blockEntityRenderDispatcher.submit(blockEntityRenderState,poseStack,submitNodeCollector,cameraRenderState);
+            *///?}
         }
 
         poseStack.popPose();
+
+        //? < 1.21.6 {
         RenderSystem.setShaderColor(1, 1, 1, 1);
+        //?}
     }
 
     @Override
