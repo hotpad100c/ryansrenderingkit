@@ -1,6 +1,11 @@
+
+val unobfuscated:Boolean = stonecutter.current.version.toString().contains("-snapshot-")
+
+
+
 plugins {
     id("fabric-loom")
-
+    //id("fabric-loom-remapped")
     // `maven-publish`
     //id("me.modmuss50.mod-publish-plugin").version("0.3.5")
     id("signing")
@@ -11,6 +16,7 @@ version = "${property("mod.version")}+${stonecutter.current.version}"
 base.archivesName = property("mod.id") as String
 
 val requiredJava = when {
+    stonecutter.eval(stonecutter.current.version, ">=26.1") -> JavaVersion.VERSION_25
     stonecutter.eval(stonecutter.current.version, ">=1.20.6") -> JavaVersion.VERSION_21
     stonecutter.eval(stonecutter.current.version, ">=1.18") -> JavaVersion.VERSION_17
     stonecutter.eval(stonecutter.current.version, ">=1.17") -> JavaVersion.VERSION_16
@@ -185,9 +191,46 @@ publishing {
 }*/
 mavenPublishing {
     publishToMavenCentral()
+
     signAllPublications()
+    coordinates(
+        "io.github.hotpad100c",
+        "ryansrenderingkit",
+        project.version.toString()
+    )
+    pom {
+        name.set("Ryans Rendering Kit")
+        description.set("A Fabric rendering utility library for Minecraft mods.")
+        url.set("https://github.com/hotpad100c/ryansrenderingkit")
+
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/hotpad100c/ryansrenderingkit")
+            connection.set("scm:git:https://github.com/hotpad100c/ryansrenderingkit.git")
+            developerConnection.set("scm:git:ssh://git@github.com:hotpad100c/ryansrenderingkit.git")
+        }
+
+        developers {
+            developer {
+                id.set("hotpad100c")
+                name.set("Ryan100C")
+                email.set("hotpad100c@gmail.com")
+            }
+        }
+    }
 }
+
 signing {
-    useGpgCmd()
+    useInMemoryPgpKeys(
+        findProperty("signing.keyId") as String,
+        file("C:\\Users\\Ryan\\.gnupg\\private.key").readText(),
+        findProperty("signing.password") as String
+    )
     sign(publishing.publications)
 }

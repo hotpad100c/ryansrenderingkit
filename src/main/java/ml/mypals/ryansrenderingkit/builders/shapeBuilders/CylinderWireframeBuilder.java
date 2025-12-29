@@ -1,0 +1,45 @@
+package ml.mypals.ryansrenderingkit.builders.shapeBuilders;
+
+import ml.mypals.ryansrenderingkit.shape.Shape;
+import ml.mypals.ryansrenderingkit.shape.basics.CircleLikeShape;
+import ml.mypals.ryansrenderingkit.shape.cylinder.CylinderWireframeShape;
+
+public class CylinderWireframeBuilder extends BaseBuilder<CylinderWireframeBuilder, CylinderWireframeShape.CylinderWireframeTransformer> {
+    protected CircleLikeShape.CircleAxis circleAxis = CircleLikeShape.CircleAxis.Y;
+    protected int segments = 32;
+    protected float radius = 1.0f;
+    protected float height = 1.0f;
+    protected float width = 1.0f;
+
+    public CylinderWireframeBuilder axis(CircleLikeShape.CircleAxis circleAxis) {
+        this.circleAxis = circleAxis;
+        return this;
+    }
+
+    public CylinderWireframeBuilder segments(int segments) {
+        this.segments = segments;
+        return this;
+    }
+
+    public CylinderWireframeBuilder radius(float radius) {
+        this.radius = radius;
+        return this;
+    }
+
+    public CylinderWireframeBuilder height(float height) {
+        this.height = height;
+        return this;
+    }
+
+    public CylinderWireframeBuilder width(float width) {
+        this.width = width;
+        return this;
+    }
+
+    @Override
+    public CylinderWireframeShape build(Shape.RenderingType type) {
+        @SuppressWarnings("unchecked")
+        var t = getTransformer();
+        return new CylinderWireframeShape(type, t, circleAxis, center, segments, radius, height, width, color, seeThrough);
+    }
+}

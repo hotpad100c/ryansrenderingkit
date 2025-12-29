@@ -16,7 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "mypals.ml.RyansRenderingKit"
+      "ml.mypals.ryansrenderingkit.RyansRenderingKit"
     ]
   },
   "mixins": [

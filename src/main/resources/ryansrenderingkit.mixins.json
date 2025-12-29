@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "mypals.ml.mixin",
+  "package": "ml.mypals.ryansrenderingkit.mixin",
   "compatibilityLevel": "${java}",
   "mixins": [
   ],
