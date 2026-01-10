@@ -25,6 +25,7 @@ import net.minecraft.client.renderer.state.CameraRenderState;
 *///?}
 
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.isEndOfWorldTick;
+import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
 
 public class EntityShape extends Shape implements EmptyMesh {
 
@@ -107,7 +108,7 @@ public class EntityShape extends Shape implements EmptyMesh {
         //? > 1.20.4 {
         /*poseStack.mulPose(builder.getPositionMatrix());
          *///?} else {
-        poseStack.mulPoseMatrix(builder.getPositionMatrix());
+        poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
         //?}
         //? if <1.21.9 {
         dispatcher.render(entity, 0, 0, 0,

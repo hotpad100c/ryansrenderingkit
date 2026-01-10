@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
 import static ml.mypals.ryansrenderingkit.utils.Helpers.multiplyRGB;
 
 public class TextShape extends Shape implements EmptyMesh {
@@ -93,7 +94,7 @@ public class TextShape extends Shape implements EmptyMesh {
     public MutableComponent[] getMessages() {
         MutableComponent[] components = new MutableComponent[contents.size()];
         for (String string : contents) {
-            components[contents.indexOf(string)] = /*? if >1.18.2 {*//*Component.literal*//*?} else {*/(MutableComponent)Component.nullToEmpty/*?}*/(string);
+            components[contents.indexOf(string)] = /*? if >1.18.2 {*/Component.literal/*?} else {*//*(MutableComponent)Component.nullToEmpty*//*?}*/(string);
         }
         return components;
     }
@@ -129,7 +130,7 @@ public class TextShape extends Shape implements EmptyMesh {
                 font.drawInBatch8xOutline(renderMessages[i], x, y,
                         color.getRGB(),
                         multiplyRGB(color.getRGB(), 0.8f),
-                        builder.getPositionMatrix(),
+                        convertToMojangIfNeeded(builder.getPositionMatrix()),
                         bufferSource, LightTexture.FULL_BRIGHT);
             } else {
                 font.drawInBatch(
@@ -137,17 +138,18 @@ public class TextShape extends Shape implements EmptyMesh {
                         x, y,
                         outline ? multiplyRGB(color.getRGB(), 0.9f) : color.getRGB(),
                         shadow,
-                        builder.getPositionMatrix(),
+
+                        convertToMojangIfNeeded(builder.getPositionMatrix()),
                         bufferSource,
                         //? if >1.18.2 {
-                        /*seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.POLYGON_OFFSET,
-                        *///?} else {
-                        seeThrough,
-                        //?}
+                        seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.POLYGON_OFFSET,
+                        //?} else {
+                        /*seeThrough,
+                        *///?}
                         backgroundColor.getRGB(),
                         LightTexture.FULL_BRIGHT
                         //? if <=1.18.2
-                        ,false
+                        /*,false*/
                 );
             }
 
@@ -160,19 +162,18 @@ public class TextShape extends Shape implements EmptyMesh {
         super.beforeDraw(poseStack, deltaTime);
 
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        /*? if >1.18.2 {*//*Quaternionf*//*?} else {*/Quaternion/*?}*/ camRot = camera.rotation();
 
         switch (billBoardMode) {
             case ALL -> {
-                poseStack.mulPose(camRot);
+                poseStack.mulPose(camera.rotation());
             }
             case VERTICAL -> {
                 float yaw = (float) Math.toRadians(camera.getYRot() + 180);
-                poseStack.mulPose(/*? if >1.18.2 {*//*new Quaternionf().rotateY(yaw)*//*?} else {*/Vector3f.YP.rotationDegrees(yaw)/*?}*/);
+                poseStack.mulPose(/*? if >1.18.2 {*/new Quaternionf().rotateY(yaw)/*?} else {*//*com.mojang.math.Vector3f.YP.rotationDegrees(yaw)*//*?}*/);
             }
             case HORIZONTAL -> {
                 float pitch = (float) Math.toRadians(camera.getXRot());
-                poseStack.mulPose(/*? if >1.18.2 {*//*new Quaternionf().rotateX(pitch)*//*?} else {*/Vector3f.XP.rotationDegrees(pitch)/*?}*/);
+                poseStack.mulPose(/*? if >1.18.2 {*/new Quaternionf().rotateX(pitch)/*?} else {*//*com.mojang.math.Vector3f.XP.rotationDegrees(pitch)*//*?}*/);
             }
         }
         poseStack.scale(/*? <1.21 {*/-/*?}*/0.015625F, -0.015625F, 0.015625F);

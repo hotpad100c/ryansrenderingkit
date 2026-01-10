@@ -5,14 +5,20 @@ import com.mojang.blaze3d.vertex.*;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import ml.mypals.ryansrenderingkit.interfaces.MeshDataExt;
 import org.jetbrains.annotations.Nullable;
+//? if >1.18.2 {
 import org.joml.Vector3f;
+//?} else {
+/*import com.mojang.math.Vector3f;
+*///?}
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 //? if <=1.20.6 {
-import com.mojang.blaze3d.systems.RenderSystem;
+//? if >1.19.4 {
+/*import com.mojang.blaze3d.systems.RenderSystem;
+*///?}
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -55,25 +61,21 @@ public abstract class MeshDataMixin implements MeshDataExt {
 
     @Shadow @Final private VertexFormat format;
 
-    @Shadow private Vector3f[] sortingPoints;
-
     @Shadow protected abstract void ensureCapacity(int par1);
 
     @Shadow public int nextElementByte;
 
     //? if >1.18.2 {
-    /*@Shadow private int renderedBufferPointer;
+    @Shadow private int renderedBufferPointer;
 
     @Shadow private int renderedBufferCount;
-    *///?} else {
-    @Shadow private int totalRenderedBytes;
+    //?} else {
+    /*@Shadow private int totalRenderedBytes;
     @Shadow public abstract it.unimi.dsi.fastutil.ints.IntConsumer intConsumer(VertexFormat.IndexType par1);
-    //?}
+    *///?}
     //? if >1.19.4 {
     /*@Shadow private VertexSorting sorting;
     *///?}
-
-    @Shadow protected abstract Vector3f[] makeQuadSortingPoints();
 
     @Shadow private ByteBuffer buffer;
     //?}
@@ -152,8 +154,10 @@ public abstract class MeshDataMixin implements MeshDataExt {
     }
     *///?} else {
 
+    @Shadow private Vector3f[] sortingPoints;
+
     //? if <=1.18.2 {
-    @Inject(
+    /*@Inject(
             method = "setQuadSortOrigin",
             at = @At("TAIL")
     )
@@ -164,25 +168,25 @@ public abstract class MeshDataMixin implements MeshDataExt {
             }
         }
     }
-    //?}
+    *///?}
 
 
     @Inject(
             //? if >1.18.2 {
-            /*method = "storeRenderedBuffer",
-            *///?} else {
-            method = {"end"},
-            //?}
+            method = "storeRenderedBuffer",
+            //?} else {
+            /*method = {"end"},
+            *///?}
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/mojang/blaze3d/vertex/VertexFormat$IndexType;least(I)Lcom/mojang/blaze3d/vertex/VertexFormat$IndexType;"
             )
     )
     //? if >1.18.2 {
-    /*private void storeRenderedBuffer(CallbackInfoReturnable<BufferBuilder.RenderedBuffer> cir) {
-    *///?} else {
-    private void storeRenderedBuffer(CallbackInfo ci) {
-    //?}
+    private void storeRenderedBuffer(CallbackInfoReturnable<BufferBuilder.RenderedBuffer> cir) {
+    //?} else {
+    /*private void storeRenderedBuffer(CallbackInfo ci) {
+    *///?}
         if(this.mode == VertexFormat.Mode.TRIANGLES) {
 
             if(this.sortingPoints == null) {
@@ -197,10 +201,10 @@ public abstract class MeshDataMixin implements MeshDataExt {
     }
     @WrapOperation(
         //? if >1.18.2 {
-        /*method = "storeRenderedBuffer",
-        *///?} else {
-        method = "end",
-        //?}
+        method = "storeRenderedBuffer",
+        //?} else {
+        /*method = "end",
+        *///?}
         at = @At(
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/vertex/BufferBuilder;putSortedQuadIndices(Lcom/mojang/blaze3d/vertex/VertexFormat$IndexType;)V"
@@ -221,10 +225,10 @@ public abstract class MeshDataMixin implements MeshDataExt {
     private Vector3f[] makeTriangleSortingPoints() {
         FloatBuffer floatBuffer = this.buffer.asFloatBuffer();
         //? if >1.18.2 {
-        /*int base = this.renderedBufferCount / 4;
-        *///?} else {
-        int base = this.totalRenderedBytes / 4;
-        //?}
+        int base = this.renderedBufferCount / 4;
+        //?} else {
+        /*int base = this.totalRenderedBytes / 4;
+        *///?}
 
         int vertexSize = this.format.getIntegerSize();
         int stride = vertexSize * this.mode.primitiveStride;
@@ -269,12 +273,12 @@ public abstract class MeshDataMixin implements MeshDataExt {
                 IntArrays.mergeSort(sortedTriangleIndices, (i, jx) -> Floats.compare(fs[jx], fs[i]));
             //?}
             BufferBuilder builder = (BufferBuilder)(Object)this;
-            IntConsumer intConsumer = /*? if >1.18.2 {*//*builder.*//*?} else {*/this./*?}*/
-                    intConsumer(/*? if >1.18.2 {*//*builder.nextElementByte,*//*?}*/ indexType);
+            IntConsumer intConsumer = /*? if >1.18.2 {*/builder./*?} else {*//*this.*//*?}*/
+                    intConsumer(/*? if >1.18.2 {*/builder.nextElementByte,/*?}*/ indexType);
 
             //? if <=1.18.2 {
-            this.buffer.position(this.nextElementByte);
-            //?}
+            /*this.buffer.position(this.nextElementByte);
+            *///?}
 
             for (int i : sortedTriangleIndices) {
                 int baseVertex = i * 3;

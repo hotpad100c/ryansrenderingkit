@@ -17,7 +17,7 @@ import static net.minecraft.client.renderer.RenderStateShard.VIEW_OFFSET_Z_LAYER
 public class RyansRenderingKitRenderTypes {
     //? if >= 1.21.5 {
     /*private static final RenderPipeline noDepthTriangles = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-            .withLocation(new ResourceLocation(MOD_ID, "no_depth_quads"))
+            .withLocation(ResourceLocation.tryBuild(MOD_ID, "no_depth_quads"))
             .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             .withCull(false)
@@ -37,7 +37,7 @@ public class RyansRenderingKitRenderTypes {
 
 
     private static final RenderPipeline noDepthLines = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
-            .withLocation(new ResourceLocation(MOD_ID, "no_depth_lines"))
+            .withLocation(ResourceLocation.tryBuild(MOD_ID, "no_depth_lines"))
             .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             .withCull(false)
@@ -58,7 +58,7 @@ public class RyansRenderingKitRenderTypes {
             );
 
     private static final RenderPipeline noDepthLineStrip = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-            .withLocation(new ResourceLocation(MOD_ID, "no_depth_line_strip"))
+            .withLocation(ResourceLocation.tryBuild(MOD_ID, "no_depth_line_strip"))
             .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             .withCull(false)

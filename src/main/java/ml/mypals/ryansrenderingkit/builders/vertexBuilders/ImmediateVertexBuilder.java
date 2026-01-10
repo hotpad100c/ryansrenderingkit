@@ -29,7 +29,7 @@ public class ImmediateVertexBuilder extends VertexBuilder {
 
         if (this.getBufferBuilder().vertices == 0) {
             //? if <= 1.20.6 {
-            this.getBufferBuilder()./*? if >1.18.2 {*//*endOrDiscardIfEmpty()*//*?} else {*/endVertex()/*?}*/;
+            this.getBufferBuilder()./*? if >1.18.2 {*/endOrDiscardIfEmpty()/*?} else {*//*endVertex()*//*?}*/;
             this.bufferBuilder=null;
             //?}
             return;
@@ -37,13 +37,13 @@ public class ImmediateVertexBuilder extends VertexBuilder {
         //? if > 1.20.6 {
         /*MeshData builtBuffer = this.getBufferBuilder().build();
          *///?} else if > 1.18.2 {
-        /*BufferBuilder.RenderedBuffer builtBuffer = this.getBufferBuilder().end();
-         *///?}
+        BufferBuilder.RenderedBuffer builtBuffer = this.getBufferBuilder().end();
+         //?}
         //? if >1.18.2 {
-        /*if (builtBuffer != null) {
-         *///?} else {
-        if (this.getBufferBuilder().vertices != 0) {
-        //?}
+        if (builtBuffer != null) {
+         //?} else {
+        /*if (this.getBufferBuilder().vertices != 0) {
+        *///?}
             //? if > 1.20.6 {
 
             /*ByteBufferBuilder byteBufferBuilder = null;
@@ -70,13 +70,13 @@ public class ImmediateVertexBuilder extends VertexBuilder {
                 renderMethod.normalRenderType().draw(builtBuffer);
             }
             *///?} else if > 1.18.2 {
-            /*BufferUploader.drawWithShader(builtBuffer);
-             *///?} else {
-            Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+            BufferUploader.drawWithShader(builtBuffer);
+             //?} else {
+            /*Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
             bufferBuilder.setQuadSortOrigin((float) camera.getPosition().x(), (float) camera.getPosition().y(), (float) camera.getPosition().z());
             bufferBuilder.end();
             BufferUploader.end(bufferBuilder);
-            //?}
+            *///?}
 
 
             //? if > 1.20.6 && < 1.21.5 {

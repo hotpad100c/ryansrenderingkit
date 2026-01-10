@@ -16,6 +16,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.*;
+import org.joml.Math;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -183,20 +184,20 @@ public abstract class Shape {
             }
         }
 
-        Matrix4f matrix = poseStack.last().pose();
+        Matrix4f matrix = convertToJomlIfNeeded(poseStack.last().pose());
 
         List<Vec3> transformed = new ArrayList<>(model_vertexes.size());
         for (Vec3 local : model_vertexes) {
             Vector3f vec = new Vector3f((float) local.x, (float) local.y, (float) local.z);
             //? if >1.18.2 {
-            /*vec.mulPosition(matrix);
-            *///?} else {
-            float x = vec.x(), y = vec.y(), z = vec.z();
-            float newX = Math.fma(matrix.m00, x, Math.fma(matrix.m10, y, Math.fma(matrix.m20, z, matrix.m30)));
-            float newY = Math.fma(matrix.m01, x, Math.fma(matrix.m11, y, Math.fma(matrix.m21, z, matrix.m31)));
-            float newZ = Math.fma(matrix.m02, x, Math.fma(matrix.m12, y, Math.fma(matrix.m22, z, matrix.m32)));
+            vec.mulPosition(matrix);
+            //?} else {
+            /*float x = vec.x(), y = vec.y(), z = vec.z();
+            float newX = Math.fma(matrix.m00(), x, Math.fma(matrix.m10(), y, Math.fma(matrix.m20(), z, matrix.m30())));
+            float newY = Math.fma(matrix.m01(), x, Math.fma(matrix.m11(), y, Math.fma(matrix.m21(), z, matrix.m31())));
+            float newZ = Math.fma(matrix.m02(), x, Math.fma(matrix.m12(), y, Math.fma(matrix.m22(), z, matrix.m32())));
             vec = new Vector3f(newX, newY, newZ);
-            //?}
+            *///?}
             transformed.add(new Vec3(vec.x(), vec.y(), vec.z()));
         }
 
@@ -306,7 +307,7 @@ public abstract class Shape {
 
         RENDER_PROFILER.push("setUpShapeForDraw");
         beforeDraw(matrixStack, deltaTime);
-        builder.setPositionMatrix(matrixStack.last().pose());
+        builder.setPositionMatrix(convertToJomlIfNeeded(matrixStack.last().pose()));
         RENDER_PROFILER.pop();
 
         if (shouldDraw) {

@@ -12,10 +12,10 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.item.ItemEntity;
 //? if >1.18.2 {
-/*import net.minecraft.world.item.ItemDisplayContext;
-*///?} else {
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-//?}
+import net.minecraft.world.item.ItemDisplayContext;
+//?} else {
+/*import net.minecraft.client.renderer.block.model.ItemTransforms;
+*///?}
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
@@ -27,6 +27,8 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import java.awt.*;
 import java.util.function.Consumer;
 
+import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
+
 public class ItemShape extends Shape implements EmptyMesh {
 
 
@@ -34,15 +36,15 @@ public class ItemShape extends Shape implements EmptyMesh {
     public ItemStack item;
 
     //? if >1.18.2 {
-    /*public ItemDisplayContext itemDisplayContext = ItemDisplayContext.FIXED;
-    *///?} else {
-    ItemTransforms.TransformType itemDisplayContext = ItemTransforms.TransformType.FIXED;
-    //?}
+    public ItemDisplayContext itemDisplayContext = ItemDisplayContext.FIXED;
+    //?} else {
+    /*ItemTransforms.TransformType itemDisplayContext = ItemTransforms.TransformType.FIXED;
+    *///?}
     private final PoseStack poseStack = new PoseStack();
 
     public ItemShape(
             Consumer<DefaultTransformer> transform,
-            Vec3 center, ItemStack item,/*? if >1.18.2 {*/ /*ItemDisplayContext*//*?} else {*/ItemTransforms.TransformType/*?}*/ itemDisplayContext, int light) {
+            Vec3 center, ItemStack item,/*? if >1.18.2 {*/ ItemDisplayContext/*?} else {*//*ItemTransforms.TransformType*//*?}*/ itemDisplayContext, int light) {
         super(RenderingType.BATCH, transform, Color.white, center, false);
         this.seeThrough = false;
         this.item = item;
@@ -95,12 +97,13 @@ public class ItemShape extends Shape implements EmptyMesh {
         //? > 1.20.4 {
         /*poseStack.mulPose(builder.getPositionMatrix());
          *///?} else
-        poseStack.mulPoseMatrix(builder.getPositionMatrix());
+
+        poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
         poseStack.translate(0, -(ItemEntity.DEFAULT_BB_HEIGHT / 16), -0);
 
         //? if <1.21.9 {
         itemRenderer.renderStatic(item, itemDisplayContext, light, OverlayTexture.NO_OVERLAY, poseStack,
-                multiBufferSource, /*? if <1.21.8 {*/mc.level,/*?}*/ mc.level.random.nextInt());
+                multiBufferSource, /*? if >1.18.2 {*/mc.level,/*?}*/ mc.level.random.nextInt());
         //?} else {
 
         /*ItemStackRenderState itemStackRenderState = new ItemStackRenderState();

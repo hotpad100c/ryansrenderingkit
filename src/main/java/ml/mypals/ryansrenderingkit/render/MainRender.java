@@ -13,6 +13,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import ml.mypals.ryansrenderingkit.builderManager.BuilderManagers;
 import ml.mypals.ryansrenderingkit.shapeManagers.ShapeManagers;
+import ml.mypals.ryansrenderingkit.utils.Helpers;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -53,7 +54,7 @@ public class MainRender {
             matrixStack.pushPose();
 
             matrixStack.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z);
-            Matrix4f pose = matrixStack.last().pose();
+            Matrix4f pose = Helpers.convertToJomlIfNeeded(matrixStack.last().pose());
 
             RENDER_PROFILER.push("updateMatrix");
             BuilderManagers.updateMatrix(pose);

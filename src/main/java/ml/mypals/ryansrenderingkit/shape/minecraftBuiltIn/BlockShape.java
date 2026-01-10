@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
+
 
 //? if >=1.21.9 {
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -138,7 +140,7 @@ public class BlockShape extends Shape implements EmptyMesh {
         //? > 1.20.4 {
         /*poseStack.mulPose(builder.getPositionMatrix());
         *///?} else
-        poseStack.mulPoseMatrix(builder.getPositionMatrix());
+        poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
 
 
         dispatcher.renderSingleBlock(blockState, poseStack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);

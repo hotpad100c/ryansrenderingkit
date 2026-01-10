@@ -8,10 +8,10 @@ import ml.mypals.ryansrenderingkit.test.Debug;
 import ml.mypals.ryansrenderingkit.utils.SimpleRenderProfiler;
 import net.fabricmc.api.ModInitializer;
 //? if >1.18.2 {
-/*import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-*///?} else {
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
-//?}
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+//?} else {
+/*import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+*///?}
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 //? if >=1.21.10 {
 /*import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
@@ -62,13 +62,13 @@ public class RyansRenderingKit implements ModInitializer {
             RENDER_PROFILER.pop();
         });
         //? if >1.18.2 {
-        /*ClientCommandRegistrationCallback.EVENT.register(
+        ClientCommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess) ->
                         registerDebugCommands(dispatcher)
         );
-        *///?} else {
-        registerDebugCommands(ClientCommandManager.DISPATCHER);
-        //?}
+        //?} else {
+        /*registerDebugCommands(ClientCommandManager.DISPATCHER);
+        *///?}
         Debug.init();
     }
 

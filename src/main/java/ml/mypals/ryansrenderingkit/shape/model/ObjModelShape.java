@@ -64,18 +64,18 @@ public class ObjModelShape extends Shape {
     public void loadOBJ(ResourceLocation location) throws IOException {
         ResourceManager manager = Minecraft.getInstance().getResourceManager();
         //? if >1.18.2 {
-        /*Optional<Resource> optional = manager.getResource(location);
-        *///?} else {
-        Optional<Resource> optional = Optional.of(manager.getResource(location));
-        //?}
+        Optional<Resource> optional = manager.getResource(location);
+        //?} else {
+        /*Optional<Resource> optional = Optional.of(manager.getResource(location));
+        *///?}
         if (optional.isEmpty()) return;
 
         Resource resource = optional.get();
         //? if >1.18.2 {
-        /*try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.open()))) {
-        *///?} else {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-        //?}
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.open()))) {
+        //?} else {
+        /*try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+        *///?}
             SimpleOBJModel m = new SimpleOBJModel();
             String line;
             while ((line = reader.readLine()) != null) {

@@ -32,7 +32,7 @@ public class Helpers {
     public static ResourceLocation generateUniqueId(String prefix) {
         long timestamp = System.currentTimeMillis();
         int randomNum = ThreadLocalRandom.current().nextInt(10000);
-        return new ResourceLocation(MOD_ID, prefix.toLowerCase() + "_" + timestamp + "_" + randomNum);
+        return ResourceLocation.tryBuild(MOD_ID, prefix.toLowerCase() + "_" + timestamp + "_" + randomNum);
     }
 
     public static Vec3 max(Vec3 a, Vec3 b) {
@@ -62,24 +62,6 @@ public class Helpers {
         return new Vec3(sumX / n, sumY / n, sumZ / n);
     }
 
-    public static Matrix4f createViewMatrix(Camera camera) {
-
-        Matrix4f view = new Matrix4f();
-
-        Quaternionf camRot = camera.rotation();
-        Quaternionf camRotInv = new Quaternionf(camRot).conjugate();
-        view.rotation(camRot);
-
-        Vec3 camPos = camera.getPosition();
-
-        view.translate(new Vector3f(
-                (float) -camPos.x,
-                (float) -camPos.y,
-                (float) -camPos.z
-        ));
-
-        return view;
-    }
 
     public static int multiplyRGB(int color, float shade) {
         int alpha = color >>> 24 & 255;
@@ -127,8 +109,8 @@ public class Helpers {
 
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
 
-        poseStack.mulPose( /*? if <=1.18.2 {*/ Vector3f /*?} else {*//*Axis*//*?}*/.YP.rotationDegrees(-camera.getYRot()));
-        poseStack.mulPose( /*? if <=1.18.2 {*/ Vector3f /*?} else {*//*Axis*//*?}*/.XP.rotationDegrees(camera.getXRot()));
+        poseStack.mulPose( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.YP.rotationDegrees(-camera.getYRot()));
+        poseStack.mulPose( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.XP.rotationDegrees(camera.getXRot()));
 
         PoseStack.Pose pose = poseStack.last();
 
@@ -158,4 +140,44 @@ public class Helpers {
                 /*? if < 1.20.6 {*/.normal()/*?}*/, (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
         //?}
     }
+    //? if >1.18.2 {
+
+    public static Matrix4f convertToMojangIfNeeded(Matrix4f matrix4f2){
+    return matrix4f2;
+    }
+
+    public static org.joml.Matrix4f convertToJomlIfNeeded(org.joml.Matrix4f  matrix4f){
+        return matrix4f;
+    }
+    //?} else {
+
+    /*public static org.joml.Matrix4f convertToJomlIfNeeded(com.mojang.math.Matrix4f matrix4f){
+            return  new Matrix4f(matrix4f.m00, matrix4f.m01, matrix4f.m02, matrix4f.m03,
+                    matrix4f.m10, matrix4f.m11, matrix4f.m12, matrix4f.m13,
+                    matrix4f.m20, matrix4f.m21, matrix4f.m22, matrix4f.m23,
+                    matrix4f.m30, matrix4f.m31,  matrix4f.m32, matrix4f.m33);
+    }
+    public static com.mojang.math.Matrix4f convertToMojangIfNeeded(Matrix4f matrix4f2){
+        com.mojang.math.Matrix4f matrix4f = new com.mojang.math.Matrix4f();
+
+        matrix4f.m00 = matrix4f2.m00();
+        matrix4f.m01 = matrix4f2.m01();
+        matrix4f.m02 = matrix4f2.m02();
+        matrix4f.m03 = matrix4f2.m03();
+        matrix4f.m10 = matrix4f2.m10();
+        matrix4f.m11 = matrix4f2.m11();
+        matrix4f.m12 = matrix4f2.m12();
+        matrix4f.m13 = matrix4f2.m13();
+        matrix4f.m20 = matrix4f2.m20();
+        matrix4f.m21 = matrix4f2.m21();
+        matrix4f.m22 = matrix4f2.m22();
+        matrix4f.m23 = matrix4f2.m23();
+        matrix4f.m30 = matrix4f2.m30();
+        matrix4f.m31 = matrix4f2.m31();
+        matrix4f.m32 = matrix4f2.m32();
+        matrix4f.m33 = matrix4f2.m33();
+
+        return matrix4f;
+    }
+    *///?}
 }

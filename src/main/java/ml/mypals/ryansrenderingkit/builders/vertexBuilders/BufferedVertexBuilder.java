@@ -11,10 +11,10 @@ import com.mojang.blaze3d.vertex.*;
 *///?} else {
 import com.mojang.blaze3d.vertex.BufferUploader;
 //? if <=1.18.2 {
-import com.mojang.math.Vector3f;
-//?} else {
-/*import com.mojang.math.Axis;
-*///?}
+/*import com.mojang.math.Vector3f;
+*///?} else {
+import com.mojang.math.Axis;
+//?}
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
@@ -104,7 +104,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
 
         if (!isBuilding || this.getBufferBuilder().vertices == 0) {
             //? if <= 1.20.6 {
-            this.getBufferBuilder()./*? if >1.18.2 {*//*endOrDiscardIfEmpty()*//*?} else {*/endVertex()/*?}*/;
+            this.getBufferBuilder()./*? if >1.18.2 {*/endOrDiscardIfEmpty()/*?} else {*//*endVertex()*//*?}*/;
             //?}
             isBuilding = false;
             this.bufferBuilder=null;
@@ -115,8 +115,8 @@ public class BufferedVertexBuilder extends VertexBuilder {
         //? if > 1.20.6 {
         /*MeshData builtBuffer = this.getBufferBuilder().build();
          *///?} else if > 1.18.2 {
-        /*BufferBuilder.RenderedBuffer builtBuffer = this.getBufferBuilder().end();
-         *///?} else {
+        BufferBuilder.RenderedBuffer builtBuffer = this.getBufferBuilder().end();
+         //?} else {
         //?}
 
         //? if >= 1.21.5 {
@@ -164,10 +164,10 @@ public class BufferedVertexBuilder extends VertexBuilder {
 
 
         //? if >1.18.2 {
-        /*if (builtBuffer == null) {
-        *///?} else {
-        if (bufferBuilder.vertices <= 0) {
-        //?}
+        if (builtBuffer == null) {
+        //?} else {
+        /*if (bufferBuilder.vertices <= 0) {
+        *///?}
             isBuilding = false;
             return;
         }
@@ -191,13 +191,13 @@ public class BufferedVertexBuilder extends VertexBuilder {
         //? if > 1.21.5 {
 
         //?} else if > 1.18.2 {
-        /*this.vertexBuffer.upload(builtBuffer);
-         *///?} else {
-        //Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        this.vertexBuffer.upload(builtBuffer);
+         //?} else {
+        /*//Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         //bufferBuilder.setQuadSortOrigin((float) camera.getPosition().x(), (float) camera.getPosition().y(), (float) camera.getPosition().z());
         bufferBuilder.end();
         this.vertexBuffer.upload(bufferBuilder);
-        //?}
+        *///?}
 
 
         //? if > 1.20.6 && < 1.21.5 {
@@ -252,8 +252,8 @@ public class BufferedVertexBuilder extends VertexBuilder {
 
         //? if <1.21 {
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        RenderSystem.getModelViewStack()./*? <1.20.6 {*/mulPose/*?} else {*//*rotate*//*?}*/(/*? if <=1.18.2 {*/ Vector3f /*?} else {*//*Axis*//*?}*/.XP.rotationDegrees(camera.getXRot()));
-        RenderSystem.getModelViewStack()./*? <1.20.6 {*/mulPose/*?} else {*//*rotate*//*?}*/(/*? if <=1.18.2 {*/ Vector3f /*?} else {*//*Axis*//*?}*/.YP.rotationDegrees(camera.getYRot() + 180.0F));
+        RenderSystem.getModelViewStack()./*? <1.20.6 {*/mulPose/*?} else {*//*rotate*//*?}*/(/*? if <=1.18.2 {*/ /*Vector3f *//*?} else {*/Axis/*?}*/.XP.rotationDegrees(camera.getXRot()));
+        RenderSystem.getModelViewStack()./*? <1.20.6 {*/mulPose/*?} else {*//*rotate*//*?}*/(/*? if <=1.18.2 {*/ /*Vector3f *//*?} else {*/Axis/*?}*/.YP.rotationDegrees(camera.getYRot() + 180.0F));
         //?}
         RenderSystem.getModelViewStack().translate(
                 (float) -cameraPos.x,

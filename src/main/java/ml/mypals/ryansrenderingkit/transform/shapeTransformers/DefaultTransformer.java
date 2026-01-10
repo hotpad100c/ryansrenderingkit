@@ -1,8 +1,11 @@
 package ml.mypals.ryansrenderingkit.transform.shapeTransformers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+//? if <=1.18.2 {
+/*import com.mojang.math.Quaternion;
 import com.sun.jna.platform.win32.COM.IComEnumVariantIterator;
 import com.sun.jna.platform.win32.COM.util.IComEnum;
+*///?}
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import net.minecraft.world.phys.Vec3;
 import org.joml.*;
@@ -10,6 +13,8 @@ import org.joml.*;
 import javax.swing.*;
 import java.lang.Math;
 import java.util.List;
+
+import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToJomlIfNeeded;
 
 public class DefaultTransformer {
     private float delta = 0;
@@ -69,10 +74,10 @@ public class DefaultTransformer {
 
         stack.translate(p.x, p.y, p.z);
         //? if >1.18.2 {
-        /*stack.mulPose(r);
-        *///?} else {
-        stack.mulPose(new Quaternion(r.x,r.y,r.z,r.w));
-        //?}
+        stack.mulPose(r);
+        //?} else {
+        /*stack.mulPose(new Quaternion(r.x,r.y,r.z,r.w));
+        *///?}
         stack.scale((float) s.x, (float) s.y, (float) s.z);
     }
 
@@ -106,7 +111,7 @@ public class DefaultTransformer {
 
         Vec3 localPivot = this.world.getPosition(lerp);
 
-        Matrix4f mat = poseStack.last().pose();
+        Matrix4f mat = convertToJomlIfNeeded(poseStack.last().pose());
 
         Vector4f v = new Vector4f(
                 (float) localPivot.x,
@@ -114,15 +119,7 @@ public class DefaultTransformer {
                 (float) localPivot.z,
                 1.0f
         );
-        //? if >1.18.2 {
-        /*v.mul(mat);
-        *///?} else {
-
-        v.mul(new org.joml.Matrix4f(mat.m00,mat.m01,mat.m02,mat.m03,
-                mat.m10,mat.m11,mat.m12,mat.m13,
-                mat.m20,mat.m21,mat.m22,mat.m23,
-                mat.m30,mat.m31,mat.m32,mat.m33));
-        //?}
+        v.mul(mat);
 
         return new Vec3(v.x(), v.y(), v.z());
     }
@@ -136,25 +133,25 @@ public class DefaultTransformer {
         Quaternionf localRot = this.world.getRotation(lerp);
         //? if >1.18.2 {
         
-        /*poseStack.mulPose(localRot);
-         *///?} else {
+        poseStack.mulPose(localRot);
+         //?} else {
 
-        poseStack.mulPose(new Quaternion(localRot.x,localRot.y,localRot.z,localRot.w));
+        /*poseStack.mulPose(new Quaternion(localRot.x,localRot.y,localRot.z,localRot.w));
 
-        //?}
+        *///?}
 
         PoseStack.Pose pose = poseStack.last();
         //? if >1.18.2 {
         
-        /*org.joml.Matrix4f mat = poseStack.last().pose();
-         *///?} else {
-        org.joml.Matrix4f mat = new org.joml.Matrix4f(
+        org.joml.Matrix4f mat = poseStack.last().pose();
+         //?} else {
+        /*org.joml.Matrix4f mat = new org.joml.Matrix4f(
                 pose.pose().m00,pose.pose().m01,pose.pose().m02,pose.pose().m03,
                 pose.pose().m10,pose.pose().m11,pose.pose().m12,pose.pose().m13,
                 pose.pose().m20,pose.pose().m21,pose.pose().m22,pose.pose().m23,
                 pose.pose().m30,pose.pose().m31,pose.pose().m32,pose.pose().m33
         );
-        //?}
+        *///?}
 
 
         Quaternionf result = new Quaternionf();
@@ -178,7 +175,7 @@ public class DefaultTransformer {
                 (float) localScale.z
         );
 
-        Matrix4f mat = poseStack.last().pose();
+        Matrix4f mat = convertToJomlIfNeeded(poseStack.last().pose());
 
         float sx = new Vector3f(mat.m00(), mat.m01(), mat.m02()).length();
         float sy = new Vector3f(mat.m10(), mat.m11(), mat.m12()).length();

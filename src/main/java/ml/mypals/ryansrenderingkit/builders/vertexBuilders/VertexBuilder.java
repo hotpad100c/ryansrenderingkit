@@ -14,6 +14,8 @@ import org.joml.*;
 import java.awt.*;
 import java.util.function.Consumer;
 
+import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
+
 public abstract class VertexBuilder {
     protected Matrix4f positionMatrix;
     protected BufferBuilder bufferBuilder;
@@ -47,10 +49,10 @@ public abstract class VertexBuilder {
         *///?} else {
         this.bufferBuilder = Tesselator.getInstance().getBuilder();
         //? if <=1.18.2 {
-        if(bufferBuilder.building()){
+        /*if(bufferBuilder.building()){
             return;
         }
-        //?}
+        *///?}
         bufferBuilder.begin(renderMethod.mode(), renderMethod.format());
         //?}
     }
@@ -85,7 +87,7 @@ public abstract class VertexBuilder {
         //? if > 1.20.6 {
         /*this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
         *///?} else {
-        this.bufferBuilder.vertex(positionMatrix, v.x(), v.y(), v.z()).color(r, g, b, a).endVertex();
+        this.bufferBuilder.vertex(convertToMojangIfNeeded(positionMatrix), v.x(), v.y(), v.z()).color(r, g, b, a).endVertex();
         //?}
         }
 
@@ -95,7 +97,7 @@ public abstract class VertexBuilder {
                 .setColor(r, g, b, a)
                 .setNormal(normal.x, normal.y, normal.z);
         *///?} else {
-        this.bufferBuilder.vertex(positionMatrix, v.x(), v.y(), v.z())
+        this.bufferBuilder.vertex(convertToMojangIfNeeded(positionMatrix), v.x(), v.y(), v.z())
                 .color(r, g, b, a)
                 .normal(normal.x(), normal.y(), normal.z())
                 .endVertex();
@@ -134,7 +136,7 @@ public abstract class VertexBuilder {
         //? if > 1.20.6 {
         /*this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
          *///?} else {
-        this.bufferBuilder.vertex(positionMatrix, v.x(), v.y(), v.z()).color(r, g, b, a).endVertex();
+        this.bufferBuilder.vertex(convertToMojangIfNeeded(positionMatrix), v.x(), v.y(), v.z()).color(r, g, b, a).endVertex();
         //?}
     }
 
@@ -144,7 +146,7 @@ public abstract class VertexBuilder {
                 .setColor(r, g, b, a)
                 .setNormal(normal.x, normal.y, normal.z);
         *///?} else {
-        this.bufferBuilder.vertex(positionMatrix, v.x(), v.y(), v.z())
+        this.bufferBuilder.vertex(convertToMojangIfNeeded(positionMatrix), v.x(), v.y(), v.z())
                 .color(r, g, b, a)
                 .normal(normal.x(), normal.y(), normal.z())
                 .endVertex();

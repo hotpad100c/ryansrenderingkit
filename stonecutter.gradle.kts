@@ -4,7 +4,7 @@ plugins {
     // id("me.modmuss50.mod-publish-plugin") version "1.0.+" apply false
 }
 
-stonecutter active "1.17.1"
+stonecutter active "1.19.4"
 
 /*
 // Make newer versions be published last
