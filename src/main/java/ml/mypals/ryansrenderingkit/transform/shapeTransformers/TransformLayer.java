@@ -3,8 +3,8 @@ package ml.mypals.ryansrenderingkit.transform.shapeTransformers;
 import ml.mypals.ryansrenderingkit.transform.valueTransformers.QuaternionTransformer;
 import ml.mypals.ryansrenderingkit.transform.valueTransformers.Vec3Transformer;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
-import org.joml.Vector3d;
+import org.joml.*;
+import org.joml.Math;
 
 public class TransformLayer {
     public final Vec3Transformer position = new Vec3Transformer(Vec3.ZERO);

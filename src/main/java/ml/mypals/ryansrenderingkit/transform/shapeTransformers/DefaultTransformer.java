@@ -1,10 +1,13 @@
 package ml.mypals.ryansrenderingkit.transform.shapeTransformers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.sun.jna.platform.win32.COM.IComEnumVariantIterator;
+import com.sun.jna.platform.win32.COM.util.IComEnum;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import net.minecraft.world.phys.Vec3;
 import org.joml.*;
 
+import javax.swing.*;
 import java.lang.Math;
 import java.util.List;
 
@@ -65,7 +68,11 @@ public class DefaultTransformer {
         Vector3d s = layer.scale.getValue(lerp);
 
         stack.translate(p.x, p.y, p.z);
-        stack.mulPose(r);
+        //? if >1.18.2 {
+        /*stack.mulPose(r);
+        *///?} else {
+        stack.mulPose(new Quaternion(r.x,r.y,r.z,r.w));
+        //?}
         stack.scale((float) s.x, (float) s.y, (float) s.z);
     }
 
@@ -107,8 +114,15 @@ public class DefaultTransformer {
                 (float) localPivot.z,
                 1.0f
         );
+        //? if >1.18.2 {
+        /*v.mul(mat);
+        *///?} else {
 
-        v.mul(mat);
+        v.mul(new org.joml.Matrix4f(mat.m00,mat.m01,mat.m02,mat.m03,
+                mat.m10,mat.m11,mat.m12,mat.m13,
+                mat.m20,mat.m21,mat.m22,mat.m23,
+                mat.m30,mat.m31,mat.m32,mat.m33));
+        //?}
 
         return new Vec3(v.x(), v.y(), v.z());
     }
@@ -120,12 +134,33 @@ public class DefaultTransformer {
         applyHierarchy(poseStack,lerp);
 
         Quaternionf localRot = this.world.getRotation(lerp);
+        //? if >1.18.2 {
+        
+        /*poseStack.mulPose(localRot);
+         *///?} else {
 
-        poseStack.mulPose(localRot);
+        poseStack.mulPose(new Quaternion(localRot.x,localRot.y,localRot.z,localRot.w));
 
-        Matrix4f mat = poseStack.last().pose();
+        //?}
+
+        PoseStack.Pose pose = poseStack.last();
+        //? if >1.18.2 {
+        
+        /*org.joml.Matrix4f mat = poseStack.last().pose();
+         *///?} else {
+        org.joml.Matrix4f mat = new org.joml.Matrix4f(
+                pose.pose().m00,pose.pose().m01,pose.pose().m02,pose.pose().m03,
+                pose.pose().m10,pose.pose().m11,pose.pose().m12,pose.pose().m13,
+                pose.pose().m20,pose.pose().m21,pose.pose().m22,pose.pose().m23,
+                pose.pose().m30,pose.pose().m31,pose.pose().m32,pose.pose().m33
+        );
+        //?}
+
 
         Quaternionf result = new Quaternionf();
+
+
+
         mat.getNormalizedRotation(result);
 
         return result;

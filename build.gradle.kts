@@ -36,6 +36,7 @@ repositories {
     strictMaven("https://api.modrinth.com/maven", "Modrinth", "maven.modrinth")
 }
 
+val minecraft = stonecutter.current.version
 dependencies {
     /**
      * Fetches only the required Fabric API modules to not waste time downloading all of them for each version.
@@ -48,11 +49,19 @@ dependencies {
     minecraft("com.mojang:minecraft:${stonecutter.current.version}")
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
-    fapi("fabric-lifecycle-events-v1","fabric-rendering-v1","fabric-command-api-v2", "fabric-resource-loader-v0", "fabric-content-registries-v0")
+    fapi("fabric-lifecycle-events-v1","fabric-rendering-v1", "fabric-resource-loader-v0", "fabric-content-registries-v0")
+    if(stonecutter.eval(stonecutter.current.version," >1.18.2")){
+        fapi("fabric-command-api-v2")
+    }else{
+        fapi("fabric-command-api-v1")
+        implementation("org.joml:joml:1.10.5")
+        include( "org.joml:joml:1.10.5")
+    }
 }
-val minecraft = stonecutter.current.version
+
 val accesswidener = when {
 
+    stonecutter.eval(minecraft, "<=1.18.2") -> "1.18.2.accesswidener"
     stonecutter.eval(minecraft, "<=1.20.6") -> "1.20.1.accesswidener"
     stonecutter.eval(minecraft, "<=1.21.4") -> "1.21.4.accesswidener"
     else -> "1.21.10.accesswidener"

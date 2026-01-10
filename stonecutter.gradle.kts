@@ -4,7 +4,7 @@ plugins {
     // id("me.modmuss50.mod-publish-plugin") version "1.0.+" apply false
 }
 
-stonecutter active "1.21.10"
+stonecutter active "1.17.1"
 
 /*
 // Make newer versions be published last
@@ -36,13 +36,10 @@ stonecutter parameters {
         direction = eval(current.version, "<=1.20.6")
         replace("ResourceLocation.fromNamespaceAndPath", "ResourceLocation.tryBuild")
     }
-    /*replacements.string{
-        direction = eval(current.version, ">=1.21.5")
-        replace("VertexBuffer", "GpuBuffer")
+    replacements.string{
+        direction = eval(current.version, "<=1.18.2")
+        replace("ResourceLocation.tryBuild(", "new ResourceLocation(")
     }
 
-    replacements.string{
-        direction = eval(current.version, ">=1.21.5")
-        replace("import com.mojang.blaze3d.vertex.VertexBuffer;", "import com.mojang.blaze3d.buffers.GpuBuffer;")
-    }*/
+
 }

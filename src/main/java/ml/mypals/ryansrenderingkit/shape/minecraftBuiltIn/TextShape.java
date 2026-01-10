@@ -1,6 +1,7 @@
 package ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import org.joml.*;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
@@ -15,7 +16,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
+import org.joml.Math;
+
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -91,7 +93,7 @@ public class TextShape extends Shape implements EmptyMesh {
     public MutableComponent[] getMessages() {
         MutableComponent[] components = new MutableComponent[contents.size()];
         for (String string : contents) {
-            components[contents.indexOf(string)] = Component.literal(string);
+            components[contents.indexOf(string)] = /*? if >1.18.2 {*//*Component.literal*//*?} else {*/(MutableComponent)Component.nullToEmpty/*?}*/(string);
         }
         return components;
     }
@@ -137,9 +139,15 @@ public class TextShape extends Shape implements EmptyMesh {
                         shadow,
                         builder.getPositionMatrix(),
                         bufferSource,
-                        seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.POLYGON_OFFSET,
+                        //? if >1.18.2 {
+                        /*seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.POLYGON_OFFSET,
+                        *///?} else {
+                        seeThrough,
+                        //?}
                         backgroundColor.getRGB(),
                         LightTexture.FULL_BRIGHT
+                        //? if <=1.18.2
+                        ,false
                 );
             }
 
@@ -152,7 +160,7 @@ public class TextShape extends Shape implements EmptyMesh {
         super.beforeDraw(poseStack, deltaTime);
 
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        Quaternionf camRot = camera.rotation();
+        /*? if >1.18.2 {*//*Quaternionf*//*?} else {*/Quaternion/*?}*/ camRot = camera.rotation();
 
         switch (billBoardMode) {
             case ALL -> {
@@ -160,14 +168,14 @@ public class TextShape extends Shape implements EmptyMesh {
             }
             case VERTICAL -> {
                 float yaw = (float) Math.toRadians(camera.getYRot() + 180);
-                poseStack.mulPose(new Quaternionf().rotateY(yaw));
+                poseStack.mulPose(/*? if >1.18.2 {*//*new Quaternionf().rotateY(yaw)*//*?} else {*/Vector3f.YP.rotationDegrees(yaw)/*?}*/);
             }
             case HORIZONTAL -> {
                 float pitch = (float) Math.toRadians(camera.getXRot());
-                poseStack.mulPose(new Quaternionf().rotateX(pitch));
+                poseStack.mulPose(/*? if >1.18.2 {*//*new Quaternionf().rotateX(pitch)*//*?} else {*/Vector3f.XP.rotationDegrees(pitch)/*?}*/);
             }
         }
-        poseStack.scale(/*? <1.21 {*//*-*//*?}*/0.015625F, -0.015625F, 0.015625F);
+        poseStack.scale(/*? <1.21 {*/-/*?}*/0.015625F, -0.015625F, 0.015625F);
     }
 
     public void setText(int line, String text) {

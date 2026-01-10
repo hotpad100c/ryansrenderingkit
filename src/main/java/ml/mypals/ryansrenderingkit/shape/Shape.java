@@ -9,14 +9,13 @@ import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransforme
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 //? if >=1.21.9
-import net.minecraft.client.gui.components.debug.DebugScreenEntries;
+/*import net.minecraft.client.gui.components.debug.DebugScreenEntries;*/
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import org.joml.*;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -84,7 +83,7 @@ public abstract class Shape {
     }
 
     public void setLocalRotation(Vector3f rot) {
-        this.transformer.setShapeLocalRotationDegrees(rot.x, rot.y, rot.z);
+        this.transformer.setShapeLocalRotationDegrees(rot.x(), rot.y(), rot.z());
     }
 
     public void setLocalScale(Vec3 scale) {
@@ -96,7 +95,7 @@ public abstract class Shape {
     }
 
     public void setWorldRotation(Vector3f rot) {
-        this.transformer.setShapeWorldRotationDegrees(rot.x, rot.y, rot.z);
+        this.transformer.setShapeWorldRotationDegrees(rot.x(), rot.y(), rot.z());
     }
 
     public void setWorldScale(Vec3 scale) {
@@ -109,7 +108,7 @@ public abstract class Shape {
     }
 
     public void setRenderRotation(Vector3f rot) {
-        this.transformer.setShapeMatrixRotationDegrees(rot.x, rot.y, rot.z);
+        this.transformer.setShapeMatrixRotationDegrees(rot.x(), rot.y(), rot.z());
     }
 
     public void setRenderScale(Vec3 scale) {
@@ -189,7 +188,15 @@ public abstract class Shape {
         List<Vec3> transformed = new ArrayList<>(model_vertexes.size());
         for (Vec3 local : model_vertexes) {
             Vector3f vec = new Vector3f((float) local.x, (float) local.y, (float) local.z);
-            vec.mulPosition(matrix);
+            //? if >1.18.2 {
+            /*vec.mulPosition(matrix);
+            *///?} else {
+            float x = vec.x(), y = vec.y(), z = vec.z();
+            float newX = Math.fma(matrix.m00, x, Math.fma(matrix.m10, y, Math.fma(matrix.m20, z, matrix.m30)));
+            float newY = Math.fma(matrix.m01, x, Math.fma(matrix.m11, y, Math.fma(matrix.m21, z, matrix.m31)));
+            float newZ = Math.fma(matrix.m02, x, Math.fma(matrix.m12, y, Math.fma(matrix.m22, z, matrix.m32)));
+            vec = new Vector3f(newX, newY, newZ);
+            //?}
             transformed.add(new Vec3(vec.x(), vec.y(), vec.z()));
         }
 
@@ -236,7 +243,7 @@ public abstract class Shape {
     }
 
     public void drawShapeDebugInfo(PoseStack matrixStack, float deltaTime) {
-        Entity entity = Minecraft.getInstance()./*? <1.21.9 {*//*cameraEntity*//*?} else {*/getCameraEntity()/*?}*/;
+        Entity entity = Minecraft.getInstance()./*? <1.21.9 {*/cameraEntity/*?} else {*//*getCameraEntity()*//*?}*/;
         if(entity == null)return;
 
         VertexConsumer vertexConsumer = Minecraft.getInstance()
@@ -285,15 +292,16 @@ public abstract class Shape {
 
         if (
             //? <1.21.9 {
-            /*mc.getEntityRenderDispatcher().shouldRenderHitBoxes()
-            *///?} else {
-            mc.debugEntries.isCurrentlyEnabled(DebugScreenEntries.ENTITY_HITBOXES)
-            //?}
+            mc.getEntityRenderDispatcher().shouldRenderHitBoxes()
+            //?} else {
+            /*mc.debugEntries.isCurrentlyEnabled(DebugScreenEntries.ENTITY_HITBOXES)
+            *///?}
             && ENABLE_DEBUG) {
             //RENDER_PROFILER.push("renderDebugInfo");
             drawShapeDebugInfo(matrixStack, deltaTime);
             //RENDER_PROFILER.pop();
         }
+
         matrixStack.pushPose();
 
         RENDER_PROFILER.push("setUpShapeForDraw");
@@ -306,6 +314,7 @@ public abstract class Shape {
             drawInternal(builder);
             RENDER_PROFILER.pop();
         }
+
         matrixStack.popPose();
         if (isTemp) discard();
     }

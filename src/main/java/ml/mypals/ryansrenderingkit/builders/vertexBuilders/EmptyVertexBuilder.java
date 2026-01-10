@@ -1,5 +1,6 @@
 package ml.mypals.ryansrenderingkit.builders.vertexBuilders;
 
+
 import org.joml.Matrix4f;
 
 import java.util.function.Consumer;

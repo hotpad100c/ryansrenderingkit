@@ -18,11 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 //? if >=1.21.9 {
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
+/*import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollection;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.CameraRenderState;
-//?}
+*///?}
 
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.isEndOfWorldTick;
 
@@ -71,10 +71,10 @@ public class EntityShape extends Shape implements EmptyMesh {
 
     public static List<Vec3> decodeQuad(BakedQuad quad) {
         //? >=1.21.5 {
-        int[] v = quad.vertices();
-        //?} else {
-        /*int[] v = quad.getVertices();
-        *///?}
+        /*int[] v = quad.vertices();
+        *///?} else {
+        int[] v = quad.getVertices();
+        //?}
         int stride = 8;
         int count = v.length / stride;
         List<Vec3> result = new ArrayList<>(count);
@@ -98,36 +98,36 @@ public class EntityShape extends Shape implements EmptyMesh {
             entity.tick();
         }
         //? <1.21.6 {
-        /*RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
+        RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
                 (float) this.baseColor.getGreen() / 255,
                 (float) this.baseColor.getBlue() / 255,
                 (float) this.baseColor.getAlpha() / 255);
-        *///?}
+        //?}
         poseStack.pushPose();
         //? > 1.20.4 {
-        poseStack.mulPose(builder.getPositionMatrix());
-         //?} else {
-        /*poseStack.mulPoseMatrix(builder.getPositionMatrix());
-        *///?}
+        /*poseStack.mulPose(builder.getPositionMatrix());
+         *///?} else {
+        poseStack.mulPoseMatrix(builder.getPositionMatrix());
+        //?}
         //? if <1.21.9 {
-        /*dispatcher.render(entity, 0, 0, 0,
+        dispatcher.render(entity, 0, 0, 0,
                 //? <= 1.20.4 {
-                /^entity.getPose().ordinal(),
-                ^///?} else if <=1.21.1 {
-                /^entity.getPose().id(),
-                ^///?}
+                entity.getPose().ordinal(),
+                //?} else if <=1.21.1 {
+                /*entity.getPose().id(),
+                *///?}
                 transformer.getTickDelta(),
                 poseStack, multiBufferSource, light);
-        *///?} else {
-        EntityRenderState entityRenderState = dispatcher.extractEntity(entity, transformer.getTickDelta());
+        //?} else {
+        /*EntityRenderState entityRenderState = dispatcher.extractEntity(entity, transformer.getTickDelta());
         SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
         CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
         dispatcher.submit(entityRenderState,cameraRenderState,0,0,0,poseStack,submitNodeCollector);
-        //?}
+        *///?}
         poseStack.popPose();
         //? <1.21.6 {
-        /*RenderSystem.setShaderColor(1, 1, 1, 1);
-         *///?}
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+         //?}
     }
 
     @Override

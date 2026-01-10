@@ -8,10 +8,12 @@ import net.minecraft.client.Minecraft;
 
 
 //? if >1.21.1 {
+/*
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ShapeRenderer;
-//?} else {
-/*import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;*/
+*///?} else {
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 //?}
 
 
@@ -30,7 +32,7 @@ public class Helpers {
     public static ResourceLocation generateUniqueId(String prefix) {
         long timestamp = System.currentTimeMillis();
         int randomNum = ThreadLocalRandom.current().nextInt(10000);
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, prefix.toLowerCase() + "_" + timestamp + "_" + randomNum);
+        return new ResourceLocation(MOD_ID, prefix.toLowerCase() + "_" + timestamp + "_" + randomNum);
     }
 
     public static Vec3 max(Vec3 a, Vec3 b) {
@@ -94,12 +96,12 @@ public class Helpers {
         double half = size / 2.0;
 
         //? if >1.21.1 {
-        ShapeRenderer
-        //?} else {
-        /*LevelRenderer
-        *///?}
+        /*ShapeRenderer
+        *///?} else {
+        LevelRenderer
+        //?}
                 .renderLineBox(
-                poseStack/*? if >=1.21.9 {*/.last()/*?}*/, consumer,
+                poseStack/*? if >=1.21.9 {*//*.last()*//*?}*/, consumer,
                 center.x - half, center.y - half, center.z - half,
                 center.x + half, center.y + half, center.z + half,
                 red, green, blue,
@@ -118,15 +120,15 @@ public class Helpers {
         poseStack.pushPose();
         poseStack.translate(
             //? if >1.21.1 {
-            vec3
-            //?} else
-            /*vec3.x,vec3.y,vec3.z*/
+            /*vec3
+            *///?} else
+            vec3.x,vec3.y,vec3.z
         );
 
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
 
-        poseStack.mulPose(Axis.YP.rotationDegrees(-camera.getYRot()));
-        poseStack.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
+        poseStack.mulPose( /*? if <=1.18.2 {*/ Vector3f /*?} else {*//*Axis*//*?}*/.YP.rotationDegrees(-camera.getYRot()));
+        poseStack.mulPose( /*? if <=1.18.2 {*/ Vector3f /*?} else {*//*Axis*//*?}*/.XP.rotationDegrees(camera.getXRot()));
 
         PoseStack.Pose pose = poseStack.last();
 
@@ -147,13 +149,13 @@ public class Helpers {
     }
     private static void addLine(PoseStack.Pose pose, VertexConsumer vc, Vec3 a, Vec3 b, float r, float g, float b2, float a2, Vec3 normal) {
         //? if > 1.20.6 {
-        vc.addVertex(pose, (float) a.x, (float) a.y, (float) a.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
+        /*vc.addVertex(pose, (float) a.x, (float) a.y, (float) a.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
         vc.addVertex(pose, (float) b.x, (float) b.y, (float) b.z).setColor(r, g, b2, a2).setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
-        //?} else {
-        /*vc.vertex(pose.pose(), (float) a.x, (float) a.y, (float) a.z).color(r, g, b2, a2).normal(pose
-                /^? if < 1.20.6 {^//^.normal()^//^?}^/, (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
+        *///?} else {
+        vc.vertex(pose.pose(), (float) a.x, (float) a.y, (float) a.z).color(r, g, b2, a2).normal(pose
+                /*? if < 1.20.6 {*/.normal()/*?}*/, (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
         vc.vertex(pose.pose(), (float) b.x, (float) b.y, (float) b.z).color(r, g, b2, a2).normal(pose
-                /^? if < 1.20.6 {^//^.normal()^//^?}^/, (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
-        *///?}
+                /*? if < 1.20.6 {*/.normal()/*?}*/, (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
+        //?}
     }
 }

@@ -7,20 +7,24 @@ import ml.mypals.ryansrenderingkit.shapeManagers.VertexBuilderGetter;
 import ml.mypals.ryansrenderingkit.test.Debug;
 import ml.mypals.ryansrenderingkit.utils.SimpleRenderProfiler;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+//? if >1.18.2 {
+/*import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+*///?} else {
+import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+//?}
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 //? if >=1.21.10 {
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
+/*import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
-//?} else if =1.21.9 {
+*///?} else if =1.21.9 {
 /*import ml.mypals.ryansrenderingkit.render.nine.WorldRenderContext;
 *///?} else {
-/*import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-*///?}
-//? if >= 1.21.6 {
-import net.minecraft.client.Minecraft;
 //?}
+//? if >= 1.21.6 {
+/*import net.minecraft.client.Minecraft;
+*///?}
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +43,12 @@ public class RyansRenderingKit implements ModInitializer {
         VertexBuilderGetter.init();
 
         //? if >= 1.21.10 {
-        WorldRenderEvents.END_MAIN.register(this::handleRenderLast);
-        //?} else if > 1.21.1 && < 1.21.9 {
+        /*WorldRenderEvents.END_MAIN.register(this::handleRenderLast);
+        *///?} else if > 1.21.1 && < 1.21.9 {
         /*WorldRenderEvents.LAST.register(this::handleRenderLast);
         *///?} else if <= 1.21.1 {
-        /*WorldRenderEvents.AFTER_ENTITIES.register(this::handleRenderLast);
-        *///?}
+        WorldRenderEvents.AFTER_ENTITIES.register(this::handleRenderLast);
+        //?}
         ClientTickEvents.END_WORLD_TICK.register(c -> {
             if (c.getGameTime() % 20 == 0) {
                 RENDER_PROFILER.reset();
@@ -57,10 +61,14 @@ public class RyansRenderingKit implements ModInitializer {
             ShapeManagers.syncShapeTransform();
             RENDER_PROFILER.pop();
         });
-        ClientCommandRegistrationCallback.EVENT.register(
+        //? if >1.18.2 {
+        /*ClientCommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess) ->
                         registerDebugCommands(dispatcher)
         );
+        *///?} else {
+        registerDebugCommands(ClientCommandManager.DISPATCHER);
+        //?}
         Debug.init();
     }
 
@@ -71,17 +79,17 @@ public class RyansRenderingKit implements ModInitializer {
     public /*? if = 1.21.9 {*//*static*//*?}*/ void handleRenderLast(WorldRenderContext ctx) {
         MainRender.render(
                 //? >=1.21.9 {
-                ctx.matrices(), /*? if != 1.21.9 {*/ctx.gameRenderer().getMainCamera()/*?} else {*//*ctx.camera()*//*?}*/,
-                //?} else {
-                /*ctx.matrixStack(), ctx.camera(),
-                *///?}
+                /*ctx.matrices(), /^? if != 1.21.9 {^/ctx.gameRenderer().getMainCamera()/^?} else {^//^ctx.camera()^//^?}^/,
+                *///?} else {
+                ctx.matrixStack(), ctx.camera(),
+                //?}
                 //? >=1.21.6 {
-                Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true)
-                //?} else if > 1.20.6 {
+                /*Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true)
+                *///?} else if > 1.20.6 {
                 /*ctx.tickCounter().getGameTimeDeltaPartialTick(true)
                 *///?} else {
-                /*ctx.tickDelta()
-                *///?}
+                ctx.tickDelta()
+                //?}
                 );
     }
 }

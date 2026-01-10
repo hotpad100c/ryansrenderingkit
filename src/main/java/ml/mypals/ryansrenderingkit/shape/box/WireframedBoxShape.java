@@ -51,7 +51,11 @@ public class WireframedBoxShape extends BoxShape implements ExtractableShape {
                 constructionType
         );
         ShapeManagers.LINES_SHAPE_MANAGER.addShape(
-                identifier.withPath(identifier.getPath() + "/wireframe"),
+                //? if >1.18.2 {
+                /*identifier.withPath(identifier.getPath() + "/wireframe"),
+                *///?} else {
+                new ResourceLocation(identifier.getPath() + "/wireframe"),
+                //?}
                 boxWireframeShape
         );
         boxFaceShape = new BoxFaceShape(
@@ -64,7 +68,11 @@ public class WireframedBoxShape extends BoxShape implements ExtractableShape {
                 constructionType
         );
         ShapeManagers.TRIANGLES_SHAPE_MANAGER.addShape(
-                identifier.withPath(identifier.getPath() + "/face"),
+                //? if >1.18.2 {
+                /*identifier.withPath(identifier.getPath() + "/face"),
+                 *///?} else {
+                new ResourceLocation(identifier.getPath() + "/face"),
+                //?}
                 boxFaceShape
         );
     }

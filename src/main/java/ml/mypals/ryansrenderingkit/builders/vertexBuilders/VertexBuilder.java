@@ -1,7 +1,7 @@
 package ml.mypals.ryansrenderingkit.builders.vertexBuilders;
 //? >= 1.21.5 {
-import com.mojang.blaze3d.opengl.GlStateManager;
-//?}
+/*import com.mojang.blaze3d.opengl.GlStateManager;
+*///?}
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -9,8 +9,7 @@ import ml.mypals.ryansrenderingkit.render.RenderMethod;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import org.joml.*;
 
 import java.awt.*;
 import java.util.function.Consumer;
@@ -42,14 +41,18 @@ public abstract class VertexBuilder {
         if(bufferBuilder != null) {
             return;
         }
+
         //? if > 1.20.6 {
-        
-        this.bufferBuilder = Tesselator.getInstance().begin(renderMethod.mode(), renderMethod.format());
-         
-        //?} else {
-        /*this.bufferBuilder = Tesselator.getInstance().getBuilder();
+        /*this.bufferBuilder = Tesselator.getInstance().begin(renderMethod.mode(), renderMethod.format());
+        *///?} else {
+        this.bufferBuilder = Tesselator.getInstance().getBuilder();
+        //? if <=1.18.2 {
+        if(bufferBuilder.building()){
+            return;
+        }
+        //?}
         bufferBuilder.begin(renderMethod.mode(), renderMethod.format());
-        *///?}
+        //?}
     }
 
     public BufferBuilder getBufferBuilder() {
@@ -80,23 +83,23 @@ public abstract class VertexBuilder {
 
     public void putVertex(Vector3f v, float r, float g, float b, float a) {
         //? if > 1.20.6 {
-        this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
-        //?} else {
-        /*this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z).color(r, g, b, a).endVertex();
-        *///?}
+        /*this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
+        *///?} else {
+        this.bufferBuilder.vertex(positionMatrix, v.x(), v.y(), v.z()).color(r, g, b, a).endVertex();
+        //?}
         }
 
     public void putVertex(Vector3f v, float r, float g, float b, float a, Vector3f normal) {
         //? if > 1.20.6 {
-        this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z)
+        /*this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z)
                 .setColor(r, g, b, a)
                 .setNormal(normal.x, normal.y, normal.z);
-        //?} else {
-        /*this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z)
+        *///?} else {
+        this.bufferBuilder.vertex(positionMatrix, v.x(), v.y(), v.z())
                 .color(r, g, b, a)
-                .normal(normal.x, normal.y, normal.z)
+                .normal(normal.x(), normal.y(), normal.z())
                 .endVertex();
-        *///?}
+        //?}
     }
 
     public void putVertex(Vector3f v, Color color) {
@@ -129,23 +132,23 @@ public abstract class VertexBuilder {
 
     public void putVertex(Vector3f v) {
         //? if > 1.20.6 {
-        this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
-         //?} else {
-        /*this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z).color(r, g, b, a).endVertex();
-        *///?}
+        /*this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z).setColor(r, g, b, a);
+         *///?} else {
+        this.bufferBuilder.vertex(positionMatrix, v.x(), v.y(), v.z()).color(r, g, b, a).endVertex();
+        //?}
     }
 
     public void putVertex(Vector3f v, Vector3f normal) {
         //? if > 1.20.6 {
-        this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z)
+        /*this.bufferBuilder.addVertex(positionMatrix, v.x, v.y, v.z)
                 .setColor(r, g, b, a)
                 .setNormal(normal.x, normal.y, normal.z);
-        //?} else {
-        /*this.bufferBuilder.vertex(positionMatrix, v.x, v.y, v.z)
+        *///?} else {
+        this.bufferBuilder.vertex(positionMatrix, v.x(), v.y(), v.z())
                 .color(r, g, b, a)
-                .normal(normal.x, normal.y, normal.z)
+                .normal(normal.x(), normal.y(), normal.z())
                 .endVertex();
-        *///?}
+        //?}
     }
 
     public void putVertex(float x, float y, float z) {
@@ -162,45 +165,45 @@ public abstract class VertexBuilder {
     public void setUpRendererSystem(@Nullable Shape shape) {
         if ((shape != null && shape.seeThrough) || seeThrough) {
             //? >=1.21.5 {
-            GlStateManager._disableDepthTest();
-            //?} else {
-             /*RenderSystem.disableDepthTest();
-            *///?}
+            /*GlStateManager._disableDepthTest();
+            *///?} else {
+             RenderSystem.disableDepthTest();
+            //?}
         } else {
             //? >=1.21.5 {
-            GlStateManager._enableDepthTest();
-            //?} else {
-             /*RenderSystem.enableDepthTest();
-            *///?}
+            /*GlStateManager._enableDepthTest();
+            *///?} else {
+             RenderSystem.enableDepthTest();
+            //?}
         }
 
         //? >=1.21.5 {
-        GlStateManager._disableCull();
+        /*GlStateManager._disableCull();
         GlStateManager._enablePolygonOffset();
         GlStateManager._polygonOffset(-1.0f, -1.0f);
-        //?} else {
-        /*RenderSystem.disableCull();
+        *///?} else {
+        RenderSystem.disableCull();
         RenderSystem.enablePolygonOffset();
         RenderSystem.polygonOffset(-1.0f, -1.0f);
-        *///?}
+        //?}
         //? < 1.21.6 {
-        /*RenderSystem.setShaderColor(1,1,1,1);
-        *///?}
+        RenderSystem.setShaderColor(1,1,1,1);
+        //?}
 }
 
     public void restoreRendererSystem() {
         RenderSystem.lineWidth(1.0f);
         //? >=1.21.5 {
-        GlStateManager._enableDepthTest();
+        /*GlStateManager._enableDepthTest();
         GlStateManager._disablePolygonOffset();
         GlStateManager._enableCull();
-        //?} else {
-        /*RenderSystem.enableDepthTest();
+        *///?} else {
+        RenderSystem.enableDepthTest();
         RenderSystem.disablePolygonOffset();
         RenderSystem.enableCull();
-        *///?}
+        //?}
         //? < 1.21.6 {
-        /*RenderSystem.setShaderColor(1,1,1,1);
-        *///?}
+        RenderSystem.setShaderColor(1,1,1,1);
+        //?}
     }
 }

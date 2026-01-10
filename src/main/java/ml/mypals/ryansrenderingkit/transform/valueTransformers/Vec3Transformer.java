@@ -10,8 +10,8 @@ public final class Vec3Transformer extends ValueTransformer<Vector3d> {
     }
     public Vec3Transformer(Vector3d initial) {
         this.target = initial;
-        this.last = new Vector3d(initial);
-        this.current = new Vector3d(initial);
+        this.last = new Vector3d(initial.x,initial.y,initial.z);
+        this.current = new Vector3d(initial.x,initial.y,initial.z);
         syncLastToTarget();
     }
 
