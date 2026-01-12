@@ -70,25 +70,6 @@ public class EntityShape extends Shape implements EmptyMesh {
 
     }
 
-    public static List<Vec3> decodeQuad(BakedQuad quad) {
-        //? >=1.21.5 {
-        /*int[] v = quad.vertices();
-        *///?} else {
-        int[] v = quad.getVertices();
-        //?}
-        int stride = 8;
-        int count = v.length / stride;
-        List<Vec3> result = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            int base = i * stride;
-            float x = Float.intBitsToFloat(v[base]);
-            float y = Float.intBitsToFloat(v[base + 1]);
-            float z = Float.intBitsToFloat(v[base + 2]);
-            result.add(new Vec3(x, y, z));
-        }
-        return result;
-    }
-
     @Override
     protected void drawInternal(VertexBuilder builder) {
         Minecraft mc = Minecraft.getInstance();
@@ -106,15 +87,15 @@ public class EntityShape extends Shape implements EmptyMesh {
         //?}
         poseStack.pushPose();
         //? > 1.20.4 {
-        /*poseStack.mulPose(builder.getPositionMatrix());
-         *///?} else {
-        poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
-        //?}
+        poseStack.mulPose(builder.getPositionMatrix());
+         //?} else {
+        /*poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
+        *///?}
         //? if <1.21.9 {
         dispatcher.render(entity, 0, 0, 0,
                 //? <= 1.20.4 {
-                entity.getPose().ordinal(),
-                //?} else if <=1.21.1 {
+                /*entity.getPose().ordinal(),
+                *///?} else if <=1.21.1 {
                 /*entity.getPose().id(),
                 *///?}
                 transformer.getTickDelta(),

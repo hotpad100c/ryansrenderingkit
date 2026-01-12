@@ -1,29 +1,43 @@
 package ml.mypals.ryansrenderingkit.render.renderTypes;
 //? if >= 1.21.5 {
-/*import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderPipelines;
+//? if <1.21.11 {
 import net.minecraft.client.renderer.RenderStateShard;
+import static net.minecraft.client.renderer.RenderStateShard.VIEW_OFFSET_Z_LAYERING;
+//?} else {
+/*import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+*///?}
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.OptionalDouble;
 
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.MOD_ID;
-import static net.minecraft.client.renderer.RenderStateShard.VIEW_OFFSET_Z_LAYERING;
-*///?}
+//?}
 public class RyansRenderingKitRenderTypes {
     //? if >= 1.21.5 {
-    /*private static final RenderPipeline noDepthTriangles = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-            .withLocation(ResourceLocation.tryBuild(MOD_ID, "no_depth_quads"))
+    private static final RenderPipeline noDepthTriangles = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+            .withLocation(ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_depth_quads"))
             .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
             .build();
 
+    //? if >=1.21.11 {
+    
+            /*public static final RenderType SEE_THROUGH_TRIANGLES =
+            RenderType.create(
+                    "see_through_triangle",
+                    RenderSetup.builder(noDepthTriangles)
+                            .sortOnUpload().createRenderSetup()
+            );
+     *///?} else {
     public static final RenderType.CompositeRenderType SEE_THROUGH_TRIANGLES =
             RenderType.create(
                     "see_through_triangle",
@@ -34,37 +48,72 @@ public class RyansRenderingKitRenderTypes {
                     RenderType.CompositeState.builder()
                             .createCompositeState(false)
             );
+    //?}
 
 
     private static final RenderPipeline noDepthLines = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
-            .withLocation(ResourceLocation.tryBuild(MOD_ID, "no_depth_lines"))
+            .withLocation(ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_depth_lines"))
             .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             .withCull(false)
+            //? if <1.21.11 {
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
+            //?} else {
+            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.LINES)
+            *///?}
             .build();
 
-    public static final RenderType.CompositeRenderType SEE_THROUGH_LINES =
+    //? if >=1.21.11 {
+    /*public static final RenderType SEE_THROUGH_LINES =
             RenderType.create(
                     "see_through_lines",
-                    256,
-                    false,
-                    true,
-                    noDepthLines,
-                    RenderType.CompositeState.builder()
-                            .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.empty()))
-                            .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-                            .createCompositeState(false)
+                    RenderSetup.builder(noDepthLines).createRenderSetup()
             );
+    *///?} else {
+    
+    public static final RenderType.CompositeRenderType SEE_THROUGH_LINES =
 
-    private static final RenderPipeline noDepthLineStrip = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-            .withLocation(ResourceLocation.tryBuild(MOD_ID, "no_depth_line_strip"))
+    RenderType.create(
+            "see_through_lines",
+            256,
+            false,
+            true,
+    noDepthLines,
+            RenderType.CompositeState.builder()
+            .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.empty()))
+            .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+                            .createCompositeState(false)
+    );
+    //?}
+    private static final RenderPipeline noDepthLineStrip = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
+            .withLocation(ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
             .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             .withCull(false)
-            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINE_STRIP)
+            //? if <1.21.11 {
+            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
+             //?} else {
+            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
+            *///?}
             .build();
 
+    //? if >=1.21.11 {
+    /*public static final RenderType SEE_THROUGH_LINE_STRIP =
+            RenderType.create("see_through_line_strip",
+                    RenderSetup.builder(noDepthLineStrip).createRenderSetup());
+
+
+    private static final RenderPipeline lineStrip = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+            .withLocation(ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
+            .withDepthWrite(false)
+            .withCull(false)
+            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
+            .build();
+
+    public static final RenderType LINE_STRIP =
+            RenderType.create("line_strip",
+                    RenderSetup.builder(lineStrip).createRenderSetup());
+    *///?} else {
     public static final RenderType.CompositeRenderType SEE_THROUGH_LINE_STRIP =
             RenderType.create(
                     "see_through_line_strip",
@@ -77,5 +126,6 @@ public class RyansRenderingKitRenderTypes {
                             .setLayeringState(VIEW_OFFSET_Z_LAYERING)
                             .createCompositeState(false)
             );
-    *///?}
+    //?}
+    //?}
 }

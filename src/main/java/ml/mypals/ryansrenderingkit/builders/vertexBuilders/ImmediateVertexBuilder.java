@@ -3,8 +3,8 @@ package ml.mypals.ryansrenderingkit.builders.vertexBuilders;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 //? if > 1.20.6 {
-/*import ml.mypals.ryansrenderingkit.interfaces.MeshDataExt;
-*///?}
+import ml.mypals.ryansrenderingkit.interfaces.MeshDataExt;
+//?}
 import ml.mypals.ryansrenderingkit.render.RenderMethod;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import org.joml.*;
@@ -23,22 +23,22 @@ public class ImmediateVertexBuilder extends VertexBuilder {
         begin(renderMethod);
 
         //? if < 1.21.5 {
-        RenderSystem.setShader(renderMethod.shader());
-        //?}
+        /*RenderSystem.setShader(renderMethod.shader());
+        *///?}
         vertexBuilderConsumer.accept(this);
 
         if (this.getBufferBuilder().vertices == 0) {
             //? if <= 1.20.6 {
-            this.getBufferBuilder()./*? if >1.18.2 {*/endOrDiscardIfEmpty()/*?} else {*//*endVertex()*//*?}*/;
+            /*this.getBufferBuilder()./^? if >1.18.2 {^/endOrDiscardIfEmpty()/^?} else {^//^endVertex()^//^?}^/;
             this.bufferBuilder=null;
-            //?}
+            *///?}
             return;
         }
         //? if > 1.20.6 {
-        /*MeshData builtBuffer = this.getBufferBuilder().build();
-         *///?} else if > 1.18.2 {
-        BufferBuilder.RenderedBuffer builtBuffer = this.getBufferBuilder().end();
-         //?}
+        MeshData builtBuffer = this.getBufferBuilder().build();
+         //?} else if > 1.18.2 {
+        /*BufferBuilder.RenderedBuffer builtBuffer = this.getBufferBuilder().end();
+         *///?}
         //? if >1.18.2 {
         if (builtBuffer != null) {
          //?} else {
@@ -46,7 +46,7 @@ public class ImmediateVertexBuilder extends VertexBuilder {
         *///?}
             //? if > 1.20.6 {
 
-            /*ByteBufferBuilder byteBufferBuilder = null;
+            ByteBufferBuilder byteBufferBuilder = null;
 
             if (shape.baseColor.getAlpha() < 255 && renderMethod.mode() == VertexFormat.Mode.TRIANGLES) {
                 int vertexCount = builtBuffer.drawState().vertexCount();
@@ -55,23 +55,23 @@ public class ImmediateVertexBuilder extends VertexBuilder {
                 ((MeshDataExt) builtBuffer).ryansrenderingkit$sortTriangles(
                         byteBufferBuilder,
                         //? if >1.21.1 {
-                        /^RenderSystem.getProjectionType().vertexSorting()
-                        ^///?} else
-                        RenderSystem.getVertexSorting()
+                        RenderSystem.getProjectionType().vertexSorting()
+                        //?} else
+                        /*RenderSystem.getVertexSorting()*/
                 );
             }
-            *///?}
+            //?}
             setUpRendererSystem(shape);
 
             //? if >= 1.21.5 {
-            /*if(seeThrough){
+            if(seeThrough){
                 renderMethod.seeThroughType().draw(builtBuffer);
             }else {
                 renderMethod.normalRenderType().draw(builtBuffer);
             }
-            *///?} else if > 1.18.2 {
-            BufferUploader.drawWithShader(builtBuffer);
-             //?} else {
+            //?} else if > 1.18.2 {
+            /*BufferUploader.drawWithShader(builtBuffer);
+             *///?} else {
             /*Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
             bufferBuilder.setQuadSortOrigin((float) camera.getPosition().x(), (float) camera.getPosition().y(), (float) camera.getPosition().z());
             bufferBuilder.end();

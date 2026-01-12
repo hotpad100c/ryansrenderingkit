@@ -45,10 +45,10 @@ public class RyansRenderingKit implements ModInitializer {
         //? if >= 1.21.10 {
         /*WorldRenderEvents.END_MAIN.register(this::handleRenderLast);
         *///?} else if > 1.21.1 && < 1.21.9 {
-        /*WorldRenderEvents.LAST.register(this::handleRenderLast);
-        *///?} else if <= 1.21.1 {
-        WorldRenderEvents.AFTER_ENTITIES.register(this::handleRenderLast);
-        //?}
+        WorldRenderEvents.LAST.register(this::handleRenderLast);
+        //?} else if <= 1.21.1 {
+        /*WorldRenderEvents.AFTER_ENTITIES.register(this::handleRenderLast);
+        *///?}
         ClientTickEvents.END_WORLD_TICK.register(c -> {
             if (c.getGameTime() % 20 == 0) {
                 RENDER_PROFILER.reset();
@@ -86,10 +86,10 @@ public class RyansRenderingKit implements ModInitializer {
                 //? >=1.21.6 {
                 /*Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true)
                 *///?} else if > 1.20.6 {
-                /*ctx.tickCounter().getGameTimeDeltaPartialTick(true)
-                *///?} else {
-                ctx.tickDelta()
-                //?}
+                ctx.tickCounter().getGameTimeDeltaPartialTick(true)
+                //?} else {
+                /*ctx.tickDelta()
+                *///?}
                 );
     }
 }

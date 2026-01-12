@@ -3,40 +3,44 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 //? if >1.20.6 {
 
-/*import com.mojang.blaze3d.systems.*;
+import com.mojang.blaze3d.systems.*;
 import com.mojang.blaze3d.vertex.*;
     //? if < 1.21.5 {
-    import ml.mypals.ryansrenderingkit.interfaces.MeshDataExt;
-    //?}
-*///?} else {
-import com.mojang.blaze3d.vertex.BufferUploader;
+    /*import ml.mypals.ryansrenderingkit.interfaces.MeshDataExt;
+    *///?}
+//?} else {
+/*import com.mojang.blaze3d.vertex.BufferUploader;
 //? if <=1.18.2 {
-/*import com.mojang.math.Vector3f;
-*///?} else {
+/^import com.mojang.math.Vector3f;
+^///?} else {
 import com.mojang.math.Axis;
 //?}
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
-//?}
+*///?}
 
 //? if >1.21.1 && <1.21.6 {
-/*import com.mojang.blaze3d.buffers.BufferType;
+import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
-*///?}
+//?}
 
 //? if <=1.21.4 {
-import com.mojang.blaze3d.vertex.BufferBuilder;
+/*import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
- //?} else {
-/*import com.mojang.blaze3d.buffers.GpuBuffer;
+ *///?} else {
+import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-*///?}
+//?}
 
 //? if >1.21.5 {
 /*import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.textures.GpuTextureView;
+//? if <1.19.4 {
 import com.mojang.math.Vector3f;
+//?} else {
+/^import org.joml.Vector3f;
+^///?}
 import org.joml.Vector4f;
 *///?}
 import ml.mypals.ryansrenderingkit.render.RenderMethod;
@@ -51,12 +55,12 @@ import static ml.mypals.ryansrenderingkit.RyansRenderingKit.LOGGER;
 
 public class BufferedVertexBuilder extends VertexBuilder {
     //? >=1.21.5 {
-    /*private GpuBuffer vertexBuffer;
+    private GpuBuffer vertexBuffer;
     private int indexCount = 0;
     private GpuBuffer indexBuffer;
-    *///?} else {
-    private VertexBuffer vertexBuffer;
-    //?}
+    //?} else {
+    /*private VertexBuffer vertexBuffer;
+    *///?}
     private boolean isBuilding = false;
 
     private RenderMethod bufferedRenderMethod;
@@ -74,19 +78,19 @@ public class BufferedVertexBuilder extends VertexBuilder {
     }
 
     public void start(RenderMethod renderMethod) {
-        if (this.vertexBuffer != null/*? >= 1.21.5 {*//*|| indexBuffer != null *//*?}*/) {
+        if (this.vertexBuffer != null/*? >= 1.21.5 {*/|| indexBuffer != null /*?}*/) {
             close();
         }
 
         //? < 1.21.5 {
-        this.vertexBuffer = new VertexBuffer(
+        /*this.vertexBuffer = new VertexBuffer(
             //? if >1.21.1 {
-            /*BufferUsage.DYNAMIC_WRITE
-            *///?} else if > 1.19.4 {
-            /*VertexBuffer.Usage.DYNAMIC
-            *///?}
+            BufferUsage.DYNAMIC_WRITE
+            //?} else if > 1.19.4 {
+            /^VertexBuffer.Usage.DYNAMIC
+            ^///?}
             );
-        //?}
+        *///?}
 
 
         begin(renderMethod);
@@ -104,8 +108,8 @@ public class BufferedVertexBuilder extends VertexBuilder {
 
         if (!isBuilding || this.getBufferBuilder().vertices == 0) {
             //? if <= 1.20.6 {
-            this.getBufferBuilder()./*? if >1.18.2 {*/endOrDiscardIfEmpty()/*?} else {*//*endVertex()*//*?}*/;
-            //?}
+            /*this.getBufferBuilder()./^? if >1.18.2 {^/endOrDiscardIfEmpty()/^?} else {^//^endVertex()^//^?}^/;
+            *///?}
             isBuilding = false;
             this.bufferBuilder=null;
             close();
@@ -113,15 +117,15 @@ public class BufferedVertexBuilder extends VertexBuilder {
         }
 
         //? if > 1.20.6 {
-        /*MeshData builtBuffer = this.getBufferBuilder().build();
-         *///?} else if > 1.18.2 {
-        BufferBuilder.RenderedBuffer builtBuffer = this.getBufferBuilder().end();
-         //?} else {
+        MeshData builtBuffer = this.getBufferBuilder().build();
+         //?} else if > 1.18.2 {
+        /*BufferBuilder.RenderedBuffer builtBuffer = this.getBufferBuilder().end();
+         *///?} else {
         //?}
 
         //? if >= 1.21.5 {
 
-        /*GpuDevice gpuDevice = RenderSystem.getDevice();
+        GpuDevice gpuDevice = RenderSystem.getDevice();
         CommandEncoder commandEncoder = gpuDevice.createCommandEncoder();
         if(this.vertexBuffer == null || this.vertexBuffer.isClosed()) {
             builtBuffer.vertexBuffer();
@@ -130,11 +134,11 @@ public class BufferedVertexBuilder extends VertexBuilder {
                     BufferType.VERTICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.vertexBuffer());
             commandEncoder.writeToBuffer(vertexBuffer, builtBuffer.vertexBuffer(), 0);
             //?} else {
-            /^this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
+            /*this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
                     40, builtBuffer.vertexBuffer());
             commandEncoder.writeToBuffer(vertexBuffer.slice(), builtBuffer.vertexBuffer());
 
-            ^///?}
+            *///?}
         }
 
 
@@ -150,17 +154,17 @@ public class BufferedVertexBuilder extends VertexBuilder {
                 this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
                         BufferType.INDICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.indexBuffer());
                 //?} else {
-                /^this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
+                /*this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
                         72, builtBuffer.indexBuffer());
-                ^///?}
+                *///?}
             }
         }
 
-        *///?}
+        //?}
 
         //? if < 1.21.5 {
-        this.vertexBuffer.bind();
-        //?}
+        /*this.vertexBuffer.bind();
+        *///?}
 
 
         //? if >1.18.2 {
@@ -180,19 +184,19 @@ public class BufferedVertexBuilder extends VertexBuilder {
             ((MeshDataExt) builtBuffer).ryansrenderingkit$sortTriangles(
                     byteBufferBuilder,
                     //? if >1.21.1 {
-                    /^RenderSystem.getProjectionType().vertexSorting()
-                    ^///?} else
-                    RenderSystem.getVertexSorting()
+                    RenderSystem.getProjectionType().vertexSorting()
+                    //?} else
+                    /^RenderSystem.getVertexSorting()^/
             );
         }
         *///?}
 
 
-        //? if > 1.21.5 {
+        //? if >= 1.21.5 {
 
-        //?} else if > 1.18.2 {
-        this.vertexBuffer.upload(builtBuffer);
-         //?} else {
+        //?} else if > 1.18.2 && < 1.21.5 {
+        /*this.vertexBuffer.upload(builtBuffer);
+         *///?} else {
         /*//Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         //bufferBuilder.setQuadSortOrigin((float) camera.getPosition().x(), (float) camera.getPosition().y(), (float) camera.getPosition().z());
         bufferBuilder.end();
@@ -208,8 +212,8 @@ public class BufferedVertexBuilder extends VertexBuilder {
         *///?}
 
         //? if < 1.21.5 {
-        VertexBuffer.unbind();
-        //?}
+        /*VertexBuffer.unbind();
+        *///?}
         isBuilding = false;
         bufferBuilder = null;
     }
@@ -217,7 +221,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
     public void close() {
 
         //? if >= 1.21.5 {
-            /*if (vertexBuffer != null) {
+            if (vertexBuffer != null) {
                 //vertexBuffer.close();
                 vertexBuffer = null;
             }
@@ -225,36 +229,36 @@ public class BufferedVertexBuilder extends VertexBuilder {
                 //indexBuffer.close();
                 indexBuffer = null;
             }
-        *///?} else {
-        if (vertexBuffer != null) {
+        //?} else {
+        /*if (vertexBuffer != null) {
             vertexBuffer.close();
             vertexBuffer = null;
         }
-        //?}
+        *///?}
 
 
         isBuilding = false;
     }
 
     public void draw(Vec3 cameraPos) {
-        if (vertexBuffer == null/*? >= 1.21.5 {*//*|| indexBuffer == null *//*?}*/ || bufferedRenderMethod == null) {
+        if (vertexBuffer == null/*? >= 1.21.5 {*/|| indexBuffer == null /*?}*/ || bufferedRenderMethod == null) {
             return;
         }
         //? if < 1.21.5 {
-        this.vertexBuffer.bind();
-        //?}
+        /*this.vertexBuffer.bind();
+        *///?}
 
         //? if > 1.20.4 {
-        /*RenderSystem.getModelViewStack().pushMatrix();
-        *///?} else {
-        RenderSystem.getModelViewStack().pushPose();
-        //?}
+        RenderSystem.getModelViewStack().pushMatrix();
+        //?} else {
+        /*RenderSystem.getModelViewStack().pushPose();
+        *///?}
 
         //? if <1.21 {
-        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        RenderSystem.getModelViewStack()./*? <1.20.6 {*/mulPose/*?} else {*//*rotate*//*?}*/(/*? if <=1.18.2 {*/ /*Vector3f *//*?} else {*/Axis/*?}*/.XP.rotationDegrees(camera.getXRot()));
-        RenderSystem.getModelViewStack()./*? <1.20.6 {*/mulPose/*?} else {*//*rotate*//*?}*/(/*? if <=1.18.2 {*/ /*Vector3f *//*?} else {*/Axis/*?}*/.YP.rotationDegrees(camera.getYRot() + 180.0F));
-        //?}
+        /*Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        RenderSystem.getModelViewStack()./^? <1.20.6 {^//^mulPose^//^?} else {^/rotate/^?}^/(/^? if <=1.18.2 {^/ /^Vector3f ^//^?} else {^/Axis/^?}^/.XP.rotationDegrees(camera.getXRot()));
+        RenderSystem.getModelViewStack()./^? <1.20.6 {^//^mulPose^//^?} else {^/rotate/^?}^/(/^? if <=1.18.2 {^/ /^Vector3f ^//^?} else {^/Axis/^?}^/.YP.rotationDegrees(camera.getYRot() + 180.0F));
+        *///?}
         RenderSystem.getModelViewStack().translate(
                 (float) -cameraPos.x,
                 (float) -cameraPos.y,
@@ -262,23 +266,23 @@ public class BufferedVertexBuilder extends VertexBuilder {
         );
 
         //? if < 1.21 {
-        RenderSystem.applyModelViewMatrix();
-        //?}
+        /*RenderSystem.applyModelViewMatrix();
+        *///?}
 
         setUpRendererSystem(null);
 
         //? if < 1.21.5 {
-        RenderSystem.setShader(bufferedRenderMethod.shader());
+        /*RenderSystem.setShader(bufferedRenderMethod.shader());
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        //?}
+        *///?}
 
         //? if <= 1.21.4 {
-        try {
+        /*try {
             this.vertexBuffer.drawWithShader(
                     //? if >1.20.6 {
-                    /*RenderSystem.getModelViewStack()
-                     *///?} else
-                    RenderSystem.getModelViewMatrix()
+                    RenderSystem.getModelViewStack()
+                     //?} else
+                    /^RenderSystem.getModelViewMatrix()^/
                     , RenderSystem.getProjectionMatrix(),
                     RenderSystem.getShader()
             );
@@ -286,9 +290,9 @@ public class BufferedVertexBuilder extends VertexBuilder {
             LOGGER.error("Error while drawing buffered vertex builder:",e);
         }
         VertexBuffer.unbind();
-        //?} else if <= 1.21.5 {
+        *///?} else if <= 1.21.5 {
 
-        /*RenderTarget renderTarget = bufferedRenderMethod.normalRenderType().getRenderTarget();
+        RenderTarget renderTarget = bufferedRenderMethod.normalRenderType().getRenderTarget();
         try (RenderPass renderPass =
                      RenderSystem.getDevice().createCommandEncoder()
                              .createRenderPass(renderTarget.getColorTexture(),
@@ -312,10 +316,12 @@ public class BufferedVertexBuilder extends VertexBuilder {
             renderPass.drawIndexed(0, indexCount);
         }
 
-        *///?} else {
-        /*GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrix(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F), new Vector3f(), RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth());
+        //?} else {
+        /*GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrix(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
+                new Vector3f(),
+                /^? if <1.21.11 {^/RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth()/^?} else {^//^bufferedRenderMethod.normalRenderType().state.textureTransform.getMatrix()^//^?}^/);
         var state = bufferedRenderMethod.normalRenderType().state;
-        RenderTarget renderTarget = state.outputState.getRenderTarget();
+        RenderTarget renderTarget = state./^? if >=1.21.11 {^//^outputTarget^//^?} else {^/outputState/^?}^/.getRenderTarget();
         GpuTextureView gpuTextureView = RenderSystem.outputColorTextureOverride != null ? RenderSystem.outputColorTextureOverride : renderTarget.getColorTextureView();
         GpuTextureView gpuTextureView2 = renderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride != null ? RenderSystem.outputDepthTextureOverride : renderTarget.getDepthTextureView()) : null;
 
@@ -333,9 +339,9 @@ public class BufferedVertexBuilder extends VertexBuilder {
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", gpuBufferSlice);
             if(seeThrough){
-                renderPass.setPipeline(bufferedRenderMethod.seeThroughType().renderPipeline);
+                renderPass.setPipeline(bufferedRenderMethod.seeThroughType()./^? if >=1.21.11 {^//^pipeline()^//^?} else {^/renderPipeline/^?}^/);
             }else{
-                renderPass.setPipeline(bufferedRenderMethod.normalRenderType().renderPipeline);
+                renderPass.setPipeline(bufferedRenderMethod.normalRenderType()./^? if >=1.21.11 {^//^pipeline()^//^?} else {^/renderPipeline/^?}^/);
             }
             renderPass.setVertexBuffer(0, vertexBuffer);
             ScissorState scissorState = RenderSystem.getScissorStateForRenderTypeDraws();
@@ -354,12 +360,12 @@ public class BufferedVertexBuilder extends VertexBuilder {
         restoreRendererSystem();
 
         //? if > 1.20.4 {
-        /*RenderSystem.getModelViewStack().popMatrix();
-        *///?} else {
-        RenderSystem.getModelViewStack().popPose();
-        //?}
+        RenderSystem.getModelViewStack().popMatrix();
+        //?} else {
+        /*RenderSystem.getModelViewStack().popPose();
+        *///?}
         //? if < 1.21 {
-        RenderSystem.applyModelViewMatrix();
-        //?}
+        /*RenderSystem.applyModelViewMatrix();
+        *///?}
     }
 }

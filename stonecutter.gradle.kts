@@ -4,7 +4,7 @@ plugins {
     // id("me.modmuss50.mod-publish-plugin") version "1.0.+" apply false
 }
 
-stonecutter active "1.19.4"
+stonecutter active "1.21.5"
 
 /*
 // Make newer versions be published last
@@ -37,9 +37,16 @@ stonecutter parameters {
         replace("ResourceLocation.fromNamespaceAndPath", "ResourceLocation.tryBuild")
     }
     replacements.string{
+        direction = eval(current.version, ">=1.21.11")
+        replace("ResourceLocation", "Identifier")
+    }
+    replacements.string{
         direction = eval(current.version, "<=1.18.2")
         replace("ResourceLocation.tryBuild(", "new ResourceLocation(")
     }
-
+    replacements.string{
+        direction = eval(current.version, ">=1.21.11")
+        replace("import net.minecraft.client.renderer.RenderType;", "import net.minecraft.client.renderer.rendertype.RenderType;")
+    }
 
 }

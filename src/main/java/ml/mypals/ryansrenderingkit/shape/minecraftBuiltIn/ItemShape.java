@@ -95,10 +95,10 @@ public class ItemShape extends Shape implements EmptyMesh {
         //?}
         poseStack.pushPose();
         //? > 1.20.4 {
-        /*poseStack.mulPose(builder.getPositionMatrix());
-         *///?} else
+        poseStack.mulPose(builder.getPositionMatrix());
+         //?} else
 
-        poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
+        /*poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));*/
         poseStack.translate(0, -(ItemEntity.DEFAULT_BB_HEIGHT / 16), -0);
 
         //? if <1.21.9 {

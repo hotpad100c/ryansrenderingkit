@@ -61,13 +61,16 @@ public class CylinderWireframeShape extends CylinderShape implements DrawableLin
 
     @Override
     protected void drawInternal(VertexBuilder builder) {
+        //? if <1.21.11 {
         RenderSystem.lineWidth(getLineWidth(true));
+        //?}
+
         builder.putColor(this.color);
 
         for (int i = 0; i < indexBuffer.length; i += 2) {
             Vec3 a = model_vertexes.get(indexBuffer[i]);
             Vec3 b = model_vertexes.get(indexBuffer[i + 1]);
-            addLineSegment(builder, a, b);
+            addLineSegment(builder, a, b, getLineWidth(true));
         }
     }
 

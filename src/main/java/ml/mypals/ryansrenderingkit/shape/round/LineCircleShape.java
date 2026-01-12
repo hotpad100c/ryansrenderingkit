@@ -177,14 +177,17 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
 
     @Override
     protected void drawInternal(VertexBuilder builder) {
-        RenderSystem.lineWidth(getLineWidth(true));
 
+        float width = getLineWidth(true);
+        //? if <1.21.11 {
+        RenderSystem.lineWidth(width);
+        //?}
         int n = model_vertexes.size();
         if (n < 2) return;
 
         Vec3 first = model_vertexes.getFirst();
         builder.putColor(new Color(0, 0, 0, 0));
-        builder.putVertex(first, Vec3.ZERO);
+        builder.putVertex(first, Vec3.ZERO,width);
         builder.putColor(baseColor);
         for (int i = 0; i < n; i++) {
 
@@ -206,15 +209,15 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
             }
 
             Vec3 pos = model_vertexes.get(i);
-            builder.putVertex(pos, normal);
+            builder.putVertex(pos, normal,width);
         }
         Vec3 finish = model_vertexes.getFirst();
 
-        builder.putVertex(finish, Vec3.ZERO);
+        builder.putVertex(finish, Vec3.ZERO,width);
 
         Vec3 last = model_vertexes.get(n - 1);
         builder.putColor(new Color(0, 0, 0, 0));
-        builder.putVertex(last, Vec3.ZERO);
+        builder.putVertex(last, Vec3.ZERO,width);
     }
 }
 

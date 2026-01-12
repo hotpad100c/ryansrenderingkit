@@ -1,13 +1,13 @@
 package ml.mypals.ryansrenderingkit.render;
 
 //? >= 1.21.5 {
-/*import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import net.minecraft.client.renderer.RenderPipelines;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-*///?} else {
-import com.mojang.blaze3d.platform.GlStateManager;
+//?} else {
+/*import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-//?}
+*///?}
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -16,14 +16,19 @@ import ml.mypals.ryansrenderingkit.shapeManagers.ShapeManagers;
 import ml.mypals.ryansrenderingkit.utils.Helpers;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix4f;
+//? if >=1.21.11 {
+/*import net.minecraft.client.renderer.rendertype.RenderSetup;
+*///?}
 
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.RENDER_PROFILER;
 
 public class MainRender {
+
     //? >= 1.21.5 {
-    /*public static final RenderType.CompositeRenderType TRIANGLE;
+    public static final RenderType/*? if <1.21.11 {*/.CompositeRenderType/*?}*/ TRIANGLE;
     public static final RenderPipeline TRIANGLE_PIPLINE;
     static{
 
@@ -34,14 +39,18 @@ public class MainRender {
                         .withCull(false).withVertexFormat(DefaultVertexFormat.POSITION_COLOR,
                                 VertexFormat.Mode.TRIANGLES)
                         .build());
+        //? if >=1.21.11 {
+        /*TRIANGLE = RenderType.create("r_triangle",
+                RenderSetup.builder(TRIANGLE_PIPLINE).createRenderSetup());
+        *///?} else {
         TRIANGLE = RenderType.create("r_triangle",
                 1536,
                 false,
                 true,
                 TRIANGLE_PIPLINE, RenderType.CompositeState.builder().createCompositeState(false));
-
+        //?}
     }
-    *///?}
+    //?}
 
     public static void render(PoseStack matrixStack, Camera camera, float tickDelta) {
         RENDER_PROFILER.reset();
@@ -53,7 +62,11 @@ public class MainRender {
 
             matrixStack.pushPose();
 
+            //? if >=1.21.11 {
+            /*matrixStack.translate(-camera.position().x, -camera.position().y, -camera.position().z);
+            *///?} else {
             matrixStack.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z);
+            //?}
             Matrix4f pose = Helpers.convertToJomlIfNeeded(matrixStack.last().pose());
 
             RENDER_PROFILER.push("updateMatrix");
@@ -63,22 +76,22 @@ public class MainRender {
             RENDER_PROFILER.push("renderShapes");
 
             //? >=1.21.5 {
-            /*GlStateManager._enableBlend();
-            /^GlStateManager._blendFuncSeparate(
+            GlStateManager._enableBlend();
+            /*GlStateManager._blendFuncSeparate(
                     SourceFactor.SRC_ALPHA.ordinal(),
                     DestFactor.ONE_MINUS_SRC_ALPHA.ordinal(),
                     SourceFactor.ONE.ordinal(),
-                    DestFactor.ZERO.ordinal());^/
-            *///?} else {
-            RenderSystem.enableBlend();
+                    DestFactor.ZERO.ordinal());*/
+            //?} else {
+            /*RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            //?}
+            *///?}
             ShapeManagers.renderAll(matrixStack, tickDelta);
             //? >=1.21.5 {
-            /*GlStateManager._disableBlend();
-            *///?} else {
-            RenderSystem.disableBlend();
-            //?}
+            GlStateManager._disableBlend();
+            //?} else {
+            /*RenderSystem.disableBlend();
+            *///?}
 
 
             RENDER_PROFILER.pop();

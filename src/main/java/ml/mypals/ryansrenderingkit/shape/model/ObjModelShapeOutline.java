@@ -57,8 +57,9 @@ public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape
     protected void drawInternal(VertexBuilder builder) {
         if (model_vertexes.isEmpty() || indexBuffer == null || indexBuffer.length < 3)
             return;
-
+        //? if <1.21.11 {
         RenderSystem.lineWidth(this.lineWidth);
+        //?}
         builder.putColor(this.baseColor);
 
         for (int[] face : model.faces) {
@@ -69,7 +70,7 @@ public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape
                 Vec3 v0 = model_vertexes.get(face[i]);
                 Vec3 v1 = model_vertexes.get(face[(i + 1) % n]);
 
-                addLineSegment(builder, v0, v1);
+                addLineSegment(builder, v0, v1,getLineWidth(true));
             }
         }
 

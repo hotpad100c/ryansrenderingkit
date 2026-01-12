@@ -13,11 +13,11 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 //? <1.21.5 {
-import net.minecraft.client.resources.model.BakedModel;
-//?} else {
-/*import net.minecraft.client.renderer.block.model.BlockModelPart;
+/*import net.minecraft.client.resources.model.BakedModel;
+*///?} else {
+import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
-*///?}
+//?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.EntityBlock;
@@ -66,7 +66,7 @@ public class BlockShape extends Shape implements EmptyMesh {
         if (mc.level == null) return;
         BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
         //? <1.21.5 {
-        BakedModel bakedModel = dispatcher.getBlockModel(blockState);
+        /*BakedModel bakedModel = dispatcher.getBlockModel(blockState);
 
         for (Direction direction : Direction.values()) {
             for (BakedQuad bakedQuad : bakedModel.getQuads(blockState, direction, mc.level.getRandom())) {
@@ -81,8 +81,8 @@ public class BlockShape extends Shape implements EmptyMesh {
                 indices.add(base);
             }
         }
-        //?} else {
-        /*BlockStateModel bakedModel = dispatcher.getBlockModel(blockState);
+        *///?} else {
+        BlockStateModel bakedModel = dispatcher.getBlockModel(blockState);
         for (BlockModelPart bakedQuads : bakedModel.collectParts(mc.level.getRandom())) {
             for(Direction direction : Direction.values()) {
                 for(BakedQuad bakedQuad : bakedQuads.getQuads(direction)) {
@@ -98,28 +98,38 @@ public class BlockShape extends Shape implements EmptyMesh {
                 }
             }
         }
-        *///?}
+        //?}
 
         indexBuffer = indices.stream().mapToInt(i -> i).toArray();
 
     }
 
     public static List<Vec3> decodeQuad(BakedQuad quad) {
-        //? >=1.21.5 {
-        /*int[] v = quad.vertices();
-        *///?} else {
-        int[] v = quad.getVertices();
-        //?}
-        int stride = 8;
-        int count = v.length / stride;
-        List<Vec3> result = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            int base = i * stride;
-            float x = Float.intBitsToFloat(v[base]);
-            float y = Float.intBitsToFloat(v[base + 1]);
-            float z = Float.intBitsToFloat(v[base + 2]);
+        List<Vec3> result = new ArrayList<>(4);
+        //? if <1.21.11 {
+
+            //? if >=1.21.5 {
+            int[] v = quad.vertices();
+            //?} else {
+            /*int[] v = quad.getVertices();
+            *///?}
+            int stride = 8;
+            int count = v.length / stride;
+            for (int i = 0; i < count; i++) {
+                int base = i * stride;
+                float x = Float.intBitsToFloat(v[base]);
+                float y = Float.intBitsToFloat(v[base + 1]);
+                float z = Float.intBitsToFloat(v[base + 2]);
+                result.add(new Vec3(x, y, z));
+            }
+        //?} else {
+        /*for (int i = 0;i<4;i++){
+            float x = quad.position(i).x();
+            float y = quad.position(i).y();
+            float z = quad.position(i).z();
             result.add(new Vec3(x, y, z));
         }
+        *///?}
         return result;
     }
 
@@ -138,9 +148,9 @@ public class BlockShape extends Shape implements EmptyMesh {
         //?}
         poseStack.pushPose();
         //? > 1.20.4 {
-        /*poseStack.mulPose(builder.getPositionMatrix());
-        *///?} else
-        poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
+        poseStack.mulPose(builder.getPositionMatrix());
+        //?} else
+        /*poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));*/
 
 
         dispatcher.renderSingleBlock(blockState, poseStack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);

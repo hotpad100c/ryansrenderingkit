@@ -13,7 +13,7 @@ public interface LineLikeShape extends DrawableLine {
 
     float getLineWidth(boolean lerp);
 
-    default void addLineSegment(VertexBuilder vertexBuilder, Vec3 start, Vec3 end) {
+    default void addLineSegment(VertexBuilder vertexBuilder, Vec3 start, Vec3 end,float width) {
         double dx = end.x() - start.x();
         double dy = end.y() - start.y();
         double dz = end.z() - start.z();
@@ -21,8 +21,8 @@ public interface LineLikeShape extends DrawableLine {
         double distanceInv = 1.0 / Math.sqrt(dx * dx + dy * dy + dz * dz);
         Vec3 normal = new Vec3(dx * distanceInv, dy * distanceInv, dz * distanceInv);
 
-        vertexBuilder.putVertex(start, normal);
-        vertexBuilder.putVertex(end, normal);
+        vertexBuilder.putVertex(start, normal, width);
+        vertexBuilder.putVertex(end, normal, width);
     }
 
     class SimpleLineTransformer extends DefaultTransformer {

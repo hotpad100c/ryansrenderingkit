@@ -120,9 +120,11 @@ public class LineShape extends Shape implements TwoPointsLineShape {
     }
 
     protected void drawInternal(VertexBuilder builder) {
-        RenderSystem.lineWidth(getWidth(true));
+        //? if <1.21.11 {
+        RenderSystem.lineWidth(getLineWidth(true));
+        //?}
         builder.putColor(baseColor);
-        addLineSegment(builder, model_vertexes.getFirst(), model_vertexes.getLast());
+        addLineSegment(builder, model_vertexes.getFirst(), model_vertexes.getLast(),getLineWidth(true));
     }
 }
 

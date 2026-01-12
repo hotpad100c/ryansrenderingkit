@@ -11,6 +11,10 @@ import net.minecraft.client.Minecraft;
 //? if >=1.21.9
 /*import net.minecraft.client.gui.components.debug.DebugScreenEntries;*/
 import net.minecraft.client.renderer.RenderType;
+//? if >=1.21.11 {
+/*import net.minecraft.gizmos.Gizmos;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+*///?}
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -248,7 +252,7 @@ public abstract class Shape {
         if(entity == null)return;
 
         VertexConsumer vertexConsumer = Minecraft.getInstance()
-                .renderBuffers().bufferSource().getBuffer(RenderType.LINES);
+                .renderBuffers().bufferSource().getBuffer(/*? if <1.21.11 {*/RenderType./*?} else {*//*RenderTypes. *//*?}*/LINES);
 
         Vec3 localCenter = this.transformer.getShapeWorldPivot(true).add(this.transformer.getShapeLocalPivot(true));
         Vec3 worldCenter = this.transformer.getShapeWorldPivot(true);
@@ -262,7 +266,11 @@ public abstract class Shape {
         for (Vec3 v : getModel(false)) {
             double distanceTo = v.distanceToSqr(entity.position());
             if (distanceTo < 50)
+                //? if >=1.21.11 {
+                /*Gizmos.point(v,Color.MAGENTA.getRGB(),10);
+                *///?} else {
                 renderBillboardFrame(matrixStack, vertexConsumer, v, (float) (distanceTo * 0.01), 1, 0, 1, 1);
+                //?}
         }
     }
 
@@ -271,7 +279,7 @@ public abstract class Shape {
         Player p = minecraft.player;
         if (p == null) return new RayModelIntersection.HitResult(false, null, -1);
         Camera camera = minecraft.gameRenderer.getMainCamera();
-        RayModelIntersection.Ray r = new RayModelIntersection.Ray(camera.getPosition(), p.getForward());
+        RayModelIntersection.Ray r = new RayModelIntersection.Ray(camera./*? if >=1.21.11 {*//*position()*//*?} else {*/getPosition()/*?}*/, p.getForward());
 
         return RayModelIntersection.rayIntersectsModel(
                 r,

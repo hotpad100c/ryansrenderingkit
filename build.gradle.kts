@@ -20,7 +20,7 @@ val requiredJava = when {
     stonecutter.eval(stonecutter.current.version, ">=1.20.6") -> JavaVersion.VERSION_21
     stonecutter.eval(stonecutter.current.version, ">=1.18") -> JavaVersion.VERSION_17
     stonecutter.eval(stonecutter.current.version, ">=1.17") -> JavaVersion.VERSION_16
-    else -> JavaVersion.VERSION_1_8
+    else -> JavaVersion.VERSION_16
 }
 
 repositories {
@@ -64,7 +64,8 @@ val accesswidener = when {
     stonecutter.eval(minecraft, "<=1.18.2") -> "1.18.2.accesswidener"
     stonecutter.eval(minecraft, "<=1.20.6") -> "1.20.1.accesswidener"
     stonecutter.eval(minecraft, "<=1.21.4") -> "1.21.4.accesswidener"
-    else -> "1.21.10.accesswidener"
+    stonecutter.eval(minecraft, "<=1.21.10") -> "1.21.10.accesswidener"
+    else -> "1.21.11.accesswidener"
 }
 loom {
     fabricModJsonPath = rootProject.file("src/main/resources/fabric.mod.json") // Useful for interface injection

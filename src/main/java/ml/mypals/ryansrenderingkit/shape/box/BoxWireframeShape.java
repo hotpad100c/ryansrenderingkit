@@ -79,23 +79,26 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
 
     @Override
     protected void drawInternal(VertexBuilder builder) {
+        //? if <1.21.11 {
         RenderSystem.lineWidth(edgeWidth);
+        //?}
+
         builder.putColor(baseColor);
 
         for (int i = 0; i < indexBuffer.length; i += 2) {
             Vec3 start = model_vertexes.get(indexBuffer[i]);
             Vec3 end = model_vertexes.get(indexBuffer[i + 1]);
-            addLineSegment(builder, start, end);
+            addLineSegment(builder, start, end,this.edgeWidth);
         }
     }
 
-    private void addLineSegment(VertexBuilder builder, Vec3 start, Vec3 end) {
+    private void addLineSegment(VertexBuilder builder, Vec3 start, Vec3 end,float width) {
         Vec3 dir = end.subtract(start);
         dir.normalize();
 
         Vec3 normal = new Vec3(dir.x(), dir.y(), dir.z());
 
-        builder.putVertex(start, normal);
-        builder.putVertex(end, normal);
+        builder.putVertex(start, normal,width);
+        builder.putVertex(end, normal,width);
     }
 }
