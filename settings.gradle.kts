@@ -9,7 +9,7 @@ pluginManagement {
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.7.11"
+    id("dev.kikugie.stonecutter") version "0.8.3"
 }
 
 stonecutter {
@@ -29,9 +29,9 @@ stonecutter {
             "1.21.6",
             "1.21.9",
             "1.21.10",
-            "1.21.11"/*,
-            "26.1-snapshot-1"*/
-        )
+            "1.21.11"
+        ).buildscript("build.gradle.kts")
+        version("26.1").buildscript("unobfuscated.gradle.kts")
         vcsVersion = "1.21.4"
     }
 }

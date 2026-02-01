@@ -21,7 +21,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.world.item.ItemDisplayContext;
- //?} else {
+        //?} else {
 /*import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 *///?}
@@ -112,7 +112,11 @@ public class Debug {
     }
 
     public static void init() {
+        //? if >= 26.1 {
+        /*ClientTickEvents.START_LEVEL_TICK.register(client -> {
+         *///?} else {
         ClientTickEvents.START_WORLD_TICK.register(client -> {
+            //?}
             if (added || !ENABLE_DEBUG) return;
             index = 0;
             ShapeManagers.removeShapes(
