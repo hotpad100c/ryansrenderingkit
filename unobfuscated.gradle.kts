@@ -1,5 +1,5 @@
 plugins {
-    id("net.fabricmc.fabric-loom-remap")
+    id("net.fabricmc.fabric-loom")
     // `maven-publish`
     //id("me.modmuss50.mod-publish-plugin").version("0.3.5")
     id("signing")
@@ -9,12 +9,7 @@ plugins {
 version = "${property("mod.version")}+${stonecutter.current.version}"
 base.archivesName = property("mod.id") as String
 
-val requiredJava = when {
-    stonecutter.eval(stonecutter.current.version, ">=1.20.6") -> JavaVersion.VERSION_21
-    stonecutter.eval(stonecutter.current.version, ">=1.18") -> JavaVersion.VERSION_17
-    stonecutter.eval(stonecutter.current.version, ">=1.17") -> JavaVersion.VERSION_16
-    else -> JavaVersion.VERSION_16
-}
+val requiredJava = JavaVersion.VERSION_25
 
 repositories {
     /**
@@ -36,30 +31,19 @@ dependencies {
      * @see <a href="https://github.com/FabricMC/fabric">List of Fabric API modules</a>
      */
     fun fapi(vararg modules: String) {
-        for (it in modules) modImplementation(fabricApi.module(it, property("deps.fabric_api") as String))
+        for (it in modules) implementation(fabricApi.module(it, property("deps.fabric_api") as String))
     }
 
-    minecraft("com.mojang:minecraft:${stonecutter.current.version}")
-    mappings(loom.officialMojangMappings())
-    modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
-    fapi("fabric-lifecycle-events-v1","fabric-rendering-v1", "fabric-resource-loader-v0", "fabric-content-registries-v0")
-    if(stonecutter.eval(stonecutter.current.version," >1.18.2")){
-        fapi("fabric-command-api-v2")
-    }else{
-        fapi("fabric-command-api-v1")
-        implementation("org.joml:joml:1.10.5")
-        include( "org.joml:joml:1.10.5")
-    }
+    minecraft("com.mojang:minecraft:${property("minecraft")}")
+    implementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
+    fapi("fabric-lifecycle-events-v1","fabric-rendering-v1", "fabric-resource-loader-v0", "fabric-content-registries-v0", "fabric-command-api-v2")
 }
 
 val accesswidener = when {
-
-    stonecutter.eval(minecraft, "<=1.18.2") -> "1.18.2.accesswidener"
-    stonecutter.eval(minecraft, "<=1.20.6") -> "1.20.1.accesswidener"
-    stonecutter.eval(minecraft, "<=1.21.4") -> "1.21.4.accesswidener"
-    stonecutter.eval(minecraft, "<=1.21.10") -> "1.21.10.accesswidener"
-    else -> "1.21.11.accesswidener"
+    stonecutter.eval(minecraft, "<=26.1") -> "26.1.accesswidener"
+    else -> "26.1.accesswidener"
 }
+
 loom {
     fabricModJsonPath = rootProject.file("src/main/resources/fabric.mod.json") // Useful for interface injection
     accessWidenerPath = rootProject.file("src/main/resources/accesswideners/$accesswidener")
@@ -104,7 +88,7 @@ tasks {
     // Builds the version into a shared folder in `build/libs/${mod version}/`
     register<Copy>("buildAndCollect") {
         group = "build"
-        from(remapJar.map { it.archiveFile }, remapSourcesJar.map { it.archiveFile })
+        from(jar.map { it.archiveFile })
         into(rootProject.layout.buildDirectory.file("libs/${project.property("mod.version")}"))
         dependsOn("build")
     }
@@ -113,8 +97,8 @@ tasks {
 /*
 // Publishes builds to Modrinth and Curseforge with changelog from the CHANGELOG.md file
 publishMods {
-    file = tasks.remapJar.map { it.archiveFile.get() }
-    additionalFiles.from(tasks.remapSourcesJar.map { it.archiveFile.get() })
+    file = tasks.sourcesJar.map { it.archiveFile.get() }
+    additionalFiles.from(tasks.sourcesJar.map { it.archiveFile.get() })
     displayName = "${property("mod.name")} ${property("mod.version")} for ${property("mod.mc_title")}"
     version = property("mod.version") as String
     changelog = rootProject.file("CHANGELOG.md").readText()
@@ -192,48 +176,3 @@ publishing {
         }
     }
 }*/
-mavenPublishing {
-    publishToMavenCentral()
-
-    signAllPublications()
-    coordinates(
-        "io.github.hotpad100c",
-        "ryansrenderingkit",
-        project.version.toString()
-    )
-    pom {
-        name.set("Ryans Rendering Kit")
-        description.set("A Fabric rendering utility library for Minecraft mods.")
-        url.set("https://github.com/hotpad100c/ryansrenderingkit")
-
-        licenses {
-            license {
-                name.set("MIT License")
-                url.set("https://opensource.org/licenses/MIT")
-            }
-        }
-
-        scm {
-            url.set("https://github.com/hotpad100c/ryansrenderingkit")
-            connection.set("scm:git:https://github.com/hotpad100c/ryansrenderingkit.git")
-            developerConnection.set("scm:git:ssh://git@github.com:hotpad100c/ryansrenderingkit.git")
-        }
-
-        developers {
-            developer {
-                id.set("hotpad100c")
-                name.set("Ryan100C")
-                email.set("hotpad100c@gmail.com")
-            }
-        }
-    }
-}
-
-signing {
-    useInMemoryPgpKeys(
-        findProperty("signing.keyId") as String,
-        file("C:\\Users\\Ryan\\.gnupg\\private.key").readText(),
-        findProperty("signing.password") as String
-    )
-    sign(publishing.publications)
-}
