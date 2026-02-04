@@ -62,11 +62,6 @@ public class MainRender {
 
             matrixStack.pushPose();
 
-            //? if >=1.21.11 {
-            /*matrixStack.translate(-camera.position().x, -camera.position().y, -camera.position().z);
-            *///?} else {
-            matrixStack.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z);
-            //?}
             Matrix4f pose = Helpers.convertToJomlIfNeeded(matrixStack.last().pose());
 
             RENDER_PROFILER.push("updateMatrix");

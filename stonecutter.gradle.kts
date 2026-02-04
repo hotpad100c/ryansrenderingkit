@@ -37,11 +37,11 @@ stonecutter parameters {
         string(eval(current.version, ">=1.21.11")) {
             replace("ResourceLocation.fromNamespaceAndPath", "Identifier.fromNamespaceAndPath")
         }
-        string(eval(current.version, ">=1.21.11")) {
-            replace("ResourceLocation", "Identifier")
-        }
         string(eval(current.version, "<=1.18.2")) {
             replace("ResourceLocation.tryBuild(", "new ResourceLocation(")
+        }
+        string(eval(current.version, ">=1.21.11")) {
+            replace("ResourceLocation", "Identifier")
         }
         string(eval(current.version, ">=1.21.11")) {
             replace(
