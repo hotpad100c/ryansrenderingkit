@@ -95,10 +95,10 @@ public class RyansRenderingKit implements ModInitializer {
     public /*? if = 1.21.9 {*//*static*//*?}*/ void handleRenderLast(/*? if >= 26.1 {*//*LevelRenderContext*//*?} else {*/WorldRenderContext/*?}*/ ctx) {
         MainRender.render(
                 //? >=1.21.9 {
-                /*? if >= 26.1 {*//*ctx.poseStack()*//*?} else {*/ctx.matrixStack()/*?}*/, /*? if != 1.21.9 {*/ctx.gameRenderer().getMainCamera()/*?} else {*//*ctx.camera()*//*?}*/,
-                //?} else {
-                /*ctx.matrixStack(), ctx.camera(),
-                 *///?}
+                /*/^? if >= 26.1 {^//^ctx.poseStack()^//^?} else {^/ctx.matrices()/^?}^/, /^? if != 1.21.9 {^/ctx.gameRenderer().getMainCamera()/^?} else {^//^ctx.camera()^//^?}^/,
+                *///?} else {
+                ctx.matrixStack(), ctx.camera(),
+                 //?}
                 //? >= 1.21.6 {
                 /*Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true)
                  *///?} else if > 1.20.6 {

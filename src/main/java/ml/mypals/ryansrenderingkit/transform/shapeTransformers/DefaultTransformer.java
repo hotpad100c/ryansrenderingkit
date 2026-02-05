@@ -7,6 +7,8 @@ import com.sun.jna.platform.win32.COM.IComEnumVariantIterator;
 import com.sun.jna.platform.win32.COM.util.IComEnum;
 *///?}
 import ml.mypals.ryansrenderingkit.shape.Shape;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
 import org.joml.*;
 
@@ -71,6 +73,19 @@ public class DefaultTransformer {
         Vector3d p = layer.position.getValue(lerp);
         Quaternionf r = layer.rotation.getValue(lerp);
         Vector3d s = layer.scale.getValue(lerp);
+
+        if (layer.equals(world)) {
+            Minecraft mc = Minecraft.getInstance();
+            Camera camera = mc.gameRenderer.getMainCamera();
+            //? if >=1.21.11 {
+            /*Vec3 cameraPos = camera.position();
+             *///?} else {
+            Vec3 cameraPos = camera.getPosition();
+            //?}
+            stack.translate(p.x - cameraPos.x, p.y - cameraPos.y, p.z - cameraPos.z);
+        } else {
+            stack.translate(p.x, p.y, p.z);
+        }
 
         stack.translate(p.x, p.y, p.z);
         //? if >1.18.2 {
