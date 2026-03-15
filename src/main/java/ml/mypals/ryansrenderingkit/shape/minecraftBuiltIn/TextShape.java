@@ -10,7 +10,7 @@ import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransforme
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -134,7 +134,7 @@ public class TextShape extends Shape implements EmptyMesh {
                         color.getRGB(),
                         multiplyRGB(color.getRGB(), 0.8f),
                         convertToMojangIfNeeded(builder.getPositionMatrix()),
-                        bufferSource, LightTexture.FULL_BRIGHT);
+                        bufferSource, LightCoordsUtil.FULL_BRIGHT);
             } else {
                 font.drawInBatch(
                         text,
@@ -149,7 +149,7 @@ public class TextShape extends Shape implements EmptyMesh {
                         /*seeThrough,
                         *///?}
                         backgroundColor.getRGB(),
-                        LightTexture.FULL_BRIGHT
+                        LightCoordsUtil.FULL_BRIGHT
                         //? if <=1.18.2
                         //,false
                 );

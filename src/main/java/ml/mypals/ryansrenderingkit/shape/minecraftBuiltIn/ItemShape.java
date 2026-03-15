@@ -8,7 +8,7 @@ import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.item.ItemEntity;
 //? if >1.18.2 {
@@ -84,8 +84,6 @@ public class ItemShape extends Shape implements EmptyMesh {
     protected void drawInternal(VertexBuilder builder) {
         Minecraft mc = Minecraft.getInstance();
 
-        ItemRenderer itemRenderer = mc.getItemRenderer();
-        MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
 
         //? < 1.21.6 {
         /*RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,

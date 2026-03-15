@@ -3,14 +3,14 @@ package ml.mypals.ryansrenderingkit.builders.shapeBuilders;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn.BlockShape;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BlockShapeBuilder extends BaseBuilder<BlockShapeBuilder, DefaultTransformer> {
 
     private BlockState blockState = Blocks.AIR.defaultBlockState();
-    private int light = LightTexture.FULL_BRIGHT;
+    private int light = LightCoordsUtil.FULL_BRIGHT;
 
     public BlockShapeBuilder block(BlockState blockState) {
         this.blockState = blockState;
