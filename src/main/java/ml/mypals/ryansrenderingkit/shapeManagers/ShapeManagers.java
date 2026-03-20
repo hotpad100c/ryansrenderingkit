@@ -37,13 +37,13 @@ public class ShapeManagers {
 
 
             RENDER_PROFILER.push("renderNormalShape");
-            manager.draw(matrixStack, tickDelta);
+            manager.draw(new PoseStack(), tickDelta);
             RENDER_PROFILER.pop();
         }
         for (EmptyShapeManager manager : emptyManagers
         ) {
             RENDER_PROFILER.push("renderSpecialShape");
-            manager.draw(matrixStack, tickDelta);
+            manager.draw(new PoseStack(), tickDelta);
             RENDER_PROFILER.pop();
         }
     }

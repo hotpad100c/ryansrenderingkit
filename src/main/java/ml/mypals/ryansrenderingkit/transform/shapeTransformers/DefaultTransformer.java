@@ -22,6 +22,11 @@ public class DefaultTransformer {
     private float delta = 0;
     public final Shape shape;
 
+    public static final int WORLD = 1;
+    public static final int LOCAL = 2;
+    public static final int MATRIX = 4;
+    public static final int CAMSPACE = 8;
+
     public final TransformLayer local = new TransformLayer();
     public final TransformLayer world = new TransformLayer();
     public final TransformLayer matrix = new TransformLayer();
@@ -57,24 +62,35 @@ public class DefaultTransformer {
         matrix.syncLastToTarget();
     }
 
-    public void applyTransformations(PoseStack stack, boolean lerp) {
-        applyLayer(stack, world, lerp);
-        applyLayer(stack, local, lerp);
-        applyLayer(stack, matrix, lerp);
+    ///
+    /// 0 0 0
+    /// ^ ^ ^
+    /// W L M
+    public void applyTransformations(PoseStack stack, boolean lerp, int flags) {
+
+        if ((flags & WORLD) != 0)
+            applyLayer(stack, world, lerp, (flags & CAMSPACE) != 0);
+
+        if ((flags & LOCAL) != 0)
+            applyLayer(stack, local, lerp, false);
+
+        if ((flags & MATRIX) != 0)
+            applyLayer(stack, matrix, lerp, false);
+
+        if ((flags & CAMSPACE) != 0);
     }
 
-    public void applyModelTransformations(PoseStack stack, boolean lerp) {
-        applyLayer(stack, world, lerp);
-        applyLayer(stack, local, lerp);
+    public void applyModelTransformations(PoseStack stack, boolean lerp, boolean a) {
+        applyTransformations(stack, lerp, WORLD | LOCAL);
     }
 
-    private void applyLayer(PoseStack stack, TransformLayer layer, boolean lerp) {
+    public void applyLayer(PoseStack stack, TransformLayer layer, boolean lerp, boolean camSpace) {
 
         Vector3d p = layer.position.getValue(lerp);
         Quaternionf r = layer.rotation.getValue(lerp);
         Vector3d s = layer.scale.getValue(lerp);
 
-        if (layer.equals(world)) {
+        if (camSpace && this.shape.parent == null) {
             Minecraft mc = Minecraft.getInstance();
             Camera camera = mc.gameRenderer.getMainCamera();
             //? if >=1.21.11 {
@@ -82,18 +98,24 @@ public class DefaultTransformer {
              *///?} else {
             Vec3 cameraPos = camera.getPosition();
             //?}
-            stack.translate(p.x - cameraPos.x, p.y - cameraPos.y, p.z - cameraPos.z);
-        } else {
-            stack.translate(p.x, p.y, p.z);
+
+            p = new Vector3d(
+                    p.x - cameraPos.x,
+                    p.y - cameraPos.y,
+                    p.z - cameraPos.z
+            );
         }
 
         stack.translate(p.x, p.y, p.z);
+
         //? if >1.18.2 {
         stack.mulPose(r);
         //?} else {
         /*stack.mulPose(new Quaternion(r.x,r.y,r.z,r.w));
         *///?}
         stack.scale((float) s.x, (float) s.y, (float) s.z);
+
+        //stack.translate(-p.x, -p.y, -p.z);
     }
 
 
@@ -109,12 +131,12 @@ public class DefaultTransformer {
         return matrix;
     }
 
-    public void applyHierarchy(PoseStack poseStack, boolean lerp) {
+    public void applyHierarchy(PoseStack poseStack, boolean lerp, int flags) {
         List<Shape> hierarchy = this.shape.getHierarchy();
         for (int i = hierarchy.size() - 1; i >= 1; i--) {
             Shape n = hierarchy.get(i);
             if (n.transformer != null) {
-                n.transformer.applyTransformations(poseStack, lerp);
+                n.transformer.applyTransformations(poseStack, lerp, flags);
             }
         }
     }
@@ -122,7 +144,7 @@ public class DefaultTransformer {
     public Vec3 getShapeWorldPivot(boolean lerp) {
         PoseStack poseStack = new PoseStack();
 
-        applyHierarchy(poseStack,lerp);
+        applyHierarchy(poseStack,lerp,WORLD | LOCAL);
 
         Vec3 localPivot = this.world.getPosition(lerp);
 
@@ -143,7 +165,7 @@ public class DefaultTransformer {
     public Quaternionf getShapeWorldRotation(boolean lerp) {
         PoseStack poseStack = new PoseStack();
 
-        applyHierarchy(poseStack,lerp);
+        applyHierarchy(poseStack,lerp, WORLD | LOCAL);
 
         Quaternionf localRot = this.world.getRotation(lerp);
         //? if >1.18.2 {
@@ -181,7 +203,7 @@ public class DefaultTransformer {
     public Vec3 getShapeWorldScale(boolean lerp) {
         PoseStack poseStack = new PoseStack();
 
-        applyHierarchy(poseStack,lerp);
+        applyHierarchy(poseStack,lerp, WORLD | LOCAL);
 
         Vec3 localScale = this.world.getScale(lerp);
         poseStack.scale(

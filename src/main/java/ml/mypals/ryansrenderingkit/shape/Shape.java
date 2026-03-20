@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.RENDER_PROFILER;
 import static ml.mypals.ryansrenderingkit.shapeManagers.ShapeManagers.TEMP_HEADER;
 import static ml.mypals.ryansrenderingkit.test.Debug.ENABLE_DEBUG;
+import static ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer.*;
 import static ml.mypals.ryansrenderingkit.utils.Helpers.*;
 
 public abstract class Shape {
@@ -168,8 +169,10 @@ public abstract class Shape {
 
     protected abstract void generateRawGeometry(boolean lerp);
 
-
     public List<Vec3> getModel(boolean applyMatrixTransformer) {
+        return getModel(applyMatrixTransformer, false);
+    }
+    public List<Vec3> getModel(boolean applyMatrixTransformer, boolean camSpace) {
         if (this.transformer.asyncModelInfo()) {
             model_vertexes.clear();
             generateRawGeometry(false);
@@ -182,9 +185,9 @@ public abstract class Shape {
         for (int i = hierarchy.size() - 1; i >= 0; i--) {
             Shape n = hierarchy.get(i);
             if (applyMatrixTransformer) {
-                n.transformer.applyTransformations(poseStack, true);
+                n.transformer.applyTransformations(poseStack, true, WORLD | LOCAL | MATRIX | (camSpace ? CAMSPACE : 0));
             } else {
-                n.transformer.applyModelTransformations(poseStack, true);
+                n.transformer.applyTransformations(poseStack, true, WORLD | LOCAL | (camSpace ? CAMSPACE : 0));
             }
         }
 
@@ -219,6 +222,9 @@ public abstract class Shape {
     }
 
     public void beforeDraw(PoseStack matrixStack, float deltaTime) {
+        beforeDraw(matrixStack,deltaTime,true);
+    }
+    public void beforeDraw(PoseStack matrixStack, float deltaTime, boolean camSpace) {
         transformer.updateTickDelta(deltaTime);
 
         RENDER_PROFILER.push("applyCustomTransformer");
@@ -242,36 +248,37 @@ public abstract class Shape {
         }
         for (int i = hierarchy.size() - 1; i >= 0; i--) {
             Shape n = hierarchy.get(i);
-            n.transformer.applyTransformations(matrixStack, true);
+            n.transformer.applyTransformations(matrixStack, true, WORLD | LOCAL | MATRIX | (camSpace ? CAMSPACE:0));
         }
         //RENDER_PROFILER.pop();
     }
 
     public void drawShapeDebugInfo(PoseStack matrixStack, float deltaTime) {
-        Entity entity = Minecraft.getInstance()./*? <1.21.9 {*/cameraEntity/*?} else {*//*getCameraEntity()*//*?}*/;
-        if(entity == null)return;
 
         VertexConsumer vertexConsumer = Minecraft.getInstance()
                 .renderBuffers().bufferSource().getBuffer(/*? if <1.21.11 {*/RenderType./*?} else {*//*RenderTypes. *//*?}*/LINES);
 
-        Vec3 localCenter = this.transformer.getShapeWorldPivot(true).add(this.transformer.getShapeLocalPivot(true));
-        Vec3 worldCenter = this.transformer.getShapeWorldPivot(true);
-        Vec3 visualCenter = this.transformer.getShapeMatrixPivot(true).add(worldCenter);
-        renderLineBox(matrixStack, vertexConsumer, localCenter, 0.15f, 1, 0, 0, 1);
+        matrixStack.pushPose();
+        this.transformer.applyLayer(matrixStack, transformer.world, true, true);
+        renderLineBox(matrixStack, vertexConsumer, Vec3.ZERO, 0.15f, 1, 0, 0, 1);
+        this.transformer.applyLayer(matrixStack, transformer.local, true, false);
+        renderLineBox(matrixStack, vertexConsumer, Vec3.ZERO, 0.1f, 0, 1, 0, 1);
+        this.transformer.applyLayer(matrixStack, transformer.matrix, true, false);
+        renderLineBox(matrixStack, vertexConsumer, Vec3.ZERO, 0.05f, 0, 0, 1, 1);
+        matrixStack.popPose();
 
-        renderLineBox(matrixStack, vertexConsumer, worldCenter, 0.1f, 0, 1, 0, 1);
+        for (Vec3 v : getModel(false, true)) {
 
-        renderLineBox(matrixStack, vertexConsumer, visualCenter, 0.05f, 0, 0, 1, 1);
+            double distanceTo = v.distanceTo(Vec3.ZERO);
 
-        for (Vec3 v : getModel(false)) {
-            double distanceTo = v.distanceToSqr(entity.position());
-            if (distanceTo < 50)
+            if (distanceTo < 30)
                 //? if >=1.21.11 {
                 /*Gizmos.point(v,Color.MAGENTA.getRGB(),10);
-                *///?} else {
-                renderBillboardFrame(matrixStack, vertexConsumer, v, (float) (distanceTo * 0.01), 1, 0, 1, 1);
-                //?}
+                 *///?} else {
+                renderBillboardFrame(matrixStack, vertexConsumer, v, (float) (distanceTo * 0.03), 1, 0, 1, 1);
+            //?}
         }
+
     }
 
     public RayModelIntersection.HitResult isPlayerLookingAt() {
@@ -281,14 +288,21 @@ public abstract class Shape {
         Camera camera = minecraft.gameRenderer.getMainCamera();
         RayModelIntersection.Ray r = new RayModelIntersection.Ray(camera./*? if >=1.21.11 {*//*position()*//*?} else {*/getPosition()/*?}*/, p.getForward());
 
+        Entity entity = Minecraft.getInstance()./*? <1.21.9 {*/cameraEntity/*?} else {*//*getCameraEntity()*//*?}*/;
+        if(entity == null)return null;
+
+        VertexConsumer vertexConsumer = Minecraft.getInstance()
+                .renderBuffers().bufferSource().getBuffer(/*? if <1.21.11 {*/RenderType./*?} else {*//*RenderTypes. *//*?}*/LINES);
+
+
         return RayModelIntersection.rayIntersectsModel(
                 r,
-                this.getModel(false),
+                getModel(false),
                 this.indexBuffer
         );
     }
 
-    public void draw(boolean frustumCull, VertexBuilder builder, PoseStack matrixStack, float deltaTime) {
+    public void draw(boolean inCamSpace, VertexBuilder builder, PoseStack matrixStack, float deltaTime) {
 
         if(!enabled) return;
 
@@ -314,7 +328,7 @@ public abstract class Shape {
         matrixStack.pushPose();
 
         RENDER_PROFILER.push("setUpShapeForDraw");
-        beforeDraw(matrixStack, deltaTime);
+        beforeDraw(matrixStack, deltaTime, inCamSpace);
         builder.setPositionMatrix(convertToJomlIfNeeded(matrixStack.last().pose()));
         RENDER_PROFILER.pop();
 

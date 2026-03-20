@@ -65,7 +65,7 @@ public class MainRender {
             Matrix4f pose = Helpers.convertToJomlIfNeeded(matrixStack.last().pose());
 
             RENDER_PROFILER.push("updateMatrix");
-            BuilderManagers.updateMatrix(pose);
+            //BuilderManagers.updateMatrix(pose);
             RENDER_PROFILER.pop();
 
             RENDER_PROFILER.push("renderShapes");
