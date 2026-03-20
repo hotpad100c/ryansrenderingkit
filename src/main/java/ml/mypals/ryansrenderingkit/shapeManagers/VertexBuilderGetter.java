@@ -18,7 +18,7 @@ import ml.mypals.ryansrenderingkit.shape.model.ObjModelShapeOutline;
 import ml.mypals.ryansrenderingkit.shape.round.FaceCircleShape;
 import ml.mypals.ryansrenderingkit.shape.round.LineCircleShape;
 import ml.mypals.ryansrenderingkit.shape.round.SphereShape;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,7 +63,7 @@ public class VertexBuilderGetter {
         return emptyShapeManagerMap.getOrDefault(shape.getClass(), null);
     }
 
-    public void removeShapes(ResourceLocation root) {
+    public void removeShapes(Identifier root) {
 
     }
 }

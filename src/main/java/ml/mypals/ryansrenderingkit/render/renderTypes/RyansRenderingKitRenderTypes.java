@@ -6,23 +6,49 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderPipelines;
 //? if <1.21.11 {
-import net.minecraft.client.renderer.RenderStateShard;
+/*import net.minecraft.client.renderer.RenderStateShard;
 import static net.minecraft.client.renderer.RenderStateShard.VIEW_OFFSET_Z_LAYERING;
-//?} else {
-/*import net.minecraft.client.renderer.rendertype.RenderSetup;
+*///?} else {
+import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-*///?}
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+//?}
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 
 import java.util.OptionalDouble;
 
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.MOD_ID;
 //?}
 public class RyansRenderingKitRenderTypes {
+
+    //? >= 1.21.5 {
+    public static final RenderType/*? if <1.21.11 {*//*.CompositeRenderType*//*?}*/ TRIANGLE;
+    public static final RenderPipeline TRIANGLE_PIPLINE;
+    static{
+
+        TRIANGLE_PIPLINE = RenderPipelines
+                .register(RenderPipeline.builder(
+                                RenderPipelines.DEBUG_FILLED_SNIPPET)
+                        .withLocation("pipeline/debug_triangle")
+                        .withCull(false).withVertexFormat(DefaultVertexFormat.POSITION_COLOR,
+                                VertexFormat.Mode.TRIANGLES)
+                        .build());
+        //? if >=1.21.11 {
+        TRIANGLE = RenderType.create("r_triangle",
+                RenderSetup.builder(TRIANGLE_PIPLINE).createRenderSetup());
+        //?} else {
+        /*TRIANGLE = RenderType.create("r_triangle",
+                1536,
+                false,
+                true,
+                TRIANGLE_PIPLINE, RenderType.CompositeState.builder().createCompositeState(false));
+        *///?}
+    }
+    //?}
+
     //? if >= 1.21.5 {
     private static final RenderPipeline noDepthTriangles = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-            .withLocation(ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_depth_quads"))
+            .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_quads"))
             .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             .withCull(false)
@@ -31,14 +57,14 @@ public class RyansRenderingKitRenderTypes {
 
     //? if >=1.21.11 {
     
-            /*public static final RenderType SEE_THROUGH_TRIANGLES =
+            public static final RenderType SEE_THROUGH_TRIANGLES =
             RenderType.create(
                     "see_through_triangle",
                     RenderSetup.builder(noDepthTriangles)
                             .sortOnUpload().createRenderSetup()
             );
-     *///?} else {
-    public static final RenderType.CompositeRenderType SEE_THROUGH_TRIANGLES =
+     //?} else {
+    /*public static final RenderType.CompositeRenderType SEE_THROUGH_TRIANGLES =
             RenderType.create(
                     "see_through_triangle",
                     256,
@@ -48,30 +74,30 @@ public class RyansRenderingKitRenderTypes {
                     RenderType.CompositeState.builder()
                             .createCompositeState(false)
             );
-    //?}
+    *///?}
 
 
     private static final RenderPipeline noDepthLines = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
-            .withLocation(ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_depth_lines"))
+            .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_lines"))
             .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             .withCull(false)
             //? if <1.21.11 {
-            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
-            //?} else {
-            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.LINES)
-            *///?}
+            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
+            *///?} else {
+            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.LINES)
+            //?}
             .build();
 
     //? if >=1.21.11 {
-    /*public static final RenderType SEE_THROUGH_LINES =
+    public static final RenderType SEE_THROUGH_LINES =
             RenderType.create(
                     "see_through_lines",
                     RenderSetup.builder(noDepthLines).createRenderSetup()
             );
-    *///?} else {
+    //?} else {
     
-    public static final RenderType.CompositeRenderType SEE_THROUGH_LINES =
+    /*public static final RenderType.CompositeRenderType SEE_THROUGH_LINES =
 
     RenderType.create(
             "see_through_lines",
@@ -84,27 +110,27 @@ public class RyansRenderingKitRenderTypes {
             .setLayeringState(VIEW_OFFSET_Z_LAYERING)
                             .createCompositeState(false)
     );
-    //?}
+    *///?}
     private static final RenderPipeline noDepthLineStrip = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
-            .withLocation(ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
+            .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
             .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             .withCull(false)
             //? if <1.21.11 {
-            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
-             //?} else {
-            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
-            *///?}
+            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
+             *///?} else {
+            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
+            //?}
             .build();
 
     //? if >=1.21.11 {
-    /*public static final RenderType SEE_THROUGH_LINE_STRIP =
+    public static final RenderType SEE_THROUGH_LINE_STRIP =
             RenderType.create("see_through_line_strip",
                     RenderSetup.builder(noDepthLineStrip).createRenderSetup());
 
 
     private static final RenderPipeline lineStrip = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-            .withLocation(ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
+            .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
             .withDepthWrite(false)
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
@@ -113,8 +139,8 @@ public class RyansRenderingKitRenderTypes {
     public static final RenderType LINE_STRIP =
             RenderType.create("line_strip",
                     RenderSetup.builder(lineStrip).createRenderSetup());
-    *///?} else {
-    public static final RenderType.CompositeRenderType SEE_THROUGH_LINE_STRIP =
+    //?} else {
+    /*public static final RenderType.CompositeRenderType SEE_THROUGH_LINE_STRIP =
             RenderType.create(
                     "see_through_line_strip",
                     256,
@@ -126,6 +152,6 @@ public class RyansRenderingKitRenderTypes {
                             .setLayeringState(VIEW_OFFSET_Z_LAYERING)
                             .createCompositeState(false)
             );
-    //?}
+    *///?}
     //?}
 }

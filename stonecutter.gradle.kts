@@ -5,7 +5,7 @@ plugins {
     // id("me.modmuss50.mod-publish-plugin") version "1.0.+" apply false
 }
 
-stonecutter active "1.21.5"
+stonecutter active "1.21.11"
 
 /*
 // Make newer versions be published last
@@ -22,6 +22,29 @@ stonecutter parameters {
     constants["release"] = property("mod.id") != "template"
     dependencies["fapi"] = node.project.property("deps.fabric_api") as String
     replacements {
+
+        string(eval(current.version, "<1.21.11")) {
+            replace("Identifier.fromNamespaceAndPath", "ResourceLocation.fromNamespaceAndPath")
+        }
+
+        string(eval(current.version, "<1.21.1")) {
+            replace("ResourceLocation.fromNamespaceAndPath", "ResourceLocation.tryBuild")
+        }
+        string(eval(current.version, "<1.19.4")) {
+            replace("ResourceLocation.tryBuild", "new ResourceLocation")
+        }
+
+        string(eval(current.version, "<1.21.11")) {
+            replace("Identifier", "ResourceLocation")
+        }
+
+        string(eval(current.version, "<1.21.11")) {
+            replace(
+                "import net.minecraft.client.renderer.rendertype.RenderType;",
+                "import net.minecraft.client.renderer.RenderType;"
+            )
+        }
+
         string(eval(current.version, "<=1.20.6")) {
             replace("MeshData.DrawState", "BufferBuilder.DrawState")
         }
@@ -31,35 +54,19 @@ stonecutter parameters {
         string(eval(current.version, "<=1.20.6")) {
             replace("MeshData.class", "BufferBuilder.class")
         }
-        string(eval(current.version, "<=1.20.6")) {
-            replace("ResourceLocation.fromNamespaceAndPath", "ResourceLocation.tryBuild")
+
+// 5. 26.1 以下的降级，互相独立
+        string(eval(current.version, "<26.1")) {
+            replace("import net.minecraft.util.LightCoordsUtil;", "import net.minecraft.client.renderer.LightTexture;")
         }
-        string(eval(current.version, ">=1.21.11")) {
-            replace("ResourceLocation.fromNamespaceAndPath", "Identifier.fromNamespaceAndPath")
+        string(eval(current.version, "<26.1")) {
+            replace("LightCoordsUtil", "LightTexture")
         }
-        string(eval(current.version, "<=1.18.2")) {
-            replace("ResourceLocation.tryBuild(", "new ResourceLocation(")
+        string(eval(current.version, "<26.1")) {
+            replace("240", "LightTexture.FULL_BLOCK")
         }
-        string(eval(current.version, ">=1.21.11")) {
-            replace("ResourceLocation", "Identifier")
-        }
-        string(eval(current.version, ">=1.21.11")) {
-            replace(
-                "import net.minecraft.client.renderer.RenderType;",
-                "import net.minecraft.client.renderer.rendertype.RenderType;"
-            )
-        }
-        string(eval(current.version, ">=26.1")) {
-            replace("LightTexture.FULL_BLOCK", "240")
-        }
-        string(eval(current.version, ">=26.1")) {
-            replace("import net.minecraft.client.renderer.LightTexture;", "import net.minecraft.util.LightCoordsUtil;")
-        }
-        string(eval(current.version, ">=26.1")) {
-            replace("LightTexture", "LightCoordsUtil")
-        }
-        string(eval(current.version, ">=26.1")) {
-            replace("ClientCommandManager", "ClientCommands")
+        string(eval(current.version, "<26.1")) {
+            replace("ClientCommands", "ClientCommandManager")
         }
     }
 }

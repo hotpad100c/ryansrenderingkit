@@ -7,7 +7,7 @@ import ml.mypals.ryansrenderingkit.builderManager.EmptyBuilderManager;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.ExtractableShape;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public class ShapeManagers {
         return shapeManager;
     }
 
-    public static void removeShape(ResourceLocation identifier) {
+    public static void removeShape(Identifier identifier) {
         managers.forEach(
                 (shapeManager) -> shapeManager.removeShape(identifier)
         );
@@ -69,7 +69,7 @@ public class ShapeManagers {
         );
     }
 
-    public static void removeShapes(ResourceLocation root) {
+    public static void removeShapes(Identifier root) {
         managers.forEach(
                 (shapeManager) -> shapeManager.removeShapes(root)
         );
@@ -78,7 +78,7 @@ public class ShapeManagers {
         );
     }
 
-    public static void addShape(ResourceLocation identifier, Shape shape) {
+    public static void addShape(Identifier identifier, Shape shape) {
         shape.setId(identifier);
         if (shape instanceof ExtractableShape exts) {
             exts.addGroup(identifier);

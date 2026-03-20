@@ -17,45 +17,20 @@ import ml.mypals.ryansrenderingkit.utils.Helpers;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import org.joml.Matrix4f;
 //? if >=1.21.11 {
-/*import net.minecraft.client.renderer.rendertype.RenderSetup;
-*///?}
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+//?}
 
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.RENDER_PROFILER;
 
 public class MainRender {
 
-    //? >= 1.21.5 {
-    public static final RenderType/*? if <1.21.11 {*/.CompositeRenderType/*?}*/ TRIANGLE;
-    public static final RenderPipeline TRIANGLE_PIPLINE;
-    static{
-
-        TRIANGLE_PIPLINE = RenderPipelines
-                .register(RenderPipeline.builder(
-                        new RenderPipeline.Snippet[]{RenderPipelines.DEBUG_FILLED_SNIPPET})
-                        .withLocation("pipeline/debug_triangle")
-                        .withCull(false).withVertexFormat(DefaultVertexFormat.POSITION_COLOR,
-                                VertexFormat.Mode.TRIANGLES)
-                        .build());
-        //? if >=1.21.11 {
-        /*TRIANGLE = RenderType.create("r_triangle",
-                RenderSetup.builder(TRIANGLE_PIPLINE).createRenderSetup());
-        *///?} else {
-        TRIANGLE = RenderType.create("r_triangle",
-                1536,
-                false,
-                true,
-                TRIANGLE_PIPLINE, RenderType.CompositeState.builder().createCompositeState(false));
-        //?}
-    }
-    //?}
-
     public static void render(PoseStack matrixStack, Camera camera, float tickDelta) {
         RENDER_PROFILER.reset();
 
-        RENDER_PROFILER.push("renderAll");
+        RENDER_PROFILER.push("ryansRenderingKit");
 
         if (Minecraft.getInstance().player == null || !camera.isInitialized()) return;
         try {
@@ -64,9 +39,9 @@ public class MainRender {
 
             Matrix4f pose = Helpers.convertToJomlIfNeeded(matrixStack.last().pose());
 
-            RENDER_PROFILER.push("updateMatrix");
-            //BuilderManagers.updateMatrix(pose);
-            RENDER_PROFILER.pop();
+            /*RENDER_PROFILER.push("updateMatrix");
+            BuilderManagers.updateMatrix(pose);
+            RENDER_PROFILER.pop();*/
 
             RENDER_PROFILER.push("renderShapes");
 

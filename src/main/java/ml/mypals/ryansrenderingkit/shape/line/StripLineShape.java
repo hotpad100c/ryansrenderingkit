@@ -72,8 +72,8 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
     protected void drawInternal(VertexBuilder builder) {
         float width = getLineWidth(true);
         //? if <1.21.11 {
-        RenderSystem.lineWidth(getLineWidth(true));
-        //?}
+        /*RenderSystem.lineWidth(getLineWidth(true));
+        *///?}
 
 
         int n = model_vertexes.size();

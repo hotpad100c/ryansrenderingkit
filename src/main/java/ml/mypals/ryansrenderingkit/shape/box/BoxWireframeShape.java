@@ -80,8 +80,8 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
     @Override
     protected void drawInternal(VertexBuilder builder) {
         //? if <1.21.11 {
-        RenderSystem.lineWidth(edgeWidth);
-        //?}
+        /*RenderSystem.lineWidth(edgeWidth);
+        *///?}
 
         builder.putColor(baseColor);
 

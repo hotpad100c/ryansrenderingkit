@@ -21,9 +21,9 @@ import net.minecraft.core.Direction;
 *///?}
 
 //? if >1.21.1 && <1.21.6 {
-import com.mojang.blaze3d.buffers.BufferType;
+/*import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
-//?}
+*///?}
 
 //? if <=1.21.4 {
 /*import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -34,15 +34,15 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 //?}
 
 //? if >1.21.5 {
-/*import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.textures.GpuTextureView;
 //? if <1.19.4 {
-import com.mojang.math.Vector3f;
-//?} else {
-/^import org.joml.Vector3f;
-^///?}
+/*import com.mojang.math.Vector3f;
+*///?} else {
+import org.joml.Vector3f;
+//?}
 import org.joml.Vector4f;
-*///?}
+//?}
 import ml.mypals.ryansrenderingkit.render.RenderMethod;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -130,15 +130,15 @@ public class BufferedVertexBuilder extends VertexBuilder {
         if(this.vertexBuffer == null || this.vertexBuffer.isClosed()) {
             builtBuffer.vertexBuffer();
             //? if < 1.21.6 {
-            this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
+            /*this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
                     BufferType.VERTICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.vertexBuffer());
             commandEncoder.writeToBuffer(vertexBuffer, builtBuffer.vertexBuffer(), 0);
-            //?} else {
-            /*this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
+            *///?} else {
+            this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
                     40, builtBuffer.vertexBuffer());
             commandEncoder.writeToBuffer(vertexBuffer.slice(), builtBuffer.vertexBuffer());
 
-            *///?}
+            //?}
         }
 
 
@@ -151,12 +151,12 @@ public class BufferedVertexBuilder extends VertexBuilder {
                 this.indexBuffer = autoStorageIndexBuffer.getBuffer(builtBuffer.drawState().indexCount());
             } else{
                 //? <1.21.6 {
-                this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
-                        BufferType.INDICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.indexBuffer());
-                //?} else {
                 /*this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
+                        BufferType.INDICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.indexBuffer());
+                *///?} else {
+                this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
                         72, builtBuffer.indexBuffer());
-                *///?}
+                //?}
             }
         }
 
@@ -186,7 +186,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
                     //? if >1.21.1 {
                     RenderSystem.getProjectionType().vertexSorting()
                     //?} else
-                    /^RenderSystem.getVertexSorting()^/
+                    //RenderSystem.getVertexSorting()
             );
         }
         *///?}
@@ -282,7 +282,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
                     //? if >1.20.6 {
                     RenderSystem.getModelViewStack()
                      //?} else
-                    /^RenderSystem.getModelViewMatrix()^/
+                    //RenderSystem.getModelViewMatrix()
                     , RenderSystem.getProjectionMatrix(),
                     RenderSystem.getShader()
             );
@@ -292,7 +292,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
         VertexBuffer.unbind();
         *///?} else if <= 1.21.5 {
 
-        RenderTarget renderTarget = bufferedRenderMethod.normalRenderType().getRenderTarget();
+        /*RenderTarget renderTarget = bufferedRenderMethod.normalRenderType().getRenderTarget();
         try (RenderPass renderPass =
                      RenderSystem.getDevice().createCommandEncoder()
                              .createRenderPass(renderTarget.getColorTexture(),
@@ -316,12 +316,12 @@ public class BufferedVertexBuilder extends VertexBuilder {
             renderPass.drawIndexed(0, indexCount);
         }
 
-        //?} else {
-        /*GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrix(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
+        *///?} else {
+        GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrix(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
                 new Vector3f(),
-                /^? if <1.21.11 {^/RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth()/^?} else {^//^bufferedRenderMethod.normalRenderType().state.textureTransform.getMatrix()^//^?}^/);
+                /*? if <1.21.11 {*//*RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth()*//*?} else {*/bufferedRenderMethod.normalRenderType().state.textureTransform.getMatrix()/*?}*/);
         var state = bufferedRenderMethod.normalRenderType().state;
-        RenderTarget renderTarget = state./^? if >=1.21.11 {^//^outputTarget^//^?} else {^/outputState/^?}^/.getRenderTarget();
+        RenderTarget renderTarget = state./*? if >=1.21.11 {*/outputTarget/*?} else {*//*outputState*//*?}*/.getRenderTarget();
         GpuTextureView gpuTextureView = RenderSystem.outputColorTextureOverride != null ? RenderSystem.outputColorTextureOverride : renderTarget.getColorTextureView();
         GpuTextureView gpuTextureView2 = renderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride != null ? RenderSystem.outputDepthTextureOverride : renderTarget.getDepthTextureView()) : null;
 
@@ -339,9 +339,9 @@ public class BufferedVertexBuilder extends VertexBuilder {
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", gpuBufferSlice);
             if(seeThrough){
-                renderPass.setPipeline(bufferedRenderMethod.seeThroughType()./^? if >=1.21.11 {^//^pipeline()^//^?} else {^/renderPipeline/^?}^/);
+                renderPass.setPipeline(bufferedRenderMethod.seeThroughType()./*? if >=1.21.11 {*/pipeline()/*?} else {*//*renderPipeline*//*?}*/);
             }else{
-                renderPass.setPipeline(bufferedRenderMethod.normalRenderType()./^? if >=1.21.11 {^//^pipeline()^//^?} else {^/renderPipeline/^?}^/);
+                renderPass.setPipeline(bufferedRenderMethod.normalRenderType()./*? if >=1.21.11 {*/pipeline()/*?} else {*//*renderPipeline*//*?}*/);
             }
             renderPass.setVertexBuffer(0, vertexBuffer);
             ScissorState scissorState = RenderSystem.getScissorStateForRenderTypeDraws();
@@ -356,7 +356,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
             renderPass.drawIndexed(0,0, indexCount,1);
 
         }
-        *///?}
+        //?}
         restoreRendererSystem();
 
         //? if > 1.20.4 {

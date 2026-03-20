@@ -3,7 +3,7 @@ package ml.mypals.ryansrenderingkit.shapeManagers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import ml.mypals.ryansrenderingkit.builderManager.EmptyBuilderManager;
 import ml.mypals.ryansrenderingkit.shape.Shape;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,15 +36,15 @@ public class EmptyShapeManager {
         shapeGroup.syncShapeTransform();
     }
 
-    public void addShape(ResourceLocation identifier, Shape shape) {
+    public void addShape(Identifier identifier, Shape shape) {
         shapeGroup.addShape(identifier, shape);
     }
 
-    public void removeShape(ResourceLocation identifier) {
+    public void removeShape(Identifier identifier) {
         shapeGroup.removeShape(identifier);
     }
 
-    public void removeShapes(ResourceLocation root) {
+    public void removeShapes(Identifier root) {
         shapeGroup.removeShapes(root);
     }
 
@@ -57,17 +57,17 @@ public class EmptyShapeManager {
     }
 
     public static class EmptyShapeGroup {
-        public ConcurrentHashMap<ResourceLocation, Shape> shapeMap = new ConcurrentHashMap<>();
+        public ConcurrentHashMap<Identifier, Shape> shapeMap = new ConcurrentHashMap<>();
 
-        public void addShape(ResourceLocation id, Shape shape) {
+        public void addShape(Identifier id, Shape shape) {
             shapeMap.put(id, shape);
         }
 
-        public void removeShape(@NotNull ResourceLocation identifier) {
+        public void removeShape(@NotNull Identifier identifier) {
             shapeMap.remove(identifier);
         }
 
-        public void removeShapes(@NotNull ResourceLocation identifier) {
+        public void removeShapes(@NotNull Identifier identifier) {
             shapeMap.entrySet().removeIf(entry -> entry.getKey().getPath().startsWith(identifier.getPath()));
         }
 

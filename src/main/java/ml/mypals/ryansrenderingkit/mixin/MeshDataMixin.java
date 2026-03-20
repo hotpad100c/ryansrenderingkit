@@ -93,10 +93,10 @@ public abstract class MeshDataMixin implements MeshDataExt {
     private static
 
         //? if > 1.20.6 && <1.21.9 {
-        Vector3f[]
-        //?} else if >= 1.21.9 {
-        /*CompactVectorArray
-        *///?}
+        /*Vector3f[]
+        *///?} else if >= 1.21.9 {
+        CompactVectorArray
+        //?}
     unpackTriangleCentroids(ByteBuffer byteBuffer, int vertexCount, VertexFormat vertexFormat) {
         int posOffset = vertexFormat.getOffset(VertexFormatElement.POSITION);
         if (posOffset == -1) {
@@ -106,8 +106,8 @@ public abstract class MeshDataMixin implements MeshDataExt {
         FloatBuffer fb = byteBuffer.asFloatBuffer();
         int floatsPerVertex = vertexFormat.getVertexSize() / 4;
         int triangles = vertexCount / 3;
-        /*? if < 1.21.9 {*/Vector3f[]/*?} else {*//*CompactVectorArray*//*?}*/centroids = new
-        /*? if < 1.21.9 {*/Vector3f[triangles]/*?} else {*//*CompactVectorArray(triangles)*//*?}*/;
+        /*? if < 1.21.9 {*//*Vector3f[]*//*?} else {*/CompactVectorArray/*?}*/centroids = new
+        /*? if < 1.21.9 {*//*Vector3f[triangles]*//*?} else {*/CompactVectorArray(triangles)/*?}*/;
 
         for (int t = 0; t < triangles; t++) {
             int base = t * floatsPerVertex * 3 + posOffset;
@@ -125,10 +125,10 @@ public abstract class MeshDataMixin implements MeshDataExt {
             float y2 = fb.get(b2 + 1);
             float z2 = fb.get(b2 + 2);
             //? >=1.21.9 {
-            /*centroids.set(t, (x0 + x1 + x2) / 3f, (y0 + y1 + y2) / 3f, (z0 + z1 + z2) / 3f);
-            *///?} else {
-            centroids[t] = new Vector3f((x0 + x1 + x2) / 3f, (y0 + y1 + y2) / 3f, (z0 + z1 + z2) / 3f);
-            //?}
+            centroids.set(t, (x0 + x1 + x2) / 3f, (y0 + y1 + y2) / 3f, (z0 + z1 + z2) / 3f);
+            //?} else {
+            /*centroids[t] = new Vector3f((x0 + x1 + x2) / 3f, (y0 + y1 + y2) / 3f, (z0 + z1 + z2) / 3f);
+            *///?}
         }
 
         return centroids;
@@ -141,10 +141,10 @@ public abstract class MeshDataMixin implements MeshDataExt {
             VertexSorting vertexSorting) {
         RENDER_PROFILER.push("sortMesh");
         //? if < 1.21.9 {
-        Vector3f[]
-         //?} else {
-        /*CompactVectorArray
-        *///?}
+        /*Vector3f[]
+         *///?} else {
+        CompactVectorArray
+        //?}
 
                 compactVectorArray = unpackTriangleCentroids(this.vertexBuffer.byteBuffer(), this.drawState.vertexCount(), this.drawState.format());
 

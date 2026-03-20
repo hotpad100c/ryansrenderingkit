@@ -15,7 +15,7 @@
   "icon": "assets/ryansrenderingkit/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
+    "client": [
       "ml.mypals.ryansrenderingkit.RyansRenderingKit"
     ]
   },

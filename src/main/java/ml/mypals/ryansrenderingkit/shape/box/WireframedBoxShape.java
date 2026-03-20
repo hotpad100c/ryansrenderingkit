@@ -3,7 +3,7 @@ package ml.mypals.ryansrenderingkit.shape.box;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.ExtractableShape;
 import ml.mypals.ryansrenderingkit.shapeManagers.ShapeManagers;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
@@ -39,7 +39,7 @@ public class WireframedBoxShape extends BoxShape implements ExtractableShape {
     }
 
     @Override
-    public void addGroup(ResourceLocation identifier) {
+    public void addGroup(Identifier identifier) {
         boxWireframeShape = new BoxWireframeShape(
                 this.type,
                 recordedTransformFunction,
@@ -54,7 +54,7 @@ public class WireframedBoxShape extends BoxShape implements ExtractableShape {
                 //? if >1.18.2 {
                 identifier.withPath(identifier.getPath() + "/wireframe"),
                 //?} else {
-                /*ResourceLocation.fromNamespaceAndPath(identifier.getPath() + "/wireframe"),
+                /*ResourceLocation.tryBuild(identifier.getPath() + "/wireframe"),
                 *///?}
                 boxWireframeShape
         );
@@ -71,7 +71,7 @@ public class WireframedBoxShape extends BoxShape implements ExtractableShape {
                 //? if >1.18.2 {
                 identifier.withPath(identifier.getPath() + "/face"),
                  //?} else {
-                /*ResourceLocation.fromNamespaceAndPath(identifier.getPath() + "/face"),
+                /*ResourceLocation.tryBuild(identifier.getPath() + "/face"),
                 *///?}
                 boxFaceShape
         );

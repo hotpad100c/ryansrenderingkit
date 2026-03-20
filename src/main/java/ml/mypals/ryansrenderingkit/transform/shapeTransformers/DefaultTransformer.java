@@ -37,18 +37,14 @@ public class DefaultTransformer {
         this.world.syncLastToTarget();
     }
 
-    public Shape getShape() {
-        return shape;
-    }
+    public Shape getShape() { return shape; }
 
     public void updateTickDelta(float d) {
         this.delta = d;
         updateAll(d);
     }
 
-    public float getTickDelta() {
-        return delta;
-    }
+    public float getTickDelta() { return delta; }
 
     public void updateAll(float t) {
         local.update(t);
@@ -62,74 +58,47 @@ public class DefaultTransformer {
         matrix.syncLastToTarget();
     }
 
-    ///
-    /// 0 0 0
-    /// ^ ^ ^
-    /// W L M
     public void applyTransformations(PoseStack stack, boolean lerp, int flags) {
-
-        if ((flags & WORLD) != 0)
-            applyLayer(stack, world, lerp, (flags & CAMSPACE) != 0);
-
-        if ((flags & LOCAL) != 0)
-            applyLayer(stack, local, lerp, false);
-
-        if ((flags & MATRIX) != 0)
-            applyLayer(stack, matrix, lerp, false);
-
-        if ((flags & CAMSPACE) != 0);
+        if ((flags & WORLD) != 0)  applyLayer(stack, world,  lerp, (flags & CAMSPACE) != 0);
+        if ((flags & LOCAL) != 0)  applyLayer(stack, local,  lerp, false);
+        if ((flags & MATRIX) != 0) applyLayer(stack, matrix, lerp, false);
     }
 
-    public void applyModelTransformations(PoseStack stack, boolean lerp, boolean a) {
+    public void applyModelTransformations(PoseStack stack, boolean lerp) {
         applyTransformations(stack, lerp, WORLD | LOCAL);
     }
 
     public void applyLayer(PoseStack stack, TransformLayer layer, boolean lerp, boolean camSpace) {
-
         Vector3d p = layer.position.getValue(lerp);
         Quaternionf r = layer.rotation.getValue(lerp);
         Vector3d s = layer.scale.getValue(lerp);
 
-        if (camSpace && this.shape.parent == null) {
-            Minecraft mc = Minecraft.getInstance();
-            Camera camera = mc.gameRenderer.getMainCamera();
-            //? if >=1.21.11 {
-            /*Vec3 cameraPos = camera.position();
-             *///?} else {
-            Vec3 cameraPos = camera.getPosition();
-            //?}
+        double tx = p.x, ty = p.y, tz = p.z;
 
-            p = new Vector3d(
-                    p.x - cameraPos.x,
-                    p.y - cameraPos.y,
-                    p.z - cameraPos.z
-            );
+        if (camSpace && this.shape.parent == null) {
+            Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+            //? if >=1.21.11 {
+            Vec3 cameraPos = camera.position();
+             //?} else {
+            /*Vec3 cameraPos = camera.getPosition();
+            *///?}
+            tx -= cameraPos.x;
+            ty -= cameraPos.y;
+            tz -= cameraPos.z;
         }
 
-        stack.translate(p.x, p.y, p.z);
-
+        stack.translate(tx, ty, tz);
         //? if >1.18.2 {
         stack.mulPose(r);
         //?} else {
-        /*stack.mulPose(new Quaternion(r.x,r.y,r.z,r.w));
-        *///?}
+        /*stack.mulPose(new Quaternion(r.x, r.y, r.z, r.w));
+         *///?}
         stack.scale((float) s.x, (float) s.y, (float) s.z);
-
-        //stack.translate(-p.x, -p.y, -p.z);
     }
 
-
-    public TransformLayer local() {
-        return local;
-    }
-
-    public TransformLayer world() {
-        return world;
-    }
-
-    public TransformLayer matrix() {
-        return matrix;
-    }
+    public TransformLayer local()  { return local; }
+    public TransformLayer world()  { return world; }
+    public TransformLayer matrix() { return matrix; }
 
     public void applyHierarchy(PoseStack poseStack, boolean lerp, int flags) {
         List<Shape> hierarchy = this.shape.getHierarchy();
@@ -141,209 +110,89 @@ public class DefaultTransformer {
         }
     }
 
-    public Vec3 getShapeWorldPivot(boolean lerp) {
+    // 抽取公共父级矩阵构建，避免三个 getShapeWorld* 方法各自重复
+    private Matrix4f buildParentMatrix(boolean lerp) {
         PoseStack poseStack = new PoseStack();
+        applyHierarchy(poseStack, lerp, WORLD | LOCAL);
+        return convertToJomlIfNeeded(poseStack.last().pose());
+    }
 
-        applyHierarchy(poseStack,lerp,WORLD | LOCAL);
-
+    public Vec3 getShapeWorldPivot(boolean lerp) {
+        Matrix4f mat = buildParentMatrix(lerp);
         Vec3 localPivot = this.world.getPosition(lerp);
-
-        Matrix4f mat = convertToJomlIfNeeded(poseStack.last().pose());
-
-        Vector4f v = new Vector4f(
-                (float) localPivot.x,
-                (float) localPivot.y,
-                (float) localPivot.z,
-                1.0f
+        Vector3f v = new Vector3f((float) localPivot.x, (float) localPivot.y, (float) localPivot.z);
+        //? if >1.18.2 {
+        v.mulPosition(mat);
+        //?} else {
+        /*float x = v.x(), y = v.y(), z = v.z();
+        v.set(
+            Math.fma(mat.m00(),x,Math.fma(mat.m10(),y,Math.fma(mat.m20(),z,mat.m30()))),
+            Math.fma(mat.m01(),x,Math.fma(mat.m11(),y,Math.fma(mat.m21(),z,mat.m31()))),
+            Math.fma(mat.m02(),x,Math.fma(mat.m12(),y,Math.fma(mat.m22(),z,mat.m32())))
         );
-        v.mul(mat);
-
+        *///?}
         return new Vec3(v.x(), v.y(), v.z());
     }
 
-
     public Quaternionf getShapeWorldRotation(boolean lerp) {
-        PoseStack poseStack = new PoseStack();
-
-        applyHierarchy(poseStack,lerp, WORLD | LOCAL);
-
-        Quaternionf localRot = this.world.getRotation(lerp);
-        //? if >1.18.2 {
-        
-        poseStack.mulPose(localRot);
-         //?} else {
-
-        /*poseStack.mulPose(new Quaternion(localRot.x,localRot.y,localRot.z,localRot.w));
-
-        *///?}
-
-        PoseStack.Pose pose = poseStack.last();
-        //? if >1.18.2 {
-        
-        org.joml.Matrix4f mat = poseStack.last().pose();
-         //?} else {
-        /*org.joml.Matrix4f mat = new org.joml.Matrix4f(
-                pose.pose().m00,pose.pose().m01,pose.pose().m02,pose.pose().m03,
-                pose.pose().m10,pose.pose().m11,pose.pose().m12,pose.pose().m13,
-                pose.pose().m20,pose.pose().m21,pose.pose().m22,pose.pose().m23,
-                pose.pose().m30,pose.pose().m31,pose.pose().m32,pose.pose().m33
-        );
-        *///?}
-
-
+        Matrix4f mat = buildParentMatrix(lerp);
+        mat.rotate(this.world.getRotation(lerp));
         Quaternionf result = new Quaternionf();
-
-
-
         mat.getNormalizedRotation(result);
-
         return result;
     }
 
     public Vec3 getShapeWorldScale(boolean lerp) {
-        PoseStack poseStack = new PoseStack();
-
-        applyHierarchy(poseStack,lerp, WORLD | LOCAL);
-
+        Matrix4f mat = buildParentMatrix(lerp);
         Vec3 localScale = this.world.getScale(lerp);
-        poseStack.scale(
-                (float) localScale.x,
-                (float) localScale.y,
-                (float) localScale.z
+        mat.scale((float) localScale.x, (float) localScale.y, (float) localScale.z);
+        return new Vec3(
+                new Vector3f(mat.m00(), mat.m01(), mat.m02()).length(),
+                new Vector3f(mat.m10(), mat.m11(), mat.m12()).length(),
+                new Vector3f(mat.m20(), mat.m21(), mat.m22()).length()
         );
-
-        Matrix4f mat = convertToJomlIfNeeded(poseStack.last().pose());
-
-        float sx = new Vector3f(mat.m00(), mat.m01(), mat.m02()).length();
-        float sy = new Vector3f(mat.m10(), mat.m11(), mat.m12()).length();
-        float sz = new Vector3f(mat.m20(), mat.m21(), mat.m22()).length();
-
-        return new Vec3(sx, sy, sz);
     }
 
+    public Vec3       getShapeLocalPivot(boolean lerp)    { return local.getPosition(lerp); }
+    public Quaternionf getShapeLocalRotation(boolean lerp) { return local.getRotation(lerp); }
+    public Vec3       getShapeLocalScale(boolean lerp)    { return local.getScale(lerp); }
+    public Vec3       getShapeMatrixPivot(boolean lerp)   { return matrix.getPosition(lerp); }
+    public Quaternionf getShapeMatrixRotation(boolean lerp){ return matrix.getRotation(lerp); }
+    public Vec3       getShapeMatrixScale(boolean lerp)   { return matrix.getScale(lerp); }
 
-    public Vec3 getShapeLocalPivot(boolean lerp) {
-        return local.getPosition(lerp);
-    }
+    public Vec3        getWorldPivot()    { return getShapeWorldPivot(true); }
+    public Quaternionf getWorldRotation() { return getShapeWorldRotation(true); }
+    public Vec3        getWorldScale()    { return getShapeWorldScale(true); }
+    public Vec3        getLocalPivot()    { return getShapeLocalPivot(true); }
+    public Quaternionf getLocalRotation() { return getShapeLocalRotation(true); }
+    public Vec3        getLocalScale()    { return getShapeLocalScale(true); }
+    public Vec3        getMatrixPivot()   { return getShapeMatrixPivot(true); }
+    public Quaternionf getMatrixRotation(){ return getShapeMatrixRotation(true); }
+    public Vec3        getMatrixScale()   { return getShapeMatrixScale(true); }
 
-    public Quaternionf getShapeLocalRotation(boolean lerp) {
-        return local.getRotation(lerp);
-    }
-
-    public Vec3 getShapeLocalScale(boolean lerp) {
-        return local.getScale(lerp);
-    }
-
-    public Vec3 getShapeMatrixPivot(boolean lerp) {
-        return matrix.getPosition(lerp);
-    }
-
-    public Quaternionf getShapeMatrixRotation(boolean lerp) {
-        return matrix.getRotation(lerp);
-    }
-
-    public Vec3 getShapeMatrixScale(boolean lerp) {
-        return matrix.getScale(lerp);
-    }
-
-    public Vec3 getWorldPivot() {
-        return getShapeWorldPivot(true);
-    }
-
-    public Quaternionf getWorldRotation() {
-        return getShapeWorldRotation(true);
-    }
-
-    public Vec3 getWorldScale() {
-        return getShapeWorldScale(true);
-    }
-
-    public Vec3 getLocalPivot() {
-        return getShapeLocalPivot(true);
-    }
-
-    public Quaternionf getLocalRotation() {
-        return getShapeLocalRotation(true);
-    }
-
-    public Vec3 getLocalScale() {
-        return getShapeLocalScale(true);
-    }
-
-    public Vec3 getMatrixPivot() {
-        return getShapeMatrixPivot(true);
-    }
-
-    public Quaternionf getMatrixRotation() {
-        return getShapeMatrixRotation(true);
-    }
-
-    public Vec3 getMatrixScale() {
-        return getShapeMatrixScale(true);
-    }
-
-
-    public void setShapeWorldPivot(Vec3 v) {
-        world.setPosition(v);
-    }
-
-    public void setShapeWorldRotation(Quaternionf q) {
-        world.setRotation(q);
-    }
-
-    public void setShapeWorldRotationDegrees(float x, float y, float z) {
-        world.setRotation(new Quaternionf().rotateXYZ(
+    // 抽取欧拉角转四元数，三处 setShape*RotationDegrees 共用
+    private static Quaternionf fromEulerDegrees(float x, float y, float z) {
+        return new Quaternionf().rotateXYZ(
                 (float) Math.toRadians(x),
                 (float) Math.toRadians(y),
                 (float) Math.toRadians(z)
-        ));
+        );
     }
 
-    public void setShapeWorldScale(Vec3 s) {
-        world.setScale(s);
-    }
+    public void setShapeWorldPivot(Vec3 v)                              { world.setPosition(v); }
+    public void setShapeWorldRotation(Quaternionf q)                    { world.setRotation(q); }
+    public void setShapeWorldRotationDegrees(float x, float y, float z) { world.setRotation(fromEulerDegrees(x, y, z)); }
+    public void setShapeWorldScale(Vec3 s)                              { world.setScale(s); }
 
-    public void setShapeLocalPivot(Vec3 v) {
-        local.setPosition(v);
-    }
+    public void setShapeLocalPivot(Vec3 v)                              { local.setPosition(v); }
+    public void setShapeLocalRotation(Quaternionf q)                    { local.setRotation(q); }
+    public void setShapeLocalRotationDegrees(float x, float y, float z) { local.setRotation(fromEulerDegrees(x, y, z)); }
+    public void setShapeLocalScale(Vec3 s)                              { local.setScale(s); }
 
-    public void setShapeLocalRotation(Quaternionf q) {
-        local.setRotation(q);
-    }
+    public void setShapeMatrixPivot(Vec3 v)                               { matrix.setPosition(v); }
+    public void setShapeMatrixRotation(Quaternionf q)                     { matrix.setRotation(q); }
+    public void setShapeMatrixRotationDegrees(float x, float y, float z)  { matrix.setRotation(fromEulerDegrees(x, y, z)); }
+    public void setShapeMatrixScale(Vec3 s)                               { matrix.setScale(s); }
 
-    public void setShapeLocalRotationDegrees(float x, float y, float z) {
-        local.setRotation(new Quaternionf().rotateXYZ(
-                (float) Math.toRadians(x),
-                (float) Math.toRadians(y),
-                (float) Math.toRadians(z)
-        ));
-    }
-
-    public void setShapeLocalScale(Vec3 s) {
-        local.setScale(s);
-    }
-
-    public void setShapeMatrixPivot(Vec3 v) {
-        matrix.setPosition(v);
-    }
-
-    public void setShapeMatrixRotation(Quaternionf q) {
-        matrix.setRotation(q);
-    }
-
-    public void setShapeMatrixRotationDegrees(float x, float y, float z) {
-        matrix.setRotation(new Quaternionf().rotateXYZ(
-                (float) Math.toRadians(x),
-                (float) Math.toRadians(y),
-                (float) Math.toRadians(z)
-        ));
-    }
-
-    public void setShapeMatrixScale(Vec3 s) {
-        matrix.setScale(s);
-    }
-
-    public boolean asyncModelInfo() {
-        return false;
-    }
+    public boolean asyncModelInfo() { return false; }
 }

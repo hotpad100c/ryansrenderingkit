@@ -114,7 +114,7 @@ public class TextShape extends Shape implements EmptyMesh {
         for (int i = 0; i < contents.size(); i++) {
             String line = contents.get(i);
             int wrappedHeight = font.wordWrapHeight(
-                    /*? if >=1.21.11 {*//*FormattedText.of(line)*//*?} else {*/line/*?}*/
+                    /*? if >=1.21.11 {*/FormattedText.of(line)/*?} else {*//*line*//*?}*/
                     , Integer.MAX_VALUE);
             lineHeights[i] = wrappedHeight * 1.25f;
             totalHeight += lineHeights[i];
@@ -151,7 +151,7 @@ public class TextShape extends Shape implements EmptyMesh {
                         backgroundColor.getRGB(),
                         LightTexture.FULL_BRIGHT
                         //? if <=1.18.2
-                        /*,false*/
+                        //,false
                 );
             }
 
@@ -160,8 +160,8 @@ public class TextShape extends Shape implements EmptyMesh {
     }
 
     @Override
-    public void beforeDraw(PoseStack poseStack, float deltaTime) {
-        super.beforeDraw(poseStack, deltaTime);
+    public void beforeDraw(PoseStack poseStack, float deltaTime, boolean camSpace) {
+        super.beforeDraw(poseStack, deltaTime, camSpace);
 
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
 
@@ -170,11 +170,11 @@ public class TextShape extends Shape implements EmptyMesh {
                 poseStack.mulPose(camera.rotation());
             }
             case VERTICAL -> {
-                float yaw = (float) Math.toRadians(camera/*? if >=1.21.11 {*//*.yRot()*//*?} else {*/.getYRot()/*?}*/ + 180);
+                float yaw = (float) Math.toRadians(camera/*? if >=1.21.11 {*/.yRot()/*?} else {*//*.getYRot()*//*?}*/ + 180);
                 poseStack.mulPose(/*? if >1.18.2 {*/new Quaternionf().rotateY(yaw)/*?} else {*//*com.mojang.math.Vector3f.YP.rotationDegrees(yaw)*//*?}*/);
             }
             case HORIZONTAL -> {
-                float pitch = (float) Math.toRadians(camera/*? if >=1.21.11 {*//*.xRot()*//*?} else {*/.getYRot()/*?}*/);
+                float pitch = (float) Math.toRadians(camera/*? if >=1.21.11 {*/.xRot()/*?} else {*//*.getYRot()*//*?}*/);
                 poseStack.mulPose(/*? if >1.18.2 {*/new Quaternionf().rotateX(pitch)/*?} else {*//*com.mojang.math.Vector3f.XP.rotationDegrees(pitch)*//*?}*/);
             }
         }

@@ -180,8 +180,8 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
 
         float width = getLineWidth(true);
         //? if <1.21.11 {
-        RenderSystem.lineWidth(width);
-        //?}
+        /*RenderSystem.lineWidth(width);
+        *///?}
         int n = model_vertexes.size();
         if (n < 2) return;
 

@@ -3,12 +3,15 @@ package ml.mypals.ryansrenderingkit.shapeManagers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import ml.mypals.ryansrenderingkit.builderManager.BuilderManager;
 import ml.mypals.ryansrenderingkit.shape.Shape;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.RENDER_PROFILER;
 import static ml.mypals.ryansrenderingkit.shapeManagers.ShapeManagers.TEMP_HEADER;
@@ -19,20 +22,18 @@ public class ShapeManager {
     public ShapeGroup batchShapeGroup;
     public ShapeGroup bufferedShapeGroup;
     public BuilderManager builderManager;
-    public static Comparator<Shape> SHAPE_ORDER_COMPARATOR = (s1, s2) -> {
-        Vec3 shape1Pos = s1.transformer.getWorldPivot();
-        Vec3 shape2Pos = s2.transformer.getWorldPivot();
-        double distance1 = shape1Pos.lengthSqr(); // Square of distance for efficiency
-        double distance2 = shape2Pos.lengthSqr();
-        return Double.compare(distance2, distance1);
-    };
+
+    public static Comparator<Shape> SHAPE_ORDER_COMPARATOR = (s1, s2) -> Double.compare(
+            s2.transformer.getWorldPivot().lengthSqr(),
+            s1.transformer.getWorldPivot().lengthSqr()
+    );
 
     public ShapeManager(BuilderManager builderManager, String id) {
         this.id = id;
+        this.builderManager = builderManager;
         immediateShapeGroup = new ShapeGroup();
         batchShapeGroup = new ShapeGroup();
         bufferedShapeGroup = new ShapeGroup();
-        this.builderManager = builderManager;
     }
 
     public void syncShapeTransform() {
@@ -40,138 +41,125 @@ public class ShapeManager {
         batchShapeGroup.syncShapeTransform();
     }
 
-    public void addShape(ResourceLocation identifier, Shape shape) {
+    public void addShape(Identifier identifier, Shape shape) {
         switch (shape.type) {
             case IMMEDIATE -> immediateShapeGroup.addShape(identifier, shape);
-            case BATCH -> batchShapeGroup.addShape(identifier, shape);
-            case BUFFERED -> {
+            case BATCH     -> batchShapeGroup.addShape(identifier, shape);
+            case BUFFERED  -> {
                 if (identifier.getPath().startsWith(TEMP_HEADER))
                     throw new UnsupportedOperationException("Buffered shapes cant be temporary, use IMMEDIATE or BATCH types for temporary shapes.");
                 bufferedShapeGroup.addShape(identifier, shape);
                 builderManager.rebuildVBO(
-                        shape.seeThrough ?
-                                bufferedShapeGroup.seeThroughShapeMap.values()
-                                :
-                                bufferedShapeGroup.normalShapeMap.values()
-                        , shape.seeThrough);
+                        shape.seeThrough
+                                ? bufferedShapeGroup.seeThroughShapeMap.values()
+                                : bufferedShapeGroup.normalShapeMap.values(),
+                        shape.seeThrough);
             }
         }
     }
 
-    public void removeShape(ResourceLocation identifier) {
+    public void removeShape(Identifier identifier) {
         immediateShapeGroup.removeShape(identifier);
         batchShapeGroup.removeShape(identifier);
-        if (bufferedShapeGroup.removeShape(identifier)) {
-            builderManager.rebuildVBO(bufferedShapeGroup.seeThroughShapeMap.values(), true);
-            builderManager.rebuildVBO(bufferedShapeGroup.normalShapeMap.values(), false);
-        }
+        int removed = bufferedShapeGroup.removeShapeTracked(identifier);
+        if ((removed & ShapeGroup.REMOVED_NORMAL)      != 0) builderManager.rebuildVBO(bufferedShapeGroup.normalShapeMap.values(),      false);
+        if ((removed & ShapeGroup.REMOVED_SEE_THROUGH) != 0) builderManager.rebuildVBO(bufferedShapeGroup.seeThroughShapeMap.values(), true);
     }
 
-    public void removeShapes(ResourceLocation root) {
+    public void removeShapes(Identifier root) {
         immediateShapeGroup.removeShapes(root);
         batchShapeGroup.removeShapes(root);
-        if (bufferedShapeGroup.removeShapes(root)) {
-            builderManager.rebuildVBO(bufferedShapeGroup.seeThroughShapeMap.values(), true);
-            builderManager.rebuildVBO(bufferedShapeGroup.normalShapeMap.values(), false);
-        }
+        int removed = bufferedShapeGroup.removeShapesTracked(root);
+        if ((removed & ShapeGroup.REMOVED_NORMAL)      != 0) builderManager.rebuildVBO(bufferedShapeGroup.normalShapeMap.values(),      false);
+        if ((removed & ShapeGroup.REMOVED_SEE_THROUGH) != 0) builderManager.rebuildVBO(bufferedShapeGroup.seeThroughShapeMap.values(), true);
     }
 
     public void draw(PoseStack matrixStack, float tickDelta) {
         RENDER_PROFILER.push("batchDraw");
-        batchShapeGroup.drawBatched(this.builderManager, matrixStack, tickDelta);
+        batchShapeGroup.drawBatched(builderManager, matrixStack, tickDelta);
         RENDER_PROFILER.pop();
         RENDER_PROFILER.push("singleDraw");
-        immediateShapeGroup.drawImmediate(this.builderManager, matrixStack, tickDelta);
+        immediateShapeGroup.drawImmediate(builderManager, matrixStack, tickDelta);
         RENDER_PROFILER.pop();
         RENDER_PROFILER.push("bufferedDraw");
-        bufferedShapeGroup.drawBuffered(this.builderManager);
+        bufferedShapeGroup.drawBuffered(builderManager);
         RENDER_PROFILER.pop();
     }
 
     public static class ShapeGroup {
-        public ConcurrentHashMap<ResourceLocation, Shape> normalShapeMap = new ConcurrentHashMap<>() {
-        };
-        public ConcurrentHashMap<ResourceLocation, Shape> seeThroughShapeMap = new ConcurrentHashMap<>();
+        public static final int REMOVED_NORMAL      = 1;
+        public static final int REMOVED_SEE_THROUGH = 2;
 
-        public void addShape(ResourceLocation id, Shape shape) {
-            if (shape.seeThrough) {
-                seeThroughShapeMap.put(id, shape);
+        public ConcurrentHashMap<Identifier, Shape> normalShapeMap     = new ConcurrentHashMap<>();
+        public ConcurrentHashMap<Identifier, Shape> seeThroughShapeMap = new ConcurrentHashMap<>();
 
-            } else {
-                normalShapeMap.put(id, shape);
-            }
+        private void forBothMaps(Consumer<ConcurrentHashMap<Identifier, Shape>> action) {
+            action.accept(normalShapeMap);
+            action.accept(seeThroughShapeMap);
         }
 
-        public boolean removeShape(@NotNull ResourceLocation identifier) {
-            boolean removed1 = seeThroughShapeMap.remove(identifier) != null;
-            boolean removed2 = normalShapeMap.remove(identifier) != null;
-            return removed1 || removed2;
+        public void addShape(Identifier id, Shape shape) {
+            (shape.seeThrough ? seeThroughShapeMap : normalShapeMap).put(id, shape);
         }
 
-        public boolean removeShapes(@NotNull ResourceLocation identifier) {
+        public boolean removeShape(@NotNull Identifier identifier) {
+            return removeShapeTracked(identifier) != 0;
+        }
+
+        public int removeShapeTracked(@NotNull Identifier identifier) {
+            int flags = 0;
+            if (normalShapeMap.remove(identifier)      != null) flags |= REMOVED_NORMAL;
+            if (seeThroughShapeMap.remove(identifier)  != null) flags |= REMOVED_SEE_THROUGH;
+            return flags;
+        }
+
+        public boolean removeShapes(@NotNull Identifier identifier) {
+            return removeShapesTracked(identifier) != 0;
+        }
+
+        public int removeShapesTracked(@NotNull Identifier identifier) {
             String namespace = identifier.getNamespace();
             String path = identifier.getPath();
+            Predicate<Map.Entry<Identifier, Shape>> pred = entry ->
+                    entry.getKey().getNamespace().equals(namespace)
+                            && entry.getKey().getPath().startsWith(path);
 
-            boolean removed1 = seeThroughShapeMap.entrySet()
-                    .removeIf(entry -> entry.getKey().getNamespace().equals(namespace)
-                            && entry.getKey().getPath().startsWith(path));
-
-            boolean removed2 = normalShapeMap.entrySet()
-                    .removeIf(entry -> entry.getKey().getNamespace().equals(namespace)
-                            && entry.getKey().getPath().startsWith(path));
-
-            return removed1 || removed2;
+            int flags = 0;
+            if (normalShapeMap.entrySet().removeIf(pred))      flags |= REMOVED_NORMAL;
+            if (seeThroughShapeMap.entrySet().removeIf(pred))  flags |= REMOVED_SEE_THROUGH;
+            return flags;
         }
 
-        public void clear() {
-            normalShapeMap.clear();
-            seeThroughShapeMap.clear();
-        }
+        public void clear()     { forBothMaps(Map::clear); }
 
         public void clearTemp() {
-            normalShapeMap.entrySet().removeIf(entry -> entry.getKey().getPath().startsWith(TEMP_HEADER));
-            seeThroughShapeMap.entrySet().removeIf(entry -> entry.getKey().getPath().startsWith(TEMP_HEADER));
+            Predicate<Map.Entry<Identifier, Shape>> isTemp =
+                    entry -> entry.getKey().getPath().startsWith(TEMP_HEADER);
+            forBothMaps(map -> map.entrySet().removeIf(isTemp));
         }
 
         public void syncShapeTransform() {
-            for (Shape shape : normalShapeMap.values()) {
-                shape.syncLastToTarget();
-            }
-            for (Shape shape : seeThroughShapeMap.values()) {
-                shape.syncLastToTarget();
-            }
+            forBothMaps(map -> map.values().forEach(Shape::syncLastToTarget));
         }
 
         public void drawImmediate(BuilderManager builderManager, PoseStack matrixStack, float tickDelta) {
-            if (!normalShapeMap.isEmpty()) {
-                for (Shape shape : normalShapeMap.values()) {
-                    builderManager.drawImmediate(shape, builder -> {
-                        shape.draw(true, builder, matrixStack, tickDelta);
-                    });
-                }
+            for (Shape shape : normalShapeMap.values()) {
+                builderManager.drawImmediate(shape, builder -> shape.draw(true, builder, matrixStack, tickDelta));
             }
-            if (!seeThroughShapeMap.isEmpty()) {
-                for (Shape shape : seeThroughShapeMap.values()) {
-                    builderManager.drawImmediate(shape, builder -> {
-                        shape.draw(true, builder, matrixStack, tickDelta);
-                    });
-                }
+            for (Shape shape : seeThroughShapeMap.values()) {
+                builderManager.drawImmediate(shape, builder -> shape.draw(true, builder, matrixStack, tickDelta));
             }
         }
 
         public void drawBatched(BuilderManager builderManager, PoseStack matrixStack, float tickDelta) {
             if (!normalShapeMap.isEmpty()) {
                 builderManager.drawBatch(builder -> {
-                    for (Shape shape : normalShapeMap.values()) {
-                        shape.draw(true, builder, matrixStack, tickDelta);
-                    }
+                    for (Shape shape : normalShapeMap.values()) shape.draw(true, builder, matrixStack, tickDelta);
                 }, false);
             }
             if (!seeThroughShapeMap.isEmpty()) {
                 builderManager.drawBatch(builder -> {
-                    for (Shape shape : seeThroughShapeMap.values()) {
-                        shape.draw(true, builder, matrixStack, tickDelta);
-                    }
+                    for (Shape shape : seeThroughShapeMap.values()) shape.draw(true, builder, matrixStack, tickDelta);
                 }, true);
             }
         }

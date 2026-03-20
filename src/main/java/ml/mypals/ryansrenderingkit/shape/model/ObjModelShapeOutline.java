@@ -3,7 +3,7 @@ package ml.mypals.ryansrenderingkit.shape.model;
 import com.mojang.blaze3d.systems.RenderSystem;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.basics.core.LineLikeShape;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
@@ -15,7 +15,7 @@ public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape
 
     public ObjModelShapeOutline(RenderingType type,
                                 Consumer<SimpleLineTransformer> transform,
-                                ResourceLocation resourceLocation,
+                                Identifier resourceLocation,
                                 Vec3 center,
                                 float lineWidth,
                                 Color color,
@@ -58,8 +58,8 @@ public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape
         if (model_vertexes.isEmpty() || indexBuffer == null || indexBuffer.length < 3)
             return;
         //? if <1.21.11 {
-        RenderSystem.lineWidth(this.lineWidth);
-        //?}
+        /*RenderSystem.lineWidth(this.lineWidth);
+        *///?}
         builder.putColor(this.baseColor);
 
         for (int[] face : model.faces) {

@@ -97,8 +97,8 @@ public abstract class VertexBuilder {
                 .setColor(r, g, b, a)
                 .setNormal(normal.x, normal.y, normal.z)
                 //? if >=1.21.11 {
-                /*.setLineWidth(width)
-                *///?}
+                .setLineWidth(width)
+                //?}
                 ;
         //?} else {
         /*this.bufferBuilder.vertex(convertToMojangIfNeeded(positionMatrix), v.x(), v.y(), v.z())
@@ -152,8 +152,8 @@ public abstract class VertexBuilder {
                 .setColor(r, g, b, a)
                 .setNormal(normal.x, normal.y, normal.z)
                 //? if >=1.21.11 {
-                /*.setLineWidth(width)
-                *///?}
+                .setLineWidth(width)
+                //?}
                 ;
         //?} else {
         /*this.bufferBuilder.vertex(convertToMojangIfNeeded(positionMatrix), v.x(), v.y(), v.z())
@@ -199,14 +199,14 @@ public abstract class VertexBuilder {
         RenderSystem.polygonOffset(-1.0f, -1.0f);
         *///?}
         //? < 1.21.6 {
-        RenderSystem.setShaderColor(1,1,1,1);
-        //?}
+        /*RenderSystem.setShaderColor(1,1,1,1);
+        *///?}
 }
 
     public void restoreRendererSystem() {
         //? if <1.21.11 {
-        RenderSystem.lineWidth(1.0f);
-        //?}
+        /*RenderSystem.lineWidth(1.0f);
+        *///?}
         //? >=1.21.5 {
         GlStateManager._enableDepthTest();
         GlStateManager._disablePolygonOffset();
@@ -217,7 +217,7 @@ public abstract class VertexBuilder {
         RenderSystem.enableCull();
         *///?}
         //? < 1.21.6 {
-        RenderSystem.setShaderColor(1,1,1,1);
-        //?}
+        /*RenderSystem.setShaderColor(1,1,1,1);
+        *///?}
     }
 }

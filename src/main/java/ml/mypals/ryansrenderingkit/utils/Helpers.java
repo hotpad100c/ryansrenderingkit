@@ -19,11 +19,11 @@ import net.minecraft.client.renderer.LevelRenderer;
 *///?}
 
 //? if >=1.21.11 {
-/*import net.minecraft.gizmos.GizmoStyle;
+import net.minecraft.gizmos.GizmoStyle;
 import net.minecraft.gizmos.Gizmos;
 import net.minecraft.gizmos.SimpleGizmoCollector;
-*///?}
-import net.minecraft.resources.ResourceLocation;
+//?}
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -37,10 +37,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.MOD_ID;
 
 public class Helpers {
-    public static ResourceLocation generateUniqueId(String prefix) {
+    public static Identifier generateUniqueId(String prefix) {
         long timestamp = System.currentTimeMillis();
         int randomNum = ThreadLocalRandom.current().nextInt(10000);
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, prefix.toLowerCase() + "_" + timestamp + "_" + randomNum);
+        return Identifier.fromNamespaceAndPath(MOD_ID, prefix.toLowerCase() + "_" + timestamp + "_" + randomNum);
     }
 
     public static Vec3 max(Vec3 a, Vec3 b) {
@@ -86,24 +86,24 @@ public class Helpers {
         double half = size / 2.0;
 
         //? if >=1.21.11 {
-        /*Gizmos.cuboid(new AABB( center.x - half, center.y - half, center.z - half,
+        Gizmos.cuboid(new AABB( center.x - half, center.y - half, center.z - half,
                         center.x + half, center.y + half, center.z + half
                         ), GizmoStyle.stroke(new Color(red,green,blue,alpha).getRGB()));
-        *///?} else {
-            //? if >1.21.1 {
+        //?} else {
+            /*//? if >1.21.1 {
             ShapeRenderer
             //?} else {
-            /*LevelRenderer
-            *///?}
+            /^LevelRenderer
+            ^///?}
                     .renderLineBox(
-                    poseStack/*? if >=1.21.9 {*//*.last()*//*?}*/, consumer,
+                    poseStack/^? if >=1.21.9 {^/.last()/^?}^/, consumer,
                     center.x - half, center.y - half, center.z - half,
                     center.x + half, center.y + half, center.z + half,
                     red, green, blue,
                     alpha, red, green,
                     blue
             );
-        //?}
+        *///?}
     }
 
     public static void renderBillboardFrame(
@@ -118,13 +118,13 @@ public class Helpers {
             //? if >1.21.1 {
             vec3
             //?} else
-            /*vec3.x,vec3.y,vec3.z*/
+            //vec3.x,vec3.y,vec3.z
         );
 
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
 
-        poseStack.mulPose( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.YP.rotationDegrees(-camera/*? if >=1.21.11 {*//*.yRot()*//*?} else {*/.getYRot()/*?}*/));
-        poseStack.mulPose( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.XP.rotationDegrees(camera/*? if >=1.21.11 {*//*.xRot()*//*?} else {*/.getXRot()/*?}*/));
+        poseStack.mulPose( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.YP.rotationDegrees(-camera/*? if >=1.21.11 {*/.yRot()/*?} else {*//*.getYRot()*//*?}*/));
+        poseStack.mulPose( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.XP.rotationDegrees(camera/*? if >=1.21.11 {*/.xRot()/*?} else {*//*.getXRot()*//*?}*/));
 
         PoseStack.Pose pose = poseStack.last();
 

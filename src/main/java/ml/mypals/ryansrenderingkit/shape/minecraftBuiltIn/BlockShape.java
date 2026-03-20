@@ -35,10 +35,10 @@ import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
 
 
 //? if >=1.21.9 {
-/*import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
-*///?}
+//?}
 
 public class BlockShape extends Shape implements EmptyMesh {
 
@@ -108,11 +108,11 @@ public class BlockShape extends Shape implements EmptyMesh {
         List<Vec3> result = new ArrayList<>(4);
         //? if <1.21.11 {
 
-            //? if >=1.21.5 {
+            /*//? if >=1.21.5 {
             int[] v = quad.vertices();
             //?} else {
-            /*int[] v = quad.getVertices();
-            *///?}
+            /^int[] v = quad.getVertices();
+            ^///?}
             int stride = 8;
             int count = v.length / stride;
             for (int i = 0; i < count; i++) {
@@ -122,14 +122,14 @@ public class BlockShape extends Shape implements EmptyMesh {
                 float z = Float.intBitsToFloat(v[base + 2]);
                 result.add(new Vec3(x, y, z));
             }
-        //?} else {
-        /*for (int i = 0;i<4;i++){
+        *///?} else {
+        for (int i = 0;i<4;i++){
             float x = quad.position(i).x();
             float y = quad.position(i).y();
             float z = quad.position(i).z();
             result.add(new Vec3(x, y, z));
         }
-        *///?}
+        //?}
         return result;
     }
 
@@ -141,16 +141,16 @@ public class BlockShape extends Shape implements EmptyMesh {
         MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
 
         //? < 1.21.6 {
-        RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
+        /*RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
                 (float) this.baseColor.getGreen() / 255,
                 (float) this.baseColor.getBlue() / 255,
                 (float) this.baseColor.getAlpha() / 255);
-        //?}
+        *///?}
         poseStack.pushPose();
         //? > 1.20.4 {
         poseStack.mulPose(builder.getPositionMatrix());
         //?} else
-        /*poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));*/
+        //poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
 
 
         dispatcher.renderSingleBlock(blockState, poseStack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);
@@ -160,20 +160,20 @@ public class BlockShape extends Shape implements EmptyMesh {
             BlockEntity blockEntity = ((EntityBlock) blockState.getBlock()).newBlockEntity(BlockPos.ZERO, blockState);
 
             //? if <1.21.9 {
-            blockEntityRenderDispatcher.render(blockEntity, transformer.getTickDelta(), poseStack, multiBufferSource);
-            //?} else {
-            /*BlockEntityRenderState blockEntityRenderState = blockEntityRenderDispatcher.tryExtractRenderState(blockEntity, transformer.getTickDelta(),null);
+            /*blockEntityRenderDispatcher.render(blockEntity, transformer.getTickDelta(), poseStack, multiBufferSource);
+            *///?} else {
+            BlockEntityRenderState blockEntityRenderState = blockEntityRenderDispatcher.tryExtractRenderState(blockEntity, transformer.getTickDelta(),null);
             SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
             CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
             blockEntityRenderDispatcher.submit(blockEntityRenderState,poseStack,submitNodeCollector,cameraRenderState);
-            *///?}
+            //?}
         }
 
         poseStack.popPose();
 
         //? < 1.21.6 {
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        //?}
+        /*RenderSystem.setShaderColor(1, 1, 1, 1);
+        *///?}
     }
 
     @Override

@@ -20,10 +20,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 //? if >=1.21.9 {
-/*import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-*///?}
+//?}
 import java.awt.*;
 import java.util.function.Consumer;
 
@@ -88,35 +88,35 @@ public class ItemShape extends Shape implements EmptyMesh {
         MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
 
         //? < 1.21.6 {
-        RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
+        /*RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
                 (float) this.baseColor.getGreen() / 255,
                 (float) this.baseColor.getBlue() / 255,
                 (float) this.baseColor.getAlpha() / 255);
-        //?}
+        *///?}
         poseStack.pushPose();
         //? > 1.20.4 {
         poseStack.mulPose(builder.getPositionMatrix());
          //?} else
 
-        /*poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));*/
+        //poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
         poseStack.translate(0, -(ItemEntity.DEFAULT_BB_HEIGHT / 16), -0);
 
         //? if <1.21.9 {
-        itemRenderer.renderStatic(item, itemDisplayContext, light, OverlayTexture.NO_OVERLAY, poseStack,
-                multiBufferSource, /*? if >1.18.2 {*/mc.level,/*?}*/ mc.level.random.nextInt());
-        //?} else {
+        /*itemRenderer.renderStatic(item, itemDisplayContext, light, OverlayTexture.NO_OVERLAY, poseStack,
+                multiBufferSource, /^? if >1.18.2 {^/mc.level,/^?}^/ mc.level.random.nextInt());
+        *///?} else {
 
-        /*ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
+        ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
         ItemModelResolver itemModelResolver = mc.getItemModelResolver();
         itemModelResolver.appendItemLayers(itemStackRenderState,item,itemDisplayContext,null,null,0);
         itemStackRenderState.submit(poseStack, mc.gameRenderer.getSubmitNodeStorage(),light,OverlayTexture.NO_OVERLAY, 0);
-        *///?}
+        //?}
 
 
         poseStack.popPose();
         //? <1.21.6 {
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        //?}
+        /*RenderSystem.setShaderColor(1, 1, 1, 1);
+        *///?}
     }
 
 }

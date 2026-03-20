@@ -1,9 +1,9 @@
 package ml.mypals.ryansrenderingkit.shape.basics.tags;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public interface ExtractableShape {
-    default void addGroup(ResourceLocation identifier) {
+    default void addGroup(Identifier identifier) {
 
     }
 }

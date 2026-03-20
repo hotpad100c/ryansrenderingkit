@@ -3,12 +3,12 @@ package ml.mypals.ryansrenderingkit.builders.shapeBuilders;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.model.ObjModelShape;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class ObjModelBuilder extends BaseBuilder<ObjModelBuilder, DefaultTransformer> {
-    private ResourceLocation resourceLocation;
+    private Identifier resourceLocation;
 
-    public ObjModelBuilder model(ResourceLocation resourceLocation) {
+    public ObjModelBuilder model(Identifier resourceLocation) {
         this.resourceLocation = resourceLocation;
         return this;
     }

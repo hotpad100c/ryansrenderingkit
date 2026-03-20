@@ -10,8 +10,8 @@ import org.joml.Vector3f;
 
 //?} else {
 /*import com.mojang.math.Vector3f;
-*/
-//?}
+
+*///?}
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -31,7 +31,7 @@ public abstract class SortStateMixin implements MeshDataExt.BufferBuilderSortabl
 
     @Shadow
     @Final
-    private /*? if <1.21.9 {*/Vector3f[]/*?} else {*/ /*CompactVectorArray*//*?}*/centroids;
+    private /*? if <1.21.9 {*//*Vector3f[]*//*?} else {*/ CompactVectorArray/*?}*/centroids;
 
     @Unique
     public ByteBufferBuilder.Result

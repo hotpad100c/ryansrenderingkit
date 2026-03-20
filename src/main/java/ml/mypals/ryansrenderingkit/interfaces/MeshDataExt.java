@@ -13,7 +13,7 @@ public interface MeshDataExt {
         ByteBufferBuilder
         .Result
         //?} else
-        /*void*/
+        //void
         ryansrenderingkit$buildSortedIndexBufferTriangles(/*? if >1.20.6 {*/ ByteBufferBuilder byteBufferBuilder,  /*?}*/ /*? if >1.19.4 {*/VertexSorting vertexSorting/*?}*/);
     }
 }

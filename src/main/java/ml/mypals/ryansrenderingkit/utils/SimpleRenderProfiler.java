@@ -1,5 +1,10 @@
 package ml.mypals.ryansrenderingkit.utils;
 
+import net.minecraft.client.Minecraft;
+//?if>1.21.1{
+import net.minecraft.util.profiling.Profiler;
+//?}
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -27,6 +32,15 @@ public class SimpleRenderProfiler {
     }
 
     public void push(String name) {
+
+        //?if>1.21.1{
+        Profiler.get().push(name);
+        //?}else{
+        /*if(Minecraft.getInstance().level != null) {
+            Minecraft.getInstance().level.getProfiler().push(name);
+        }
+        *///?}
+
         Section parent = stack.peek();
         Section section = null;
 
@@ -49,6 +63,14 @@ public class SimpleRenderProfiler {
 
 
     public void pop() {
+
+        //?if>1.21.1{
+        Profiler.get().pop();
+        //?}else{
+        /*if(Minecraft.getInstance().level != null) {
+            Minecraft.getInstance().level.getProfiler().pop();
+        }
+        *///? }
         Section section = stack.pop();
         long duration = System.nanoTime() - section.startTime;
         section.totalTime += duration;

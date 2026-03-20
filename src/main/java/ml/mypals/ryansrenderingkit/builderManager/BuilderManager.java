@@ -73,7 +73,7 @@ public class BuilderManager {
 
     public void drawVBO() {
         Camera camera = net.minecraft.client.Minecraft.getInstance().gameRenderer.getMainCamera();
-        Vec3 cameraPos = camera/*? if >=1.21.11 {*//*.position()*//*?} else {*/.getPosition()/*?}*/;
+        Vec3 cameraPos = camera/*? if >=1.21.11 {*/.position()/*?} else {*//*.getPosition()*//*?}*/;
         seeThroughBuilderGroup.drawVBO(cameraPos);
         normalBuilderGroup.drawVBO(cameraPos);
     }

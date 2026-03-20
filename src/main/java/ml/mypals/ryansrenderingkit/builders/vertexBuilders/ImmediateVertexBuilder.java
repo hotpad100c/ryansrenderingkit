@@ -57,7 +57,7 @@ public class ImmediateVertexBuilder extends VertexBuilder {
                         //? if >1.21.1 {
                         RenderSystem.getProjectionType().vertexSorting()
                         //?} else
-                        /*RenderSystem.getVertexSorting()*/
+                        //RenderSystem.getVertexSorting()
                 );
             }
             //?}

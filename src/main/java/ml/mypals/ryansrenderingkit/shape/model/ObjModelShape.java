@@ -4,7 +4,7 @@ import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.phys.Vec3;
@@ -25,7 +25,7 @@ public class ObjModelShape extends Shape {
 
     public ObjModelShape(RenderingType type,
                          Consumer<DefaultTransformer> transform,
-                         ResourceLocation resourceLocation,
+                         Identifier resourceLocation,
                          Vec3 center,
                          Color color) {
         this(type, transform, resourceLocation, center, color, false);
@@ -38,7 +38,7 @@ public class ObjModelShape extends Shape {
 
     public ObjModelShape(RenderingType type,
                          Consumer<DefaultTransformer> transform,
-                         ResourceLocation resourceLocation,
+                         Identifier resourceLocation,
                          Vec3 center,
                          Color color,
                          boolean seeThrough) {
@@ -61,7 +61,7 @@ public class ObjModelShape extends Shape {
         public final ArrayList<int[]> faces = new ArrayList<>();
     }
 
-    public void loadOBJ(ResourceLocation location) throws IOException {
+    public void loadOBJ(Identifier location) throws IOException {
         ResourceManager manager = Minecraft.getInstance().getResourceManager();
         //? if >1.18.2 {
         Optional<Resource> optional = manager.getResource(location);
