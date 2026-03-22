@@ -254,10 +254,10 @@ public class BufferedVertexBuilder extends VertexBuilder {
         /*RenderSystem.getModelViewStack().pushPose();
         *///?}
 
-        //? if <1.21 {
-        /*Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        RenderSystem.getModelViewStack()./^? <1.20.6 {^//^mulPose^//^?} else {^/rotate/^?}^/(/^? if <=1.18.2 {^/ /^Vector3f ^//^?} else {^/Axis/^?}^/.XP.rotationDegrees(camera.getXRot()));
-        RenderSystem.getModelViewStack()./^? <1.20.6 {^//^mulPose^//^?} else {^/rotate/^?}^/(/^? if <=1.18.2 {^/ /^Vector3f ^//^?} else {^/Axis/^?}^/.YP.rotationDegrees(camera.getYRot() + 180.0F));
+        //? if <1.20.6 {
+            /*Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+            RenderSystem.getModelViewStack()./^? <1.20.6 {^//^mulPose^//^?} else {^/rotate/^?}^/(/^? if <=1.18.2 {^/ /^Vector3f ^//^?} else {^/Axis/^?}^/.XP.rotationDegrees(camera.getXRot()));
+            RenderSystem.getModelViewStack()./^? <1.20.6 {^//^mulPose^//^?} else {^/rotate/^?}^/(/^? if <=1.18.2 {^/ /^Vector3f ^//^?} else {^/Axis/^?}^/.YP.rotationDegrees(camera.getYRot() + 180.0F));
         *///?}
         RenderSystem.getModelViewStack().translate(
                 (float) -cameraPos.x,

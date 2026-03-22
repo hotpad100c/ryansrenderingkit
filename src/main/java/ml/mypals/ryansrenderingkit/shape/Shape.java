@@ -191,7 +191,7 @@ public abstract class Shape {
             double distanceTo = v.distanceTo(Vec3.ZERO);
             if (distanceTo < 30)
                 //? if >=1.21.11 {
-                Gizmos.point(v, Color.MAGENTA.getRGB(), 10);
+                Gizmos.point(v.scale(512)/*why??????*/, Color.MAGENTA.getRGB(), 10);
                  //?} else {
                 /*renderBillboardFrame(matrixStack, vertexConsumer, v, (float) (distanceTo * 0.03), 1, 0, 1, 1);
             *///?}

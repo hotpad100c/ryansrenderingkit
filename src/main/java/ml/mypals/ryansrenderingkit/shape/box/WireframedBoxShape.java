@@ -54,7 +54,7 @@ public class WireframedBoxShape extends BoxShape implements ExtractableShape {
                 //? if >1.18.2 {
                 identifier.withPath(identifier.getPath() + "/wireframe"),
                 //?} else {
-                /*ResourceLocation.tryBuild(identifier.getPath() + "/wireframe"),
+                /*Identifier.fromNamespaceAndPath(identifier.getPath() + "/wireframe"),
                 *///?}
                 boxWireframeShape
         );
@@ -71,7 +71,7 @@ public class WireframedBoxShape extends BoxShape implements ExtractableShape {
                 //? if >1.18.2 {
                 identifier.withPath(identifier.getPath() + "/face"),
                  //?} else {
-                /*ResourceLocation.tryBuild(identifier.getPath() + "/face"),
+                /*Identifier.fromNamespaceAndPath(identifier.getPath() + "/face"),
                 *///?}
                 boxFaceShape
         );

@@ -8,9 +8,7 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 /*import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 *///?}
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import ml.mypals.ryansrenderingkit.builderManager.BuilderManagers;
 import ml.mypals.ryansrenderingkit.shapeManagers.ShapeManagers;
 import ml.mypals.ryansrenderingkit.utils.Helpers;
@@ -37,7 +35,7 @@ public class MainRender {
 
             matrixStack.pushPose();
 
-            Matrix4f pose = Helpers.convertToJomlIfNeeded(matrixStack.last().pose());
+            //Matrix4f pose = Helpers.convertToJomlIfNeeded(matrixStack.last().pose());
 
             /*RENDER_PROFILER.push("updateMatrix");
             BuilderManagers.updateMatrix(pose);
@@ -56,7 +54,13 @@ public class MainRender {
             /*RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             *///?}
+
+            //?if<=1.20.1{
+            /*ShapeManagers.renderAll(matrixStack, tickDelta);
+            *///?}else{
             ShapeManagers.renderAll(matrixStack, tickDelta);
+            //?}
+
             //? >=1.21.5 {
             GlStateManager._disableBlend();
             //?} else {

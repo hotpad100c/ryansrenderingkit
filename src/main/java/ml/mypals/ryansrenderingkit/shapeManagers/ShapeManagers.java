@@ -35,15 +35,14 @@ public class ShapeManagers {
         for (ShapeManager manager : managers
         ) {
 
-
             RENDER_PROFILER.push("renderNormalShape");
-            manager.draw(new PoseStack(), tickDelta);
+            manager.draw(matrixStack, tickDelta);
             RENDER_PROFILER.pop();
         }
         for (EmptyShapeManager manager : emptyManagers
         ) {
             RENDER_PROFILER.push("renderSpecialShape");
-            manager.draw(new PoseStack(), tickDelta);
+            manager.draw(matrixStack, tickDelta);
             RENDER_PROFILER.pop();
         }
     }
