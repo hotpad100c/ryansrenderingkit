@@ -8,7 +8,6 @@ import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -21,7 +20,7 @@ import java.util.function.Consumer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollection;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 //?}
 
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.isEndOfWorldTick;
@@ -103,7 +102,7 @@ public class EntityShape extends Shape implements EmptyMesh {
         *///?} else {
         EntityRenderState entityRenderState = dispatcher.extractEntity(entity, transformer.getTickDelta());
         SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
-        CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
+        CameraRenderState cameraRenderState = mc.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
         dispatcher.submit(entityRenderState,cameraRenderState,0,0,0,poseStack,submitNodeCollector);
         //?}
         poseStack.popPose();

@@ -1,7 +1,8 @@
 package ml.mypals.ryansrenderingkit.render.renderTypes;
 //? if >= 1.21.5 {
+import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.platform.DepthTestFunction;
+import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -15,6 +16,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 
+import java.util.Optional;
 import java.util.OptionalDouble;
 
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.MOD_ID;
@@ -49,8 +51,7 @@ public class RyansRenderingKitRenderTypes {
     //? if >= 1.21.5 {
     private static final RenderPipeline noDepthTriangles = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_quads"))
-            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-            .withDepthWrite(false)
+            .withDepthStencilState(Optional.empty())
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
             .build();
@@ -79,8 +80,7 @@ public class RyansRenderingKitRenderTypes {
 
     private static final RenderPipeline noDepthLines = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_lines"))
-            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-            .withDepthWrite(false)
+            .withDepthStencilState(Optional.empty())
             .withCull(false)
             //? if <1.21.11 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
@@ -113,8 +113,7 @@ public class RyansRenderingKitRenderTypes {
     *///?}
     private static final RenderPipeline noDepthLineStrip = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
-            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-            .withDepthWrite(false)
+            .withDepthStencilState(Optional.empty())
             .withCull(false)
             //? if <1.21.11 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
@@ -131,7 +130,7 @@ public class RyansRenderingKitRenderTypes {
 
     private static final RenderPipeline lineStrip = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
-            .withDepthWrite(false)
+            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
             .build();
