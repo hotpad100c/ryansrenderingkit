@@ -12,7 +12,9 @@ import net.minecraft.client.Minecraft;
 //? if >1.21.1 {
 
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.ShapeRenderer;
+//? if <26.2 {
+/*import net.minecraft.client.renderer.ShapeRenderer;
+*///?}
 //?} else {
 /*import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
