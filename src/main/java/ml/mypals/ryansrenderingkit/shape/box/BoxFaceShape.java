@@ -21,7 +21,7 @@ public class BoxFaceShape extends BoxShape implements DrawableQuad {
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
-        model_vertexes.clear();
+        modelVertexes.clear();
 
         BoxTransformer bt = (BoxTransformer) transformer;
         Vec3 c = bt.getLocalPivot();
@@ -30,14 +30,14 @@ public class BoxFaceShape extends BoxShape implements DrawableQuad {
         double hy = d.y * 0.5;
         double hz = d.z * 0.5;
 
-        model_vertexes.add(new Vec3(c.x - hx, c.y - hy, c.z - hz)); // 0
-        model_vertexes.add(new Vec3(c.x + hx, c.y - hy, c.z - hz)); // 1
-        model_vertexes.add(new Vec3(c.x + hx, c.y + hy, c.z - hz)); // 2
-        model_vertexes.add(new Vec3(c.x - hx, c.y + hy, c.z - hz)); // 3
-        model_vertexes.add(new Vec3(c.x - hx, c.y - hy, c.z + hz)); // 4
-        model_vertexes.add(new Vec3(c.x + hx, c.y - hy, c.z + hz)); // 5
-        model_vertexes.add(new Vec3(c.x + hx, c.y + hy, c.z + hz)); // 6
-        model_vertexes.add(new Vec3(c.x - hx, c.y + hy, c.z + hz)); // 7
+        modelVertexes.add(new Vec3(c.x - hx, c.y - hy, c.z - hz)); // 0
+        modelVertexes.add(new Vec3(c.x + hx, c.y - hy, c.z - hz)); // 1
+        modelVertexes.add(new Vec3(c.x + hx, c.y + hy, c.z - hz)); // 2
+        modelVertexes.add(new Vec3(c.x - hx, c.y + hy, c.z - hz)); // 3
+        modelVertexes.add(new Vec3(c.x - hx, c.y - hy, c.z + hz)); // 4
+        modelVertexes.add(new Vec3(c.x + hx, c.y - hy, c.z + hz)); // 5
+        modelVertexes.add(new Vec3(c.x + hx, c.y + hy, c.z + hz)); // 6
+        modelVertexes.add(new Vec3(c.x - hx, c.y + hy, c.z + hz)); // 7
 
         indexBuffer = new int[]{
                 // -Z

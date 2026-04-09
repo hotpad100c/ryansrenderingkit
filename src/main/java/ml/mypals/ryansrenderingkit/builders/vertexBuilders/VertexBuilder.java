@@ -4,7 +4,11 @@ import com.mojang.blaze3d.opengl.GlStateManager;
 //?}
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+//?if<26.2{
 import com.mojang.blaze3d.vertex.Tesselator;
+//?}else{
+/*import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+*///?}
 import ml.mypals.ryansrenderingkit.render.RenderMethod;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import net.minecraft.world.phys.Vec3;
@@ -45,7 +49,11 @@ public abstract class VertexBuilder {
         }
 
         //? if > 1.20.6 {
-        this.bufferBuilder = Tesselator.getInstance().begin(renderMethod.mode(), renderMethod.format());
+            //?if<26.2{
+            this.bufferBuilder = Tesselator.getInstance().begin(renderMethod.mode(), renderMethod.format());
+            //?}else{
+            /*this.bufferBuilder = new BufferBuilder(new ByteBufferBuilder(786432), renderMethod.mode(), renderMethod.format());
+            *///?}
         //?} else {
         /*this.bufferBuilder = Tesselator.getInstance().getBuilder();
         //? if <=1.18.2 {
@@ -175,21 +183,21 @@ public abstract class VertexBuilder {
     }
 
     public void setUpRendererSystem(@Nullable Shape shape) {
+    //?if<26.2{
         if ((shape != null && shape.seeThrough) || seeThrough) {
-            //? >=1.21.5 {
-            GlStateManager._disableDepthTest();
-            //?} else {
-             /*RenderSystem.disableDepthTest();
-            *///?}
+                //?if >=1.21.5{
+                GlStateManager._disableDepthTest();
+                //?} else {
+                 /*RenderSystem.disableDepthTest();
+                *///?}
         } else {
-            //? >=1.21.5 {
-            GlStateManager._enableDepthTest();
-            //?} else {
-             /*RenderSystem.enableDepthTest();
-            *///?}
+                //?if >=1.21.5{
+                GlStateManager._enableDepthTest();
+                //?} else {
+                 /*RenderSystem.enableDepthTest();
+                *///?}
         }
-
-        //? >=1.21.5 {
+        //?if >=1.21.5{
         GlStateManager._disableCull();
         GlStateManager._enablePolygonOffset();
         GlStateManager._polygonOffset(-1.0f, -1.0f);
@@ -198,26 +206,34 @@ public abstract class VertexBuilder {
         RenderSystem.enablePolygonOffset();
         RenderSystem.polygonOffset(-1.0f, -1.0f);
         *///?}
-        //? < 1.21.6 {
+
+        //?if < 1.21.6 {
         /*RenderSystem.setShaderColor(1,1,1,1);
         *///?}
+    //?}
 }
 
     public void restoreRendererSystem() {
-        //? if <1.21.11 {
-        /*RenderSystem.lineWidth(1.0f);
-        *///?}
-        //? >=1.21.5 {
-        GlStateManager._enableDepthTest();
-        GlStateManager._disablePolygonOffset();
-        GlStateManager._enableCull();
-        //?} else {
-        /*RenderSystem.enableDepthTest();
-        RenderSystem.disablePolygonOffset();
-        RenderSystem.enableCull();
-        *///?}
-        //? < 1.21.6 {
-        /*RenderSystem.setShaderColor(1,1,1,1);
-        *///?}
+
+
+        //?if<26.2{
+            //? if <1.21.11 {
+            /*RenderSystem.lineWidth(1.0f);
+            *///?}
+
+            //?if >=1.21.5{
+            GlStateManager._enableDepthTest();
+            GlStateManager._disablePolygonOffset();
+            GlStateManager._enableCull();
+            //?} else {
+            /*RenderSystem.enableDepthTest();
+            RenderSystem.disablePolygonOffset();
+            RenderSystem.enableCull();
+            *///?}
+
+            //?if < 1.21.6 {
+            /*RenderSystem.setShaderColor(1,1,1,1);
+            *///?}
+        //?}
     }
 }

@@ -1,6 +1,5 @@
 package ml.mypals.ryansrenderingkit.shape.box;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.basics.core.LineLikeShape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.DrawableLine;
@@ -8,6 +7,10 @@ import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
 import java.util.function.Consumer;
+
+//? if <1.21.11 {
+/*import com.mojang.blaze3d.systems.RenderSystem;
+*///?}
 
 public class BoxWireframeShape extends BoxShape implements DrawableLine {
 
@@ -39,7 +42,7 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
-        model_vertexes.clear();
+        modelVertexes.clear();
 
         BoxTransformer bt = (BoxTransformer) transformer;
         Vec3 c = bt.getLocalPivot();
@@ -58,14 +61,14 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
         Vec3 v6 = new Vec3(c.x + hx, c.y + hy, c.z + hz);
         Vec3 v7 = new Vec3(c.x - hx, c.y + hy, c.z + hz);
 
-        model_vertexes.add(v0); // 0
-        model_vertexes.add(v1); // 1
-        model_vertexes.add(v2); // 2
-        model_vertexes.add(v3); // 3
-        model_vertexes.add(v4); // 4
-        model_vertexes.add(v5); // 5
-        model_vertexes.add(v6); // 6
-        model_vertexes.add(v7); // 7
+        modelVertexes.add(v0); // 0
+        modelVertexes.add(v1); // 1
+        modelVertexes.add(v2); // 2
+        modelVertexes.add(v3); // 3
+        modelVertexes.add(v4); // 4
+        modelVertexes.add(v5); // 5
+        modelVertexes.add(v6); // 6
+        modelVertexes.add(v7); // 7
 
         indexBuffer = new int[]{
                 // Bottom
@@ -86,8 +89,8 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
         builder.putColor(baseColor);
 
         for (int i = 0; i < indexBuffer.length; i += 2) {
-            Vec3 start = model_vertexes.get(indexBuffer[i]);
-            Vec3 end = model_vertexes.get(indexBuffer[i + 1]);
+            Vec3 start = modelVertexes.get(indexBuffer[i]);
+            Vec3 end = modelVertexes.get(indexBuffer[i + 1]);
             addLineSegment(builder, start, end,this.edgeWidth);
         }
     }

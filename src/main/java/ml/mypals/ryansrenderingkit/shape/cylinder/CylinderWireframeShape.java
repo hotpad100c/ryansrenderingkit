@@ -1,13 +1,14 @@
 package ml.mypals.ryansrenderingkit.shape.cylinder;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.core.LineLikeShape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.DrawableLine;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.shapeModelInfoTransformer.LineModelInfo;
 import net.minecraft.world.phys.Vec3;
-
+//? if <1.21.11 {
+/*import com.mojang.blaze3d.systems.RenderSystem;
+*///?}
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,8 +69,8 @@ public class CylinderWireframeShape extends CylinderShape implements DrawableLin
         builder.putColor(this.color);
 
         for (int i = 0; i < indexBuffer.length; i += 2) {
-            Vec3 a = model_vertexes.get(indexBuffer[i]);
-            Vec3 b = model_vertexes.get(indexBuffer[i + 1]);
+            Vec3 a = modelVertexes.get(indexBuffer[i]);
+            Vec3 b = modelVertexes.get(indexBuffer[i + 1]);
             addLineSegment(builder, a, b, getLineWidth(true));
         }
     }

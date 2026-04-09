@@ -1,12 +1,13 @@
 package ml.mypals.ryansrenderingkit.shape.line;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.collision.RayModelIntersection;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.core.TwoPointsLineShape;
 import net.minecraft.world.phys.Vec3;
-
+//? if <1.21.11 {
+/*import com.mojang.blaze3d.systems.RenderSystem;
+*///?}
 import java.awt.*;
 import java.util.function.Consumer;
 
@@ -90,7 +91,7 @@ public class LineShape extends Shape implements TwoPointsLineShape {
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
-        model_vertexes.clear();
+        modelVertexes.clear();
 
         Vec3 start = getStart(lerp);
         Vec3 end = getEnd(lerp);
@@ -102,8 +103,8 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         Vec3 localA = start.subtract(center);
         Vec3 localB = end.subtract(center);
 
-        model_vertexes.add(localA);
-        model_vertexes.add(localB);
+        modelVertexes.add(localA);
+        modelVertexes.add(localB);
 
         this.indexBuffer = new int[]{0, 1};
     }
@@ -124,7 +125,7 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         /*RenderSystem.lineWidth(getLineWidth(true));
         *///?}
         builder.putColor(baseColor);
-        addLineSegment(builder, model_vertexes.getFirst(), model_vertexes.getLast(),getLineWidth(true));
+        addLineSegment(builder, modelVertexes.getFirst(), modelVertexes.getLast(),getLineWidth(true));
     }
 }
 

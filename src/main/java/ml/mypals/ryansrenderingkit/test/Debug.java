@@ -21,14 +21,16 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.world.item.ItemDisplayContext;
-        //?} else {
+//?} else {
 /*import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 *///?}
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+//?if<=1.18.2{
+/*import net.minecraft.client.renderer.block.model.ItemTransforms;
+*///?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -126,7 +128,7 @@ public class Debug {
             ShapeManagers.addShape(
                     Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_face_circle"),
                     ShapeGenerator.generateFaceCircle()
-                            .pos(new Vec3(xPos(), 0, 0))
+                            .pos(new Vec3(29999984, 0, 0))
                             .radius(2.0f)
                             .segments(64)
                             .axis(CircleLikeShape.CircleAxis.Y)

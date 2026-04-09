@@ -48,7 +48,7 @@ public class ConeShape extends CylinderShape {
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
-        model_vertexes.clear();
+        modelVertexes.clear();
         List<Integer> indices = new ArrayList<>();
 
         float height = ((CylinderTransformer) this.transformer).getHeight(lerp);
@@ -57,7 +57,7 @@ public class ConeShape extends CylinderShape {
         double halfH = height / 2.0;
 
         List<Vec3> verts = generateConeVertices(halfH, segments, radius, axis);
-        model_vertexes.addAll(verts);
+        modelVertexes.addAll(verts);
 
         int apexIndex = segments;
         int baseCenterIndex = segments + 1;

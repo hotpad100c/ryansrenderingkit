@@ -1,11 +1,12 @@
 package ml.mypals.ryansrenderingkit.shape.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.basics.core.LineLikeShape;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
-
+//? if <1.21.11 {
+/*import com.mojang.blaze3d.systems.RenderSystem;
+*///?}
 import java.awt.*;
 import java.util.function.Consumer;
 
@@ -55,7 +56,7 @@ public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape
 
     @Override
     protected void drawInternal(VertexBuilder builder) {
-        if (model_vertexes.isEmpty() || indexBuffer == null || indexBuffer.length < 3)
+        if (modelVertexes.isEmpty() || indexBuffer == null || indexBuffer.length < 3)
             return;
         //? if <1.21.11 {
         /*RenderSystem.lineWidth(this.lineWidth);
@@ -67,8 +68,8 @@ public class ObjModelShapeOutline extends ObjModelShape implements LineLikeShape
             if (n < 2) continue;
 
             for (int i = 0; i < n; i++) {
-                Vec3 v0 = model_vertexes.get(face[i]);
-                Vec3 v1 = model_vertexes.get(face[(i + 1) % n]);
+                Vec3 v0 = modelVertexes.get(face[i]);
+                Vec3 v1 = modelVertexes.get(face[(i + 1) % n]);
 
                 addLineSegment(builder, v0, v1,getLineWidth(true));
             }

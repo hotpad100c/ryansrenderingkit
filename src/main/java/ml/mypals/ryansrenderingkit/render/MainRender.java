@@ -1,21 +1,18 @@
 package ml.mypals.ryansrenderingkit.render;
 
-//? >= 1.21.5 {
+//? >= 1.21.5 && < 26.2{
 import com.mojang.blaze3d.opengl.GlStateManager;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.renderer.RenderPipelines;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-//?} else {
+//?} else if < 26.2{
 /*import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 *///?}
 import com.mojang.blaze3d.vertex.PoseStack;
-import ml.mypals.ryansrenderingkit.builderManager.BuilderManagers;
 import ml.mypals.ryansrenderingkit.shapeManagers.ShapeManagers;
-import ml.mypals.ryansrenderingkit.utils.Helpers;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import org.joml.Matrix4f;
 //? if >=1.21.11 {
 import net.minecraft.client.renderer.rendertype.RenderSetup;
@@ -35,25 +32,22 @@ public class MainRender {
 
             matrixStack.pushPose();
 
-            //Matrix4f pose = Helpers.convertToJomlIfNeeded(matrixStack.last().pose());
-
-            /*RENDER_PROFILER.push("updateMatrix");
-            BuilderManagers.updateMatrix(pose);
-            RENDER_PROFILER.pop();*/
-
             RENDER_PROFILER.push("renderShapes");
 
-            //? >=1.21.5 {
-            GlStateManager._enableBlend();
-            /*GlStateManager._blendFuncSeparate(
-                    SourceFactor.SRC_ALPHA.ordinal(),
-                    DestFactor.ONE_MINUS_SRC_ALPHA.ordinal(),
-                    SourceFactor.ONE.ordinal(),
-                    DestFactor.ZERO.ordinal());*/
-            //?} else {
-            /*RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            *///?}
+            //? if < 26.1{
+                //?if >=1.21.5{
+                GlStateManager._enableBlend();
+                GlStateManager._blendFuncSeparate(
+                        GL11.GL_SRC_ALPHA,
+                        GL11.GL_ONE_MINUS_SRC_ALPHA,
+                        GL11.GL_ONE,
+                        GL11.GL_ZERO
+                );
+                //?} else {
+                /*RenderSystem.enableBlend();
+                RenderSystem.defaultBlendFunc();
+                *///?}
+            //?}
 
             //?if<=1.20.1{
             /*ShapeManagers.renderAll(matrixStack, tickDelta);
@@ -61,11 +55,13 @@ public class MainRender {
             ShapeManagers.renderAll(matrixStack, tickDelta);
             //?}
 
-            //? >=1.21.5 {
-            GlStateManager._disableBlend();
-            //?} else {
-            /*RenderSystem.disableBlend();
-            *///?}
+            //?if < 26.1{
+                //?if >=1.21.5{
+                GlStateManager._disableBlend();
+                //?} else {
+                /*RenderSystem.disableBlend();
+                *///?}
+            //?}
 
 
             RENDER_PROFILER.pop();

@@ -184,9 +184,9 @@ public class BufferedVertexBuilder extends VertexBuilder {
             ((MeshDataExt) builtBuffer).ryansrenderingkit$sortTriangles(
                     byteBufferBuilder,
                     //? if >1.21.1 {
-                    RenderSystem.getProjectionType().vertexSorting()
-                    //?} else
-                    //RenderSystem.getVertexSorting()
+                    /^RenderSystem.getProjectionType().vertexSorting()
+                    ^///?} else
+                    RenderSystem.getVertexSorting()
             );
         }
         *///?}
@@ -317,9 +317,15 @@ public class BufferedVertexBuilder extends VertexBuilder {
         }
 
         *///?} else {
-        GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrix(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
+        GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(
+                //?if<26.2{
+                RenderSystem.getModelViewMatrix()
+                //?}else{
+                /*RenderSystem.getModelViewMatrixCopy()
+                *///?}
+                , new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
                 new Vector3f(),
-                /*? if <1.21.11 {*//*RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth()*//*?} else {*/bufferedRenderMethod.normalRenderType().state.textureTransform.getMatrix()/*?}*/);
+                /*? if <1.21.11 {*//*RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth()*//*?}else if < 26.2{*/bufferedRenderMethod.normalRenderType().state.textureTransform.getMatrix()/*?}else{*//*bufferedRenderMethod.normalRenderType().state.textureTransform.createMatrix() *//*?}*/);
         var state = bufferedRenderMethod.normalRenderType().state;
         RenderTarget renderTarget = state./*? if >=1.21.11 {*/outputTarget/*?} else {*//*outputState*//*?}*/.getRenderTarget();
         GpuTextureView gpuTextureView = RenderSystem.outputColorTextureOverride != null ? RenderSystem.outputColorTextureOverride : renderTarget.getColorTextureView();

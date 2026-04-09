@@ -63,7 +63,7 @@ public class SphereShape extends Shape implements CircleLikeShape, DrawableTrian
 
         indexBuffer = indices.stream().mapToInt(Integer::intValue).toArray();
 
-        model_vertexes = vs;
+        modelVertexes = vs;
     }
 
     private Vec3 sphericalToCartesian(Vec3 center, double r, double theta, double phi) {

@@ -4,7 +4,6 @@ import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn.ItemShape;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 //? if >1.18.2 {
 import net.minecraft.world.item.ItemDisplayContext;
  //?} else {

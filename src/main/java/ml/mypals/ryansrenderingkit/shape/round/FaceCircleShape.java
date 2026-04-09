@@ -33,13 +33,13 @@ public class FaceCircleShape extends Shape implements CircleLikeShape {
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
-        model_vertexes.clear();
+        modelVertexes.clear();
         if (this.getSegments(lerp) < 3) return;
 
         int segments = getSegments(lerp);
         float radius = getRadius(lerp);
 
-        model_vertexes.add(Vec3.ZERO);
+        modelVertexes.add(Vec3.ZERO);
 
         for (int i = 0; i < segments; i++) {
             double theta = 2 * Math.PI * i / segments;
@@ -62,7 +62,7 @@ public class FaceCircleShape extends Shape implements CircleLikeShape {
                     z = 0;
                 }
             }
-            model_vertexes.add(new Vec3(x, y, z));
+            modelVertexes.add(new Vec3(x, y, z));
         }
 
         indexBuffer = new int[segments * 3];
