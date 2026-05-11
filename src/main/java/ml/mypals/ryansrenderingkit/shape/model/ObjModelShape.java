@@ -129,10 +129,10 @@ public class ObjModelShape extends Shape {
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
-        model_vertexes.clear();
+        modelVertexes.clear();
         if (model == null) return;
 
-        model_vertexes.addAll(model.vertices);
+        modelVertexes.addAll(model.vertices);
 
         List<Integer> indices = new ArrayList<>();
         for (int[] face : model.faces) {
@@ -149,15 +149,15 @@ public class ObjModelShape extends Shape {
 
     @Override
     protected void drawInternal(VertexBuilder builder) {
-        if (model_vertexes.isEmpty() || indexBuffer == null || indexBuffer.length < 3)
+        if (modelVertexes.isEmpty() || indexBuffer == null || indexBuffer.length < 3)
             return;
 
         builder.putColor(baseColor);
 
         for (int i = 0; i < indexBuffer.length; i += 3) {
-            Vec3 v0 = model_vertexes.get(indexBuffer[i]);
-            Vec3 v1 = model_vertexes.get(indexBuffer[i + 1]);
-            Vec3 v2 = model_vertexes.get(indexBuffer[i + 2]);
+            Vec3 v0 = modelVertexes.get(indexBuffer[i]);
+            Vec3 v1 = modelVertexes.get(indexBuffer[i + 1]);
+            Vec3 v2 = modelVertexes.get(indexBuffer[i + 2]);
 
             builder.putVertex(v0);
             builder.putVertex(v1);

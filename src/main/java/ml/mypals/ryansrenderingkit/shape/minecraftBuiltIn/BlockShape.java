@@ -1,27 +1,43 @@
 package ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+
 import com.mojang.blaze3d.vertex.PoseStack;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import com.mojang.math.Axis;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+//?if<26.1{
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+    //?if > 1.21.4{
+    import net.minecraft.client.renderer.block.model.BlockModelPart;
+    import net.minecraft.client.renderer.block.model.BlockStateModel;
+    //?}
+//?}else{
+/*import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.renderer.block.BlockStateModelSet;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+*///?}
+
+//? < 1.21.6 {
+/*import com.mojang.blaze3d.systems.RenderSystem;
+*///?}
+//?if<=1.20.4{
+/*import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
+*///?}
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 //? <1.21.5 {
 /*import net.minecraft.client.resources.model.BakedModel;
-*///?} else {
-//?}
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.resources.model.geometry.BakedQuad;
+*///?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.EntityBlock;
@@ -35,13 +51,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
-
 
 //? if >=1.21.9 {
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
+//?if < 26.1{
+import net.minecraft.client.renderer.state.CameraRenderState;
+//?}else{
+/*import net.minecraft.client.renderer.state.level.CameraRenderState;
+*///?}
 //?}
 
 public class BlockShape extends Shape implements EmptyMesh {
@@ -64,18 +82,23 @@ public class BlockShape extends Shape implements EmptyMesh {
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
-        model_vertexes.clear();
+        modelVertexes.clear();
         Minecraft mc = Minecraft.getInstance();
         List<Integer> indices = new ArrayList<>();
         if (mc.level == null) return;
-        BlockStateModelSet dispatcher = mc.getModelManager().getBlockStateModelSet();
+        //?if<26.1{
+        BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
+        //?}else{
+        /*BlockStateModelSet dispatcher = mc.getModelManager().getBlockStateModelSet();
+        *///?}
+
         //? <1.21.5 {
         /*BakedModel bakedModel = dispatcher.getBlockModel(blockState);
 
         for (Direction direction : Direction.values()) {
             for (BakedQuad bakedQuad : bakedModel.getQuads(blockState, direction, mc.level.getRandom())) {
-                int base = model_vertexes.size();
-                model_vertexes.addAll(decodeQuad(bakedQuad));
+                int base = modelVertexes.size();
+                modelVertexes.addAll(decodeQuad(bakedQuad));
                 indices.add(base);
                 indices.add(base + 1);
                 indices.add(base + 2);
@@ -85,15 +108,13 @@ public class BlockShape extends Shape implements EmptyMesh {
                 indices.add(base);
             }
         }
-        *///?} else {
-        BlockStateModel bakedModel = dispatcher.get(blockState);
-        List<BlockStateModelPart> parts = new ObjectArrayList<>();
-        bakedModel.collectParts(mc.level.getRandom(), parts);
-        for (BlockStateModelPart bakedQuads : parts) {
+        *///?} else if < 26.1{
+        BlockStateModel bakedModel = dispatcher.getBlockModel(blockState);
+        for (BlockModelPart bakedQuads : bakedModel.collectParts(mc.level.getRandom())) {
             for(Direction direction : Direction.values()) {
                 for(BakedQuad bakedQuad : bakedQuads.getQuads(direction)) {
-                    int base = model_vertexes.size();
-                    model_vertexes.addAll(decodeQuad(bakedQuad));
+                    int base = modelVertexes.size();
+                    modelVertexes.addAll(decodeQuad(bakedQuad));
                     indices.add(base);
                     indices.add(base + 1);
                     indices.add(base + 2);
@@ -104,7 +125,26 @@ public class BlockShape extends Shape implements EmptyMesh {
                 }
             }
         }
-        //?}
+        //?}else{
+        /*BlockStateModel bakedModel = dispatcher.get(blockState);
+        List<BlockStateModelPart> parts = new ObjectArrayList<>();
+        bakedModel.collectParts(mc.level.getRandom(), parts);
+        for (BlockStateModelPart bakedQuads : parts) {
+            for(Direction direction : Direction.values()) {
+                for(BakedQuad bakedQuad : bakedQuads.getQuads(direction)) {
+                    int base = modelVertexes.size();
+                    modelVertexes.addAll(decodeQuad(bakedQuad));
+                    indices.add(base);
+                    indices.add(base + 1);
+                    indices.add(base + 2);
+
+                    indices.add(base + 2);
+                    indices.add(base + 3);
+                    indices.add(base);
+                }
+            }
+        }
+        *///?}
 
         indexBuffer = indices.stream().mapToInt(i -> i).toArray();
 
@@ -143,8 +183,12 @@ public class BlockShape extends Shape implements EmptyMesh {
     protected void drawInternal(VertexBuilder builder) {
         Minecraft mc = Minecraft.getInstance();
 
-        boolean ambientOcclusion = mc.options.ambientOcclusion().get();
+        //?if<26.1{
+        BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
+        //?}else{
+        /*boolean ambientOcclusion = mc.options.ambientOcclusion().get();
         ModelBlockRenderer blockRenderer = new ModelBlockRenderer(ambientOcclusion, false, mc.getBlockColors());
+        *///?}
         MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
 
         //? < 1.21.6 {
@@ -160,23 +204,32 @@ public class BlockShape extends Shape implements EmptyMesh {
         //poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
 
 
-        BlockStateModel model = mc.getModelManager().getBlockStateModelSet().get(blockState);
+        //?if<26.1{
+        dispatcher.renderSingleBlock(blockState, poseStack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);
+        SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
+        CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
+        //?}else{
+        /*BlockStateModel model = mc.getModelManager().getBlockStateModelSet().get(blockState);
         List<BlockStateModelPart> parts = new ObjectArrayList<>();
         model.collectParts(mc.level.getRandom(), parts);
         SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
-        submitNodeCollector.submitBlockModel(poseStack, RenderTypes.entityTranslucent(TextureAtlas.LOCATION_BLOCKS), parts, new int[0], light, OverlayTexture.NO_OVERLAY, 0);
 
+        CameraRenderState cameraRenderState = mc.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
+
+
+        submitNodeCollector.submitBlockModel(poseStack, RenderTypes.entityTranslucent(TextureAtlas.LOCATION_BLOCKS), parts, new int[0], light, OverlayTexture.NO_OVERLAY, 33);
+        *///?}
         if (blockState.getBlock() instanceof EntityBlock) {
             BlockEntityRenderDispatcher blockEntityRenderDispatcher = mc.getBlockEntityRenderDispatcher();
             BlockEntity blockEntity = ((EntityBlock) blockState.getBlock()).newBlockEntity(BlockPos.ZERO, blockState);
 
             //? if <1.21.9 {
             /*blockEntityRenderDispatcher.render(blockEntity, transformer.getTickDelta(), poseStack, multiBufferSource);
-             *///?} else {
+            *///?} else {
             BlockEntityRenderState blockEntityRenderState = blockEntityRenderDispatcher.tryExtractRenderState(blockEntity, transformer.getTickDelta(),null);
-            net.minecraft.client.renderer.state.level.CameraRenderState cameraRenderState = mc.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
-            blockEntityRenderDispatcher.submit(blockEntityRenderState,poseStack,submitNodeCollector,cameraRenderState);
-            //?}
+
+                blockEntityRenderDispatcher.submit(blockEntityRenderState,poseStack,submitNodeCollector,cameraRenderState);
+                //?}
         }
 
         poseStack.popPose();

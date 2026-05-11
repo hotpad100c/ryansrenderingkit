@@ -36,7 +36,7 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
     }
 
     void generateCylinderVertices(boolean lerp) {
-        model_vertexes.clear();
+        modelVertexes.clear();
 
         float height = getHeight(lerp);
         float radius = getRadius(lerp);
@@ -53,7 +53,7 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
                 case Y -> new Vec3(radius * c, -halfH, radius * s);
                 case Z -> new Vec3(radius * c, radius * s, -halfH);
             };
-            model_vertexes.add(bottom);
+            modelVertexes.add(bottom);
         }
 
         for (int i = 0; i < segments; i++) {
@@ -66,16 +66,16 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
                 case Y -> new Vec3(radius * c, halfH, radius * s);
                 case Z -> new Vec3(radius * c, radius * s, halfH);
             };
-            model_vertexes.add(top);
+            modelVertexes.add(top);
         }
 
-        model_vertexes.add(switch (axis) {
+        modelVertexes.add(switch (axis) {
             case X -> new Vec3(-halfH, 0, 0);
             case Y -> new Vec3(0, -halfH, 0);
             case Z -> new Vec3(0, 0, -halfH);
         });
 
-        model_vertexes.add(switch (axis) {
+        modelVertexes.add(switch (axis) {
             case X -> new Vec3(halfH, 0, 0);
             case Y -> new Vec3(0, halfH, 0);
             case Z -> new Vec3(0, 0, halfH);

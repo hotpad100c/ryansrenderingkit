@@ -9,8 +9,8 @@ import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 //?if<=1.18.2{
-import com.mojang.math.Matrix4f;
-//?}else{
+/^import com.mojang.math.Matrix4f;
+^///?}else{
 import org.joml.Matrix4f;
 //?}
 import org.joml.Vector4f;

@@ -1,6 +1,5 @@
 package ml.mypals.ryansrenderingkit.shape.round;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.CircleLikeShape;
@@ -9,7 +8,9 @@ import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransforme
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.shapeModelInfoTransformer.CircleModelInfo;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.shapeModelInfoTransformer.LineModelInfo;
 import net.minecraft.world.phys.Vec3;
-
+//? if <1.21.11 {
+/*import com.mojang.blaze3d.systems.RenderSystem;
+*///?}
 import java.awt.*;
 import java.util.function.Consumer;
 
@@ -38,7 +39,7 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
-        model_vertexes.clear();
+        modelVertexes.clear();
         int segments = getSegments(lerp);
         float radius = getRadius(lerp);
         if (segments < 3) return;
@@ -64,7 +65,7 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
                     z = 0;
                 }
             }
-            model_vertexes.add(new Vec3(x, y, z));
+            modelVertexes.add(new Vec3(x, y, z));
         }
 
         indexBuffer = new int[segments * 2];
@@ -182,10 +183,10 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
         //? if <1.21.11 {
         /*RenderSystem.lineWidth(width);
         *///?}
-        int n = model_vertexes.size();
+        int n = modelVertexes.size();
         if (n < 2) return;
 
-        Vec3 first = model_vertexes.getFirst();
+        Vec3 first = modelVertexes.getFirst();
         builder.putColor(new Color(0, 0, 0, 0));
         builder.putVertex(first, Vec3.ZERO,width);
         builder.putColor(baseColor);
@@ -193,14 +194,14 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
 
             Vec3 normal;
             if (i == 0) {
-                Vec3 dir = model_vertexes.get(1).subtract(model_vertexes.get(0));
+                Vec3 dir = modelVertexes.get(1).subtract(modelVertexes.get(0));
                 normal = dir.normalize();
             } else if (i == n - 1) {
-                Vec3 dir = model_vertexes.get(n - 1).subtract(model_vertexes.get(n - 2));
+                Vec3 dir = modelVertexes.get(n - 1).subtract(modelVertexes.get(n - 2));
                 normal = dir.normalize();
             } else {
-                Vec3 prevDir = model_vertexes.get(i).subtract(model_vertexes.get(i - 1));
-                Vec3 nextDir = model_vertexes.get(i + 1).subtract(model_vertexes.get(i));
+                Vec3 prevDir = modelVertexes.get(i).subtract(modelVertexes.get(i - 1));
+                Vec3 nextDir = modelVertexes.get(i + 1).subtract(modelVertexes.get(i));
                 normal = prevDir.add(nextDir).normalize();
                 if (Double.isNaN(normal.x) || Double.isNaN(normal.y) || Double.isNaN(normal.z)) {
                     Vec3 fallback = nextDir.lengthSqr() > 0 ? nextDir : prevDir;
@@ -208,14 +209,14 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
                 }
             }
 
-            Vec3 pos = model_vertexes.get(i);
+            Vec3 pos = modelVertexes.get(i);
             builder.putVertex(pos, normal,width);
         }
-        Vec3 finish = model_vertexes.getFirst();
+        Vec3 finish = modelVertexes.getFirst();
 
         builder.putVertex(finish, Vec3.ZERO,width);
 
-        Vec3 last = model_vertexes.get(n - 1);
+        Vec3 last = modelVertexes.get(n - 1);
         builder.putColor(new Color(0, 0, 0, 0));
         builder.putVertex(last, Vec3.ZERO,width);
     }

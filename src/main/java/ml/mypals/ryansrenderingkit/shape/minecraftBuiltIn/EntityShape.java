@@ -1,6 +1,5 @@
 package ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.Shape;
@@ -11,20 +10,24 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-
+//? < 1.21.6 {
+/*import com.mojang.blaze3d.systems.RenderSystem;
+*///?}
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 //? if >=1.21.9 {
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.SubmitNodeCollection;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
+//?if < 26.1{
+import net.minecraft.client.renderer.state.CameraRenderState;
+//?}else{
+/*import net.minecraft.client.renderer.state.level.CameraRenderState;
+*///?}
 //?}
-
+//?if<=1.20.4{
+/*import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
+*///?}
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.isEndOfWorldTick;
-import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
 
 public class EntityShape extends Shape implements EmptyMesh {
 
@@ -49,14 +52,14 @@ public class EntityShape extends Shape implements EmptyMesh {
         float w = entity.getBbWidth() / 2;
         float h = entity.getBbHeight();
 
-        model_vertexes.add(new Vec3(-w, 0, -w));
-        model_vertexes.add(new Vec3(+w, 0, -w));
-        model_vertexes.add(new Vec3(+w, +h, -w));
-        model_vertexes.add(new Vec3(-w, +h, -w));
-        model_vertexes.add(new Vec3(-w, 0, +w));
-        model_vertexes.add(new Vec3(+w, 0, +w));
-        model_vertexes.add(new Vec3(+w, +h, +w));
-        model_vertexes.add(new Vec3(-w, +h, +w));
+        modelVertexes.add(new Vec3(-w, 0, -w));
+        modelVertexes.add(new Vec3(+w, 0, -w));
+        modelVertexes.add(new Vec3(+w, +h, -w));
+        modelVertexes.add(new Vec3(-w, +h, -w));
+        modelVertexes.add(new Vec3(-w, 0, +w));
+        modelVertexes.add(new Vec3(+w, 0, +w));
+        modelVertexes.add(new Vec3(+w, +h, +w));
+        modelVertexes.add(new Vec3(-w, +h, +w));
 
         indexBuffer = new int[]{
                 0, 1, 2, 2, 3, 0,
@@ -102,7 +105,11 @@ public class EntityShape extends Shape implements EmptyMesh {
         *///?} else {
         EntityRenderState entityRenderState = dispatcher.extractEntity(entity, transformer.getTickDelta());
         SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
-        CameraRenderState cameraRenderState = mc.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
+        //?if<26.1{
+        CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
+        //?}else{
+        /*CameraRenderState cameraRenderState = mc.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
+        *///?}
         dispatcher.submit(entityRenderState,cameraRenderState,0,0,0,poseStack,submitNodeCollector);
         //?}
         poseStack.popPose();

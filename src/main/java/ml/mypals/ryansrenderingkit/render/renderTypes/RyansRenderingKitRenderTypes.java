@@ -1,12 +1,17 @@
 package ml.mypals.ryansrenderingkit.render.renderTypes;
 //? if >= 1.21.5 {
-import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+//?if < 26.1{
+import com.mojang.blaze3d.platform.DepthTestFunction;
+//?}else{
+/*import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.platform.CompareOp;
+import java.util.Optional;
+*///?}
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderPipelines;
-//? if <1.21.11 {
+//? if < 1.21.11 {
 /*import net.minecraft.client.renderer.RenderStateShard;
 import static net.minecraft.client.renderer.RenderStateShard.VIEW_OFFSET_Z_LAYERING;
 *///?} else {
@@ -16,7 +21,6 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 
-import java.util.Optional;
 import java.util.OptionalDouble;
 
 import static ml.mypals.ryansrenderingkit.RyansRenderingKit.MOD_ID;
@@ -51,13 +55,19 @@ public class RyansRenderingKitRenderTypes {
     //? if >= 1.21.5 {
     private static final RenderPipeline noDepthTriangles = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_quads"))
-            .withDepthStencilState(Optional.empty())
+
+            //?if<26.1{
+            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+            .withDepthWrite(false)
+            //?}else{
+            /*.withDepthStencilState(Optional.empty())
+            *///?}
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
             .build();
 
     //? if >=1.21.11 {
-    
+
             public static final RenderType SEE_THROUGH_TRIANGLES =
             RenderType.create(
                     "see_through_triangle",
@@ -80,7 +90,12 @@ public class RyansRenderingKitRenderTypes {
 
     private static final RenderPipeline noDepthLines = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_lines"))
-            .withDepthStencilState(Optional.empty())
+            //? < 26.1{
+            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+            .withDepthWrite(false)
+            //?}else{
+            /*.withDepthStencilState(Optional.empty())
+            *///?}
             .withCull(false)
             //? if <1.21.11 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
@@ -96,7 +111,7 @@ public class RyansRenderingKitRenderTypes {
                     RenderSetup.builder(noDepthLines).createRenderSetup()
             );
     //?} else {
-    
+
     /*public static final RenderType.CompositeRenderType SEE_THROUGH_LINES =
 
     RenderType.create(
@@ -113,7 +128,12 @@ public class RyansRenderingKitRenderTypes {
     *///?}
     private static final RenderPipeline noDepthLineStrip = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
-            .withDepthStencilState(Optional.empty())
+            //? < 26.1{
+            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+            .withDepthWrite(false)
+            //?}else{
+            /*.withDepthStencilState(Optional.empty())
+            *///?}
             .withCull(false)
             //? if <1.21.11 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
@@ -130,7 +150,7 @@ public class RyansRenderingKitRenderTypes {
 
     private static final RenderPipeline lineStrip = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
-            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
             .build();

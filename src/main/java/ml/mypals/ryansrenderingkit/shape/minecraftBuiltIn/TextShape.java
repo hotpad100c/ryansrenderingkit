@@ -75,7 +75,7 @@ public class TextShape extends Shape implements EmptyMesh {
 
     @Override
     protected void generateRawGeometry(boolean lerp) {
-        model_vertexes.clear();
+        modelVertexes.clear();
     }
 
     public FormattedCharSequence[] getRenderMessages() {

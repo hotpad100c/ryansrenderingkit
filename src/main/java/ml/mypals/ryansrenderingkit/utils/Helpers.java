@@ -9,13 +9,10 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 
 
-//? if >1.21.1 {
-
-import net.minecraft.client.renderer.LevelRenderer;
-//? if <26.2 {
-/*import net.minecraft.client.renderer.ShapeRenderer;
-*///?}
-//?} else {
+//? if >1.21.1  && < 1.21.11{
+/*import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.ShapeRenderer;
+*///?} else if <=1.21.1{
 /*import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 *///?}

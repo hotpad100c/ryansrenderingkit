@@ -10,17 +10,21 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 //? if >=1.21.9
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
-import net.minecraft.client.renderer.rendertype.RenderType;
 //? if >=1.21.11 {
 import net.minecraft.gizmos.Gizmos;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 //?}
+//? if <1.21.11 {
+/*import net.minecraft.client.renderer.rendertype.RenderType;
+*///?}
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.*;
-import org.joml.Math;
+//?if<=1.18.2{
+/*import org.joml.Math;
+*///?}
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -50,7 +54,7 @@ public abstract class Shape {
     public Color baseColor;
     public boolean seeThrough;
 
-    public List<Vec3> model_vertexes = new ArrayList<>();
+    public List<Vec3> modelVertexes = new ArrayList<>();
     public int[] indexBuffer = new int[0];
     public Map<String, Object> customData = new HashMap<>();
 
@@ -105,7 +109,7 @@ public abstract class Shape {
     protected abstract void generateRawGeometry(boolean lerp);
     private void refreshGeometryIfNeeded(boolean lerp) {
         if (transformer.asyncModelInfo()) {
-            model_vertexes.clear();
+            modelVertexes.clear();
             generateRawGeometry(lerp);
         }
     }
@@ -128,10 +132,10 @@ public abstract class Shape {
         applyHierarchyTransforms(poseStack, flags);
 
         Matrix4f matrix = convertToJomlIfNeeded(poseStack.last().pose());
-        List<Vec3> transformed = new ArrayList<>(model_vertexes.size());
+        List<Vec3> transformed = new ArrayList<>(modelVertexes.size());
         Vector3f vec = new Vector3f();
 
-        for (Vec3 local : model_vertexes) {
+        for (Vec3 local : modelVertexes) {
             vec.set((float) local.x, (float) local.y, (float) local.z);
             //? if >1.18.2 {
             vec.mulPosition(matrix);
@@ -259,7 +263,7 @@ public abstract class Shape {
     protected void drawInternal(VertexBuilder builder) {
         builder.putColor(baseColor);
         for (int i : indexBuffer) {
-            builder.putVertex(model_vertexes.get(i));
+            builder.putVertex(modelVertexes.get(i));
         }
     }
 

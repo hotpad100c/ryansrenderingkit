@@ -1,6 +1,5 @@
 package ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.Shape;
@@ -8,26 +7,30 @@ import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+//?if < 26.1{
+import net.minecraft.client.renderer.entity.ItemRenderer;
+//?}
+//? < 1.21.6 {
+/*import com.mojang.blaze3d.systems.RenderSystem;
+*///?}
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.item.ItemEntity;
-//? if >1.18.2 {
+//? if > 1.18.2 {
 import net.minecraft.world.item.ItemDisplayContext;
 //?} else {
 /*import net.minecraft.client.renderer.block.model.ItemTransforms;
 *///?}
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-
+//?if<=1.20.4{
+/*import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
+*///?}
 //? if >=1.21.9 {
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 //?}
 import java.awt.*;
 import java.util.function.Consumer;
-
-import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
 
 public class ItemShape extends Shape implements EmptyMesh {
 
@@ -60,14 +63,14 @@ public class ItemShape extends Shape implements EmptyMesh {
         float w = ItemEntity.DEFAULT_BB_HEIGHT / 32;
         float h = ItemEntity.DEFAULT_BB_HEIGHT / 32;
 
-        model_vertexes.add(new Vec3(-w, -h, -w));
-        model_vertexes.add(new Vec3(+w, -h, -w));
-        model_vertexes.add(new Vec3(+w, +h, -w));
-        model_vertexes.add(new Vec3(-w, +h, -w));
-        model_vertexes.add(new Vec3(-w, -h, +w));
-        model_vertexes.add(new Vec3(+w, -h, +w));
-        model_vertexes.add(new Vec3(+w, +h, +w));
-        model_vertexes.add(new Vec3(-w, +h, +w));
+        modelVertexes.add(new Vec3(-w, -h, -w));
+        modelVertexes.add(new Vec3(+w, -h, -w));
+        modelVertexes.add(new Vec3(+w, +h, -w));
+        modelVertexes.add(new Vec3(-w, +h, -w));
+        modelVertexes.add(new Vec3(-w, -h, +w));
+        modelVertexes.add(new Vec3(+w, -h, +w));
+        modelVertexes.add(new Vec3(+w, +h, +w));
+        modelVertexes.add(new Vec3(-w, +h, +w));
 
         indexBuffer = new int[]{
                 0, 1, 2, 2, 3, 0,
@@ -84,6 +87,7 @@ public class ItemShape extends Shape implements EmptyMesh {
     protected void drawInternal(VertexBuilder builder) {
         Minecraft mc = Minecraft.getInstance();
 
+        MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
 
         //? < 1.21.6 {
         /*RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
@@ -100,13 +104,17 @@ public class ItemShape extends Shape implements EmptyMesh {
         poseStack.translate(0, -(ItemEntity.DEFAULT_BB_HEIGHT / 16), -0);
 
         //? if <1.21.9 {
-        /*itemRenderer.renderStatic(item, itemDisplayContext, light, OverlayTexture.NO_OVERLAY, poseStack,
+        /*ItemRenderer itemRenderer = mc.getItemRenderer();
+        itemRenderer.renderStatic(item, itemDisplayContext, light, OverlayTexture.NO_OVERLAY, poseStack,
                 multiBufferSource, /^? if >1.18.2 {^/mc.level,/^?}^/ mc.level.random.nextInt());
         *///?} else {
 
         ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
         ItemModelResolver itemModelResolver = mc.getItemModelResolver();
         itemModelResolver.appendItemLayers(itemStackRenderState,item,itemDisplayContext,null,null,0);
+
+
+
         itemStackRenderState.submit(poseStack, mc.gameRenderer.getSubmitNodeStorage(),light,OverlayTexture.NO_OVERLAY, 0);
         //?}
 
