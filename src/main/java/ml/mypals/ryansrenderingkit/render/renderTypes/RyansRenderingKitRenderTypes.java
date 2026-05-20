@@ -1,13 +1,14 @@
 package ml.mypals.ryansrenderingkit.render.renderTypes;
 //? if >= 1.21.5 {
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 //?if < 26.1{
-import com.mojang.blaze3d.platform.DepthTestFunction;
-//?}else{
-/*import com.mojang.blaze3d.pipeline.DepthStencilState;
+/*import com.mojang.blaze3d.platform.DepthTestFunction;
+*///?}else{
+import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.platform.CompareOp;
 import java.util.Optional;
-*///?}
+//?}
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -36,8 +37,9 @@ public class RyansRenderingKitRenderTypes {
                 .register(RenderPipeline.builder(
                                 RenderPipelines.DEBUG_FILLED_SNIPPET)
                         .withLocation("pipeline/debug_triangle")
-                        .withCull(false).withVertexFormat(DefaultVertexFormat.POSITION_COLOR,
-                                VertexFormat.Mode.TRIANGLES)
+                        .withCull(false)
+                        .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
+                        .withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
                         .build());
         //? if >=1.21.11 {
         TRIANGLE = RenderType.create("r_triangle",
@@ -57,13 +59,14 @@ public class RyansRenderingKitRenderTypes {
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_quads"))
 
             //?if<26.1{
-            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+            /*.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
-            //?}else{
-            /*.withDepthStencilState(Optional.empty())
-            *///?}
+            *///?}else{
+            .withDepthStencilState(Optional.empty())
+            //?}
             .withCull(false)
-            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
+            .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
+            .withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
             .build();
 
     //? if >=1.21.11 {
@@ -91,16 +94,17 @@ public class RyansRenderingKitRenderTypes {
     private static final RenderPipeline noDepthLines = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_lines"))
             //? < 26.1{
-            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+            /*.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
-            //?}else{
-            /*.withDepthStencilState(Optional.empty())
-            *///?}
+            *///?}else{
+            .withDepthStencilState(Optional.empty())
+            //?}
             .withCull(false)
             //? if <1.21.11 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
             *///?} else {
-            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.LINES)
+            .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH)
+            .withPrimitiveTopology(PrimitiveTopology.LINES)
             //?}
             .build();
 
@@ -129,16 +133,17 @@ public class RyansRenderingKitRenderTypes {
     private static final RenderPipeline noDepthLineStrip = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
             //? < 26.1{
-            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+            /*.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
-            //?}else{
-            /*.withDepthStencilState(Optional.empty())
-            *///?}
+            *///?}else{
+            .withDepthStencilState(Optional.empty())
+            //?}
             .withCull(false)
             //? if <1.21.11 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
              *///?} else {
-            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
+            .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH)
+            .withPrimitiveTopology(PrimitiveTopology.DEBUG_LINE_STRIP)
             //?}
             .build();
 
@@ -150,9 +155,9 @@ public class RyansRenderingKitRenderTypes {
 
     private static final RenderPipeline lineStrip = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
-
             .withCull(false)
-            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
+            .withVertexBinding(0 , DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH)
+            .withPrimitiveTopology(PrimitiveTopology.DEBUG_LINE_STRIP)
             .build();
 
     public static final RenderType LINE_STRIP =

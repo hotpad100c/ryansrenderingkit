@@ -1,5 +1,6 @@
 package ml.mypals.ryansrenderingkit.mixin;
 
+import com.mojang.blaze3d.IndexType;
 import com.mojang.blaze3d.vertex.*;
 import org.spongepowered.asm.mixin.Mixin;
 import ml.mypals.ryansrenderingkit.interfaces.MeshDataExt;
@@ -22,16 +23,17 @@ import java.util.function.IntConsumer;
 public abstract class SortStateMixin implements MeshDataExt.BufferBuilderSortableExt {
     //? if >1.20.6 {
 
-    @Shadow
-    protected abstract it.unimi.dsi.fastutil.ints.IntConsumer indexWriter(long l, VertexFormat.IndexType indexType);
-
-    @Shadow
-    @Final
-    private VertexFormat.IndexType indexType;
 
     @Shadow
     @Final
     private /*? if <1.21.9 {*//*Vector3f[]*//*?} else {*/ CompactVectorArray/*?}*/centroids;
+
+    @Shadow
+    @Final
+    private IndexType indexType;
+
+    @Shadow
+    protected abstract it.unimi.dsi.fastutil.ints.IntConsumer indexWriter(long par1, IndexType par2);
 
     @Unique
     public ByteBufferBuilder.Result

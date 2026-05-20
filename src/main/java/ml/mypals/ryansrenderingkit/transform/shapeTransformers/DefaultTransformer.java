@@ -76,7 +76,7 @@ public class DefaultTransformer {
         double tx = p.x, ty = p.y, tz = p.z;
 
         if (camSpace && this.shape.parent == null) {
-            Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+            Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
             //? if >=1.21.11 {
             Vec3 cameraPos = camera.position();
              //?} else {
