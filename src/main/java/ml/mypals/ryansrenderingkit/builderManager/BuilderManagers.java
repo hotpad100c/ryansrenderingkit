@@ -22,6 +22,14 @@ public class BuilderManagers {
         NON_SHAPE_OBJECTS = registerEmpty(matrix4f, "empty");
     }
 
+    //? >= 26.2 {
+    public static void flushEndFrame() {
+        for (BuilderManager builderManager : builders) {
+            builderManager.endFrame();
+        }
+    }
+    //?}
+
     public static void updateMatrix(Matrix4f matrix4f) {
         for (BuilderManager builderManager : builders) {
             builderManager.updateMatrix(matrix4f);

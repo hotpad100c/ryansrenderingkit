@@ -6,13 +6,13 @@ import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 //?if < 26.1{
-import net.minecraft.client.renderer.entity.ItemRenderer;
-//?}
+/*import net.minecraft.client.renderer.entity.ItemRenderer;
+*///?}
 //? < 1.21.6 {
 /*import com.mojang.blaze3d.systems.RenderSystem;
 *///?}
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.item.ItemEntity;
 //? if > 1.18.2 {
@@ -87,8 +87,6 @@ public class ItemShape extends Shape implements EmptyMesh {
     protected void drawInternal(VertexBuilder builder) {
         Minecraft mc = Minecraft.getInstance();
 
-        MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
-
         //? < 1.21.6 {
         /*RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
                 (float) this.baseColor.getGreen() / 255,
@@ -115,7 +113,7 @@ public class ItemShape extends Shape implements EmptyMesh {
 
 
 
-        itemStackRenderState.submit(poseStack, mc.gameRenderer.getSubmitNodeStorage(),light,OverlayTexture.NO_OVERLAY, 0);
+        itemStackRenderState.submit(poseStack, new SubmitNodeStorage(),light,OverlayTexture.NO_OVERLAY, 0);
         //?}
 
 

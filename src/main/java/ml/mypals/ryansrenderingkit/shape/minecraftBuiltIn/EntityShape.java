@@ -6,7 +6,7 @@ import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -19,10 +19,10 @@ import java.util.function.Consumer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 //?if < 26.1{
-import net.minecraft.client.renderer.state.CameraRenderState;
-//?}else{
-/*import net.minecraft.client.renderer.state.level.CameraRenderState;
-*///?}
+/*import net.minecraft.client.renderer.state.CameraRenderState;
+*///?}else{
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+//?}
 //?}
 //?if<=1.20.4{
 /*import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
@@ -77,7 +77,6 @@ public class EntityShape extends Shape implements EmptyMesh {
         Minecraft mc = Minecraft.getInstance();
 
         EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
-        MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
         if(isEndOfWorldTick() && entity != mc.player){
             entity.tick();
         }
@@ -104,12 +103,12 @@ public class EntityShape extends Shape implements EmptyMesh {
                 poseStack, multiBufferSource, light);
         *///?} else {
         EntityRenderState entityRenderState = dispatcher.extractEntity(entity, transformer.getTickDelta());
-        SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
+        SubmitNodeCollector submitNodeCollector = new SubmitNodeStorage();
         //?if<26.1{
-        CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
-        //?}else{
-        /*CameraRenderState cameraRenderState = mc.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
-        *///?}
+        /*CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
+        *///?}else{
+        CameraRenderState cameraRenderState = mc.gameRenderer.gameRenderState().levelRenderState.cameraRenderState;
+        //?}
         dispatcher.submit(entityRenderState,cameraRenderState,0,0,0,poseStack,submitNodeCollector);
         //?}
         poseStack.popPose();

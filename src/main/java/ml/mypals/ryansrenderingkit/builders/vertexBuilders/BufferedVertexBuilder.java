@@ -47,6 +47,7 @@ import ml.mypals.ryansrenderingkit.render.RenderMethod;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.function.Consumer;
@@ -126,17 +127,16 @@ public class BufferedVertexBuilder extends VertexBuilder {
         //? if >= 1.21.5 {
 
         GpuDevice gpuDevice = RenderSystem.getDevice();
-        CommandEncoder commandEncoder = gpuDevice.createCommandEncoder();
         if(this.vertexBuffer == null || this.vertexBuffer.isClosed()) {
-            builtBuffer.vertexBuffer();
             //? if < 1.21.6 {
-            /*this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
-                    BufferType.VERTICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.vertexBuffer());
-            commandEncoder.writeToBuffer(vertexBuffer, builtBuffer.vertexBuffer(), 0);
+            /*try (CommandEncoder commandEncoder = gpuDevice.createCommandEncoder()) {
+                this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
+                        BufferType.VERTICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.vertexBuffer());
+                commandEncoder.writeToBuffer(vertexBuffer, builtBuffer.vertexBuffer(), 0);
+            }
             *///?} else {
             this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
                     40, builtBuffer.vertexBuffer());
-            commandEncoder.writeToBuffer(vertexBuffer.slice(), builtBuffer.vertexBuffer());
 
             //?}
         }
@@ -151,8 +151,11 @@ public class BufferedVertexBuilder extends VertexBuilder {
                 this.indexBuffer = autoStorageIndexBuffer.getBuffer(builtBuffer.drawState().indexCount());
             } else{
                 //? <1.21.6 {
-                /*this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
-                        BufferType.INDICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.indexBuffer());
+                /*try (CommandEncoder commandEncoder = gpuDevice.createCommandEncoder()) {
+                    this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
+                            BufferType.INDICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.indexBuffer());
+                    commandEncoder.writeToBuffer(indexBuffer, builtBuffer.indexBuffer(), 0);
+                }
                 *///?} else {
                 this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
                         72, builtBuffer.indexBuffer());
@@ -222,11 +225,11 @@ public class BufferedVertexBuilder extends VertexBuilder {
 
         //? if >= 1.21.5 {
             if (vertexBuffer != null) {
-                //vertexBuffer.close();
+                vertexBuffer.close();
                 vertexBuffer = null;
             }
             if (indexBuffer != null) {
-                //indexBuffer.close();
+                indexBuffer.close();
                 indexBuffer = null;
             }
         //?} else {
@@ -319,13 +322,13 @@ public class BufferedVertexBuilder extends VertexBuilder {
         *///?} else {
         GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(
                 //?if<26.2{
-                RenderSystem.getModelViewMatrix()
-                //?}else{
-                /*RenderSystem.getModelViewMatrixCopy()
-                *///?}
+                /*RenderSystem.getModelViewMatrix()
+                *///?}else{
+                RenderSystem.getModelViewMatrixCopy()
+                //?}
                 , new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
                 new Vector3f(),
-                /*? if <1.21.11 {*//*RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth()*//*?}else if < 26.2{*/bufferedRenderMethod.normalRenderType().state.textureTransform.getMatrix()/*?}else{*//*bufferedRenderMethod.normalRenderType().state.textureTransform.createMatrix() *//*?}*/);
+                /*? if <1.21.11 {*//*RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth()*//*?}else if < 26.2{*//*bufferedRenderMethod.normalRenderType().state.textureTransform.getMatrix()*//*?}else{*/bufferedRenderMethod.normalRenderType().state.textureTransform.createMatrix() /*?}*/);
         var state = bufferedRenderMethod.normalRenderType().state;
         RenderTarget renderTarget = state./*? if >=1.21.11 {*/outputTarget/*?} else {*//*outputState*//*?}*/.getRenderTarget();
         GpuTextureView gpuTextureView = RenderSystem.outputColorTextureOverride != null ? RenderSystem.outputColorTextureOverride : renderTarget.getColorTextureView();
@@ -337,7 +340,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
                  +bufferedRenderMethod.normalRenderType().toString()
                  +this.getClass(),
                  gpuTextureView,
-                 OptionalInt.empty(),
+                 Optional.empty(),
                  gpuTextureView2,
                  OptionalDouble.empty()
                  )
@@ -349,7 +352,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
             }else{
                 renderPass.setPipeline(bufferedRenderMethod.normalRenderType()./*? if >=1.21.11 {*/pipeline()/*?} else {*//*renderPipeline*//*?}*/);
             }
-            renderPass.setVertexBuffer(0, vertexBuffer);
+            renderPass.setVertexBuffer(0, vertexBuffer.slice());
             ScissorState scissorState = RenderSystem.getScissorStateForRenderTypeDraws();
             if (scissorState.enabled()) {
                 renderPass.enableScissor(scissorState.x(), scissorState.y(), scissorState.width(), scissorState.height());
@@ -359,7 +362,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
                     = RenderSystem.getSequentialBuffer(bufferedRenderMethod.mode());
 
             renderPass.setIndexBuffer(indexBuffer, autoStorageIndexBuffer.type());
-            renderPass.drawIndexed(0,0, indexCount,1);
+            renderPass.drawIndexed(indexCount,1, 0, 0, 0);
 
         }
         //?}

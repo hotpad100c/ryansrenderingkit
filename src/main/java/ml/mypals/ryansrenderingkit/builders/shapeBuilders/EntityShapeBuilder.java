@@ -3,13 +3,13 @@ package ml.mypals.ryansrenderingkit.builders.shapeBuilders;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn.EntityShape;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.entity.Entity;
 
 public class EntityShapeBuilder extends BaseBuilder<EntityShapeBuilder, DefaultTransformer> {
 
     private Entity entity;
-    private int light = LightTexture.FULL_BRIGHT;
+    private int light = LightCoordsUtil.FULL_BRIGHT;
 
     public EntityShapeBuilder entity(Entity entity) {
         this.entity = entity;

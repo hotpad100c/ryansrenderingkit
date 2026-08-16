@@ -78,8 +78,7 @@ public class Helpers {
         return alpha << 24 | red << 16 | green << 8 | blue;
     }
 
-    public static void renderLineBox(PoseStack poseStack, VertexConsumer consumer,
-                                     Vec3 center, float size,
+    public static void renderLineBox(Vec3 center, float size,
                                      float red, float green, float blue, float alpha) {
 
         double half = size / 2.0;
@@ -120,7 +119,7 @@ public class Helpers {
             //vec3.x,vec3.y,vec3.z
         );
 
-        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
 
         poseStack.mulPose( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.YP.rotationDegrees(-camera/*? if >=1.21.11 {*/.yRot()/*?} else {*//*.getYRot()*//*?}*/));
         poseStack.mulPose( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.XP.rotationDegrees(camera/*? if >=1.21.11 {*/.xRot()/*?} else {*//*.getXRot()*//*?}*/));

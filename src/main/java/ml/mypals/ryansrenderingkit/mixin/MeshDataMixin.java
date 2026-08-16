@@ -98,10 +98,11 @@ public abstract class MeshDataMixin implements MeshDataExt {
         CompactVectorArray
         //?}
     unpackTriangleCentroids(ByteBuffer byteBuffer, int vertexCount, VertexFormat vertexFormat) {
-        int posOffset = vertexFormat.getOffset(VertexFormatElement.POSITION);
-        if (posOffset == -1) {
+        VertexFormatElement positionElement = vertexFormat.getElement("Position");
+        if (positionElement == null) {
             throw new IllegalArgumentException("Cannot identify triangle centers with no position element");
         }
+        int posOffset = byteBuffer.position() + positionElement.offset();
 
         FloatBuffer fb = byteBuffer.asFloatBuffer();
         int floatsPerVertex = vertexFormat.getVertexSize() / 4;

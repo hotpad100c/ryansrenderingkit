@@ -81,6 +81,9 @@ public class ShapeManager {
         RENDER_PROFILER.push("singleDraw");
         immediateShapeGroup.drawImmediate(builderManager, matrixStack, tickDelta);
         RENDER_PROFILER.pop();
+        //? >= 26.2 {
+        builderManager.flushDraws();
+        //?}
         RENDER_PROFILER.push("bufferedDraw");
         bufferedShapeGroup.drawBuffered(builderManager);
         RENDER_PROFILER.pop();
@@ -153,12 +156,12 @@ public class ShapeManager {
 
         public void drawBatched(BuilderManager builderManager, PoseStack matrixStack, float tickDelta) {
             if (!normalShapeMap.isEmpty()) {
-                builderManager.drawBatch(builder -> {
+                builderManager.drawBatch(matrixStack, builder -> {
                     for (Shape shape : normalShapeMap.values()) shape.draw(true, builder, matrixStack, tickDelta);
                 }, false);
             }
             if (!seeThroughShapeMap.isEmpty()) {
-                builderManager.drawBatch(builder -> {
+                builderManager.drawBatch(matrixStack, builder -> {
                     for (Shape shape : seeThroughShapeMap.values()) shape.draw(true, builder, matrixStack, tickDelta);
                 }, true);
             }

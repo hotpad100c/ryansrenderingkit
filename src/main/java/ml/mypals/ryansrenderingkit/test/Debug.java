@@ -18,16 +18,16 @@ import ml.mypals.ryansrenderingkit.shapeManagers.ShapeManagers;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 //? if >1.18.2 {
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.world.item.ItemDisplayContext;
 //?} else {
-/*import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+/*import net.fabricmc.fabric.api.client.command.v1.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 *///?}
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 //?if<=1.18.2{
 /*import net.minecraft.client.renderer.block.model.ItemTransforms;
 *///?}
@@ -71,8 +71,8 @@ public class Debug {
     public static void registerDebugCommands(CommandDispatcher<FabricClientCommandSource> dispatcher) {
 
         dispatcher.register(
-                ClientCommandManager.literal("ryansRenderingKit_DEBUG")
-                        .then(ClientCommandManager.literal("toggle")
+                ClientCommands.literal("ryansRenderingKit_DEBUG")
+                        .then(ClientCommands.literal("toggle")
                                 .executes(ctx -> {
                                     boolean newValue = toggleDebugMode();
                                     ctx.getSource().sendFeedback(
@@ -81,14 +81,14 @@ public class Debug {
                                                     : "§cDISABLED")));
                                     return 1;
                                 })
-                        ).then(ClientCommandManager.literal("reload")
+                        ).then(ClientCommands.literal("reload")
                                 .executes(ctx -> {
                                     added = false;
                                     ctx.getSource().sendFeedback(
                                             Component.nullToEmpty("Ryan's Rendering Kit Debug Shapes Reloaded."));
                                     return 0;
                                 })
-                        ).then(ClientCommandManager.literal("profile")
+                        ).then(ClientCommands.literal("profile")
                                 .executes(ctx -> {
                                     RENDER_PROFILER.print();
                                     RENDER_PROFILER.reset();
@@ -115,10 +115,10 @@ public class Debug {
 
     public static void init() {
         //? if >= 26.1 {
-        /*ClientTickEvents.START_LEVEL_TICK.register(client -> {
-         *///?} else {
-        ClientTickEvents.START_WORLD_TICK.register(client -> {
-            //?}
+        ClientTickEvents.START_LEVEL_TICK.register(client -> {
+         //?} else {
+        /*ClientTickEvents.START_WORLD_TICK.register(client -> {
+            *///?}
             if (added || !ENABLE_DEBUG) return;
             index = 0;
             ShapeManagers.removeShapes(
@@ -495,7 +495,7 @@ public class Debug {
                                         t.shape, t);
                             })
                     .block(Blocks.GLASS.defaultBlockState())
-                    .light(LightTexture.FULL_BLOCK)
+                    .light(240)
                     .build();
             ShapeManagers.addShape(
                     Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_block_shape"),
@@ -508,7 +508,7 @@ public class Debug {
                                 t.shape, t);
                     },
                     new Vec3(xPos(), 0, 0),
-                    Items.DRAGON_EGG.getDefaultInstance(), /*? if >1.18.2 {*/ ItemDisplayContext/*?} else {*//*ItemTransforms.TransformType*//*?}*/ .FIXED, LightTexture.FULL_BLOCK);
+                    Items.DRAGON_EGG.getDefaultInstance(), /*? if >1.18.2 {*/ ItemDisplayContext/*?} else {*//*ItemTransforms.TransformType*//*?}*/ .FIXED, 240);
             ShapeManagers.addShape(
                     Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_item_shape"),
                     itemShape
@@ -521,7 +521,7 @@ public class Debug {
                         t.setShapeWorldRotationDegrees(time * 2, time * 3, time * 1.5f);
                     },
                     new Vec3(xPos(), 0, 0),
-                    Minecraft.getInstance().player, LightTexture.FULL_BLOCK);
+                    Minecraft.getInstance().player, 240);
             ShapeManagers.addShape(
                     Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_entity_shape"),
                     entityShape

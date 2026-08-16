@@ -8,16 +8,16 @@ import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 //?if<26.1{
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+/*import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
     //?if > 1.21.4{
     import net.minecraft.client.renderer.block.model.BlockModelPart;
     import net.minecraft.client.renderer.block.model.BlockStateModel;
     //?}
-//?}else{
-/*import net.minecraft.client.renderer.texture.TextureAtlas;
+*///?}else{
+import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.renderer.block.BlockStateModelSet;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
@@ -25,7 +25,7 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-*///?}
+//?}
 
 //? < 1.21.6 {
 /*import com.mojang.blaze3d.systems.RenderSystem;
@@ -56,10 +56,10 @@ import java.util.function.Consumer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 //?if < 26.1{
-import net.minecraft.client.renderer.state.CameraRenderState;
-//?}else{
-/*import net.minecraft.client.renderer.state.level.CameraRenderState;
-*///?}
+/*import net.minecraft.client.renderer.state.CameraRenderState;
+*///?}else{
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+//?}
 //?}
 
 public class BlockShape extends Shape implements EmptyMesh {
@@ -87,10 +87,10 @@ public class BlockShape extends Shape implements EmptyMesh {
         List<Integer> indices = new ArrayList<>();
         if (mc.level == null) return;
         //?if<26.1{
-        BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
-        //?}else{
-        /*BlockStateModelSet dispatcher = mc.getModelManager().getBlockStateModelSet();
-        *///?}
+        /*BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
+        *///?}else{
+        BlockStateModelSet dispatcher = mc.getModelManager().getBlockStateModelSet();
+        //?}
 
         //? <1.21.5 {
         /*BakedModel bakedModel = dispatcher.getBlockModel(blockState);
@@ -109,7 +109,7 @@ public class BlockShape extends Shape implements EmptyMesh {
             }
         }
         *///?} else if < 26.1{
-        BlockStateModel bakedModel = dispatcher.getBlockModel(blockState);
+        /*BlockStateModel bakedModel = dispatcher.getBlockModel(blockState);
         for (BlockModelPart bakedQuads : bakedModel.collectParts(mc.level.getRandom())) {
             for(Direction direction : Direction.values()) {
                 for(BakedQuad bakedQuad : bakedQuads.getQuads(direction)) {
@@ -125,8 +125,8 @@ public class BlockShape extends Shape implements EmptyMesh {
                 }
             }
         }
-        //?}else{
-        /*BlockStateModel bakedModel = dispatcher.get(blockState);
+        *///?}else{
+        BlockStateModel bakedModel = dispatcher.get(blockState);
         List<BlockStateModelPart> parts = new ObjectArrayList<>();
         bakedModel.collectParts(mc.level.getRandom(), parts);
         for (BlockStateModelPart bakedQuads : parts) {
@@ -144,7 +144,7 @@ public class BlockShape extends Shape implements EmptyMesh {
                 }
             }
         }
-        *///?}
+        //?}
 
         indexBuffer = indices.stream().mapToInt(i -> i).toArray();
 
@@ -184,12 +184,11 @@ public class BlockShape extends Shape implements EmptyMesh {
         Minecraft mc = Minecraft.getInstance();
 
         //?if<26.1{
-        BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
-        //?}else{
-        /*boolean ambientOcclusion = mc.options.ambientOcclusion().get();
+        /*BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
+        *///?}else{
+        boolean ambientOcclusion = mc.options.ambientOcclusion().get();
         ModelBlockRenderer blockRenderer = new ModelBlockRenderer(ambientOcclusion, false, mc.getBlockColors());
-        *///?}
-        MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
+        //?}
 
         //? < 1.21.6 {
         /*RenderSystem.setShaderColor((float) this.baseColor.getRed() / 255,
@@ -205,20 +204,20 @@ public class BlockShape extends Shape implements EmptyMesh {
 
 
         //?if<26.1{
-        dispatcher.renderSingleBlock(blockState, poseStack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);
+        /*dispatcher.renderSingleBlock(blockState, poseStack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);
         SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
         CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
-        //?}else{
-        /*BlockStateModel model = mc.getModelManager().getBlockStateModelSet().get(blockState);
+        *///?}else{
+        BlockStateModel model = mc.getModelManager().getBlockStateModelSet().get(blockState);
         List<BlockStateModelPart> parts = new ObjectArrayList<>();
         model.collectParts(mc.level.getRandom(), parts);
-        SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
+        SubmitNodeCollector submitNodeCollector = new SubmitNodeStorage();
 
-        CameraRenderState cameraRenderState = mc.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
+        CameraRenderState cameraRenderState = mc.gameRenderer.gameRenderState().levelRenderState.cameraRenderState;
 
 
         submitNodeCollector.submitBlockModel(poseStack, RenderTypes.entityTranslucent(TextureAtlas.LOCATION_BLOCKS), parts, new int[0], light, OverlayTexture.NO_OVERLAY, 33);
-        *///?}
+        //?}
         if (blockState.getBlock() instanceof EntityBlock) {
             BlockEntityRenderDispatcher blockEntityRenderDispatcher = mc.getBlockEntityRenderDispatcher();
             BlockEntity blockEntity = ((EntityBlock) blockState.getBlock()).newBlockEntity(BlockPos.ZERO, blockState);
@@ -226,7 +225,7 @@ public class BlockShape extends Shape implements EmptyMesh {
             //? if <1.21.9 {
             /*blockEntityRenderDispatcher.render(blockEntity, transformer.getTickDelta(), poseStack, multiBufferSource);
             *///?} else {
-            BlockEntityRenderState blockEntityRenderState = blockEntityRenderDispatcher.tryExtractRenderState(blockEntity, transformer.getTickDelta(),null);
+            BlockEntityRenderState blockEntityRenderState = blockEntityRenderDispatcher.tryExtractRenderState(blockEntity, transformer.getTickDelta(),null, true);
 
                 blockEntityRenderDispatcher.submit(blockEntityRenderState,poseStack,submitNodeCollector,cameraRenderState);
                 //?}
