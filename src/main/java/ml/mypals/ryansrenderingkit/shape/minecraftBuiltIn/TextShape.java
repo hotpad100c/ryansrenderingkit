@@ -1,6 +1,9 @@
 package ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.gui.font.TextRenderable;
+import net.minecraft.client.renderer.feature.GizmoFeatureRenderer;
 import net.minecraft.network.chat.FormattedText;
 import org.joml.*;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
@@ -10,8 +13,7 @@ import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransforme
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
@@ -23,6 +25,7 @@ import org.joml.Math;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static ml.mypals.ryansrenderingkit.utils.Helpers.convertToMojangIfNeeded;
@@ -105,8 +108,6 @@ public class TextShape extends Shape implements EmptyMesh {
 
 
         Minecraft mc = Minecraft.getInstance();
-
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
         Font font = mc.font;
         float totalHeight = 0f;
         float[] lineHeights = new float[contents.size()];
@@ -130,28 +131,16 @@ public class TextShape extends Shape implements EmptyMesh {
             float x = -font.width(text) / 2f;
             float y = yOffset;
             if (outline) {
-                font.drawInBatch8xOutline(renderMessages[i], x, y,
-                        color.getRGB(),
-                        multiplyRGB(color.getRGB(), 0.8f),
-                        convertToMojangIfNeeded(builder.getPositionMatrix()),
-                        bufferSource, LightTexture.FULL_BRIGHT);
+                font.prepare8xTextOutline(renderMessages[i], x, y,
+                        color.getRGB()
+                );
             } else {
-                font.drawInBatch(
+                Font.PreparedText preparedText = font.prepareText(
                         text,
                         x, y,
                         color.getRGB(),
                         shadow,
-                        convertToMojangIfNeeded(builder.getPositionMatrix()),
-                        bufferSource,
-                        //? if >1.18.2 {
-                        seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.POLYGON_OFFSET,
-                        //?} else {
-                        /*seeThrough,
-                        *///?}
-                        backgroundColor.getRGB(),
-                        LightTexture.FULL_BRIGHT
-                        //? if <=1.18.2
-                        //,false
+                        backgroundColor.getRGB()
                 );
             }
 
@@ -163,7 +152,7 @@ public class TextShape extends Shape implements EmptyMesh {
     public void beforeDraw(PoseStack poseStack, float deltaTime, boolean camSpace) {
         super.beforeDraw(poseStack, deltaTime, camSpace);
 
-        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
 
         switch (billBoardMode) {
             case ALL -> {

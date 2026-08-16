@@ -3,7 +3,7 @@ package ml.mypals.ryansrenderingkit.builders.shapeBuilders;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn.ItemShape;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 //? if >1.18.2 {
 import net.minecraft.world.item.ItemDisplayContext;
  //?} else {
@@ -16,7 +16,7 @@ public class ItemShapeBuilder extends BaseBuilder<ItemShapeBuilder, DefaultTrans
     private ItemStack itemStack = ItemStack.EMPTY;
     private /*? if >1.18.2 {*/ ItemDisplayContext/*?} else {*//*ItemTransforms.TransformType*//*?}*/  displayContext
             = /*? if >1.18.2 {*/ ItemDisplayContext/*?} else {*//*ItemTransforms.TransformType*//*?}*/ .FIXED;
-    private int light = LightTexture.FULL_BRIGHT;
+    private int light = LightCoordsUtil.FULL_BRIGHT;
 
     public ItemShapeBuilder itemStack(ItemStack itemStack) {
         this.itemStack = itemStack;
