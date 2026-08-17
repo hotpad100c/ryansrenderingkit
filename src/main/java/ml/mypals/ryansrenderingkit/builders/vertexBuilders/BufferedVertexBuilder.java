@@ -59,6 +59,8 @@ public class BufferedVertexBuilder extends VertexBuilder {
     private GpuBuffer vertexBuffer;
     private int indexCount = 0;
     private GpuBuffer indexBuffer;
+    /** False when {@link #indexBuffer} is RenderSystem's shared sequential buffer, which we must not close. */
+    private boolean ownsIndexBuffer = false;
     //?} else {
     /*private VertexBuffer vertexBuffer;
     *///?}
@@ -144,23 +146,27 @@ public class BufferedVertexBuilder extends VertexBuilder {
 
         indexCount = builtBuffer.drawState().indexCount();
 
-        if(this.indexBuffer == null || this.indexBuffer.isClosed()) {
-            if(builtBuffer.indexBuffer() == null) {
-                RenderSystem.AutoStorageIndexBuffer autoStorageIndexBuffer =
-                        RenderSystem.getSequentialBuffer(bufferedRenderMethod.mode());
-                this.indexBuffer = autoStorageIndexBuffer.getBuffer(builtBuffer.drawState().indexCount());
-            } else{
-                //? <1.21.6 {
-                /*try (CommandEncoder commandEncoder = gpuDevice.createCommandEncoder()) {
-                    this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
-                            BufferType.INDICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.indexBuffer());
-                    commandEncoder.writeToBuffer(indexBuffer, builtBuffer.indexBuffer(), 0);
-                }
-                *///?} else {
+        if(builtBuffer.indexBuffer() == null) {
+            // RenderSystem's shared sequential index buffer. Re-fetched on every rebuild because it is
+            // recreated whenever it has to grow -- a cached handle would name a deleted buffer. Never
+            // ours to close; see releaseIndexBuffer().
+            releaseIndexBuffer();
+            RenderSystem.AutoStorageIndexBuffer autoStorageIndexBuffer =
+                    RenderSystem.getSequentialBuffer(bufferedRenderMethod.mode());
+            this.indexBuffer = autoStorageIndexBuffer.getBuffer(indexCount);
+            this.ownsIndexBuffer = false;
+        } else if(this.indexBuffer == null || this.indexBuffer.isClosed()) {
+            //? <1.21.6 {
+            /*try (CommandEncoder commandEncoder = gpuDevice.createCommandEncoder()) {
                 this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
-                        72, builtBuffer.indexBuffer());
-                //?}
+                        BufferType.INDICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.indexBuffer());
+                commandEncoder.writeToBuffer(indexBuffer, builtBuffer.indexBuffer(), 0);
             }
+            *///?} else {
+            this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
+                    72, builtBuffer.indexBuffer());
+            //?}
+            this.ownsIndexBuffer = true;
         }
 
         //?}
@@ -228,10 +234,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
                 vertexBuffer.close();
                 vertexBuffer = null;
             }
-            if (indexBuffer != null) {
-                indexBuffer.close();
-                indexBuffer = null;
-            }
+            releaseIndexBuffer();
         //?} else {
         /*if (vertexBuffer != null) {
             vertexBuffer.close();
@@ -242,6 +245,19 @@ public class BufferedVertexBuilder extends VertexBuilder {
 
         isBuilding = false;
     }
+
+    //? if >= 1.21.5 {
+    /** Drops the index buffer, destroying it only when we allocated it rather than borrowed it. */
+    private void releaseIndexBuffer() {
+        if (indexBuffer != null) {
+            if (ownsIndexBuffer) {
+                indexBuffer.close();
+            }
+            indexBuffer = null;
+            ownsIndexBuffer = false;
+        }
+    }
+    //?}
 
     public void draw(Vec3 cameraPos) {
         if (vertexBuffer == null/*? >= 1.21.5 {*/|| indexBuffer == null /*?}*/ || bufferedRenderMethod == null) {
