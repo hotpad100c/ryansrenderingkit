@@ -131,11 +131,10 @@ public class BufferedVertexBuilder extends VertexBuilder {
         GpuDevice gpuDevice = RenderSystem.getDevice();
         if(this.vertexBuffer == null || this.vertexBuffer.isClosed()) {
             //? if < 1.21.6 {
-            /*try (CommandEncoder commandEncoder = gpuDevice.createCommandEncoder()) {
-                this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
-                        BufferType.VERTICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.vertexBuffer());
-                commandEncoder.writeToBuffer(vertexBuffer, builtBuffer.vertexBuffer(), 0);
-            }
+            /*CommandEncoder commandEncoder = gpuDevice.createCommandEncoder();
+            this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
+                    BufferType.VERTICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.vertexBuffer());
+            commandEncoder.writeToBuffer(vertexBuffer, builtBuffer.vertexBuffer(), 0);
             *///?} else {
             this.vertexBuffer = gpuDevice.createBuffer(() -> "Vertex buffer for " + String.valueOf(this),
                     40, builtBuffer.vertexBuffer());
@@ -157,11 +156,10 @@ public class BufferedVertexBuilder extends VertexBuilder {
             this.ownsIndexBuffer = false;
         } else if(this.indexBuffer == null || this.indexBuffer.isClosed()) {
             //? <1.21.6 {
-            /*try (CommandEncoder commandEncoder = gpuDevice.createCommandEncoder()) {
-                this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
-                        BufferType.INDICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.indexBuffer());
-                commandEncoder.writeToBuffer(indexBuffer, builtBuffer.indexBuffer(), 0);
-            }
+            /*CommandEncoder commandEncoder = gpuDevice.createCommandEncoder();
+            this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
+                    BufferType.INDICES, BufferUsage.DYNAMIC_WRITE, builtBuffer.indexBuffer());
+            commandEncoder.writeToBuffer(indexBuffer, builtBuffer.indexBuffer(), 0);
             *///?} else {
             this.indexBuffer = gpuDevice.createBuffer(() -> "Index buffer for " + String.valueOf(this),
                     72, builtBuffer.indexBuffer());
@@ -356,7 +354,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
                  +bufferedRenderMethod.normalRenderType().toString()
                  +this.getClass(),
                  gpuTextureView,
-                 Optional.empty(),
+                 /*? if <26.2 {*//*OptionalInt.empty()*//*?} else {*/Optional.empty()/*?}*/,
                  gpuTextureView2,
                  OptionalDouble.empty()
                  )
@@ -368,7 +366,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
             }else{
                 renderPass.setPipeline(bufferedRenderMethod.normalRenderType()./*? if >=1.21.11 {*/pipeline()/*?} else {*//*renderPipeline*//*?}*/);
             }
-            renderPass.setVertexBuffer(0, vertexBuffer.slice());
+            renderPass.setVertexBuffer(0, vertexBuffer/*? if >=26.2 {*/.slice()/*?}*/);
             ScissorState scissorState = RenderSystem.getScissorStateForRenderTypeDraws();
             if (scissorState.enabled()) {
                 renderPass.enableScissor(scissorState.x(), scissorState.y(), scissorState.width(), scissorState.height());
@@ -378,7 +376,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
                     = RenderSystem.getSequentialBuffer(bufferedRenderMethod.mode());
 
             renderPass.setIndexBuffer(indexBuffer, autoStorageIndexBuffer.type());
-            renderPass.drawIndexed(indexCount,1, 0, 0, 0);
+            renderPass.drawIndexed(/*? if <26.2 {*//*0, 0, indexCount, 1*//*?} else {*/indexCount, 1, 0, 0, 0/*?}*/);
 
         }
         //?}

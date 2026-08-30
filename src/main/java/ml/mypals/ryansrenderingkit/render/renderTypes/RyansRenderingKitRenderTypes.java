@@ -1,6 +1,8 @@
 package ml.mypals.ryansrenderingkit.render.renderTypes;
 //? if >= 1.21.5 {
+//? if >=26.2 {
 import com.mojang.blaze3d.PrimitiveTopology;
+//?}
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 //?if < 26.1{
 /*import com.mojang.blaze3d.platform.DepthTestFunction;
@@ -38,8 +40,12 @@ public class RyansRenderingKitRenderTypes {
                                 RenderPipelines.DEBUG_FILLED_SNIPPET)
                         .withLocation("pipeline/debug_triangle")
                         .withCull(false)
+                        //? if <26.2 {
+                        /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
+                        *///?} else {
                         .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
                         .withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
+                        //?}
                         .build());
         //? if >=1.21.11 {
         TRIANGLE = RenderType.create("r_triangle",
@@ -65,8 +71,12 @@ public class RyansRenderingKitRenderTypes {
             .withDepthStencilState(Optional.empty())
             //?}
             .withCull(false)
+            //? if <26.2 {
+            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
+            *///?} else {
             .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
             .withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
+            //?}
             .build();
 
     //? if >=1.21.11 {
@@ -102,6 +112,8 @@ public class RyansRenderingKitRenderTypes {
             .withCull(false)
             //? if <1.21.11 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
+            *///?} else if <26.2 {
+            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.LINES)
             *///?} else {
             .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH)
             .withPrimitiveTopology(PrimitiveTopology.LINES)
@@ -141,7 +153,9 @@ public class RyansRenderingKitRenderTypes {
             .withCull(false)
             //? if <1.21.11 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
-             *///?} else {
+             *///?} else if <26.2 {
+            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
+            *///?} else {
             .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH)
             .withPrimitiveTopology(PrimitiveTopology.DEBUG_LINE_STRIP)
             //?}
@@ -156,8 +170,12 @@ public class RyansRenderingKitRenderTypes {
     private static final RenderPipeline lineStrip = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
             .withCull(false)
+            //? if <26.2 {
+            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
+            *///?} else {
             .withVertexBinding(0 , DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH)
             .withPrimitiveTopology(PrimitiveTopology.DEBUG_LINE_STRIP)
+            //?}
             .build();
 
     public static final RenderType LINE_STRIP =

@@ -1,6 +1,8 @@
 package ml.mypals.ryansrenderingkit.render;
 
+//? if >=26.2 {
 import com.mojang.blaze3d.PrimitiveTopology;
+//?}
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 //? if >=1.21.5 {
@@ -34,7 +36,7 @@ public record RenderMethod(
         *///?} else {
         /*@NotNull Supplier<ShaderInstance> shader,
         *///?}
-        @NotNull PrimitiveTopology mode,
+        @NotNull /*? if >=26.2 {*/PrimitiveTopology/*?} else {*//*VertexFormat.Mode*//*?}*/ mode,
         @NotNull VertexFormat format,
         boolean cullFace
 ) {
@@ -46,7 +48,7 @@ public record RenderMethod(
             /*CoreShaders.RENDERTYPE_LINES,
             *///?} else
             //GameRenderer::getRendertypeLinesShader,
-            PrimitiveTopology.LINES,
+            /*? if >=26.2 {*/PrimitiveTopology/*?} else {*//*VertexFormat.Mode*//*?}*/.LINES,
             //? if >=1.21.11 {
             DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH,
             //?} else {
@@ -64,7 +66,7 @@ public record RenderMethod(
             *///?} else {
             /*GameRenderer::getRendertypeLinesShader,
             *///?}
-            PrimitiveTopology./*? if <1.21.11 {*//*LINE_STRIP*//*?} else {*/DEBUG_LINE_STRIP/*?}*/,
+            /*? if >=26.2 {*/PrimitiveTopology/*?} else {*//*VertexFormat.Mode*//*?}*/./*? if <1.21.11 {*//*LINE_STRIP*//*?} else {*/DEBUG_LINE_STRIP/*?}*/,
             //? if >=1.21.11 {
             DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH,
             //?} else {
@@ -81,7 +83,7 @@ public record RenderMethod(
             /*CoreShaders.POSITION_COLOR,
             *///?} else
             //GameRenderer::getPositionColorShader,
-            PrimitiveTopology.TRIANGLES,
+            /*? if >=26.2 {*/PrimitiveTopology/*?} else {*//*VertexFormat.Mode*//*?}*/.TRIANGLES,
             DefaultVertexFormat.POSITION_COLOR,
             true
     );

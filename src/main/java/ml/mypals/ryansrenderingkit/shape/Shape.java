@@ -179,13 +179,17 @@ public abstract class Shape {
     }
 
     public void drawShapeDebugInfo(PoseStack matrixStack, float deltaTime) {
+        //? if <1.21.11 {
+        /*VertexConsumer vertexConsumer = Minecraft.getInstance()
+                .renderBuffers().bufferSource().getBuffer(RenderType.LINES);
+        *///?}
         matrixStack.pushPose();
         transformer.applyLayer(matrixStack, transformer.world, true, true);
-        renderLineBox(Vec3.ZERO, 0.15f, 1, 0, 0, 1);
+        renderLineBox(/*? if <1.21.11 {*//*matrixStack, vertexConsumer, *//*?}*/Vec3.ZERO, 0.15f, 1, 0, 0, 1);
         transformer.applyLayer(matrixStack, transformer.local, true, false);
-        renderLineBox(Vec3.ZERO, 0.1f, 0, 1, 0, 1);
+        renderLineBox(/*? if <1.21.11 {*//*matrixStack, vertexConsumer, *//*?}*/Vec3.ZERO, 0.1f, 0, 1, 0, 1);
         transformer.applyLayer(matrixStack, transformer.matrix, true, false);
-        renderLineBox(Vec3.ZERO, 0.05f, 0, 0, 1, 1);
+        renderLineBox(/*? if <1.21.11 {*//*matrixStack, vertexConsumer, *//*?}*/Vec3.ZERO, 0.05f, 0, 0, 1, 1);
         matrixStack.popPose();
 
         for (Vec3 v : getModel(false, true)) {

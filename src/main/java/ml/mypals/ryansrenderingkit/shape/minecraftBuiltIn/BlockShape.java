@@ -2,14 +2,14 @@ package ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Minecraft;
 //?if<26.1{
-/*import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+/*import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
     //?if > 1.21.4{
     import net.minecraft.client.renderer.block.model.BlockModelPart;
@@ -185,6 +185,7 @@ public class BlockShape extends Shape implements EmptyMesh {
 
         //?if<26.1{
         /*BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
+        MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
         *///?}else{
         boolean ambientOcclusion = mc.options.ambientOcclusion().get();
         ModelBlockRenderer blockRenderer = new ModelBlockRenderer(ambientOcclusion, false, mc.getBlockColors());
@@ -205,15 +206,17 @@ public class BlockShape extends Shape implements EmptyMesh {
 
         //?if<26.1{
         /*dispatcher.renderSingleBlock(blockState, poseStack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);
+        //? if >=1.21.9 {
         SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
         CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
+        //?}
         *///?}else{
         BlockStateModel model = mc.getModelManager().getBlockStateModelSet().get(blockState);
         List<BlockStateModelPart> parts = new ObjectArrayList<>();
         model.collectParts(mc.level.getRandom(), parts);
         SubmitNodeCollector submitNodeCollector = new SubmitNodeStorage();
 
-        CameraRenderState cameraRenderState = mc.gameRenderer.gameRenderState().levelRenderState.cameraRenderState;
+        CameraRenderState cameraRenderState = mc.gameRenderer./*? if <26.2 {*//*getGameRenderState()*//*?} else {*/gameRenderState()/*?}*/.levelRenderState.cameraRenderState;
 
 
         submitNodeCollector.submitBlockModel(poseStack, RenderTypes.entityTranslucent(TextureAtlas.LOCATION_BLOCKS), parts, new int[0], light, OverlayTexture.NO_OVERLAY, 33);
@@ -225,7 +228,7 @@ public class BlockShape extends Shape implements EmptyMesh {
             //? if <1.21.9 {
             /*blockEntityRenderDispatcher.render(blockEntity, transformer.getTickDelta(), poseStack, multiBufferSource);
             *///?} else {
-            BlockEntityRenderState blockEntityRenderState = blockEntityRenderDispatcher.tryExtractRenderState(blockEntity, transformer.getTickDelta(),null, true);
+            BlockEntityRenderState blockEntityRenderState = blockEntityRenderDispatcher.tryExtractRenderState(blockEntity, transformer.getTickDelta(),null/*? if >=26.2 {*/, true/*?}*/);
 
                 blockEntityRenderDispatcher.submit(blockEntityRenderState,poseStack,submitNodeCollector,cameraRenderState);
                 //?}

@@ -55,6 +55,10 @@ stonecutter parameters {
             replace("MeshData.class", "BufferBuilder.class")
         }
 
+        string(eval(current.version, "<26.2")) {
+            replace(".mainCamera()", ".getMainCamera()")
+        }
+
 // 5. 26.1 以下的降级，互相独立
         string(eval(current.version, "<26.1")) {
             replace("import net.minecraft.util.LightCoordsUtil;", "import net.minecraft.client.renderer.LightTexture;")

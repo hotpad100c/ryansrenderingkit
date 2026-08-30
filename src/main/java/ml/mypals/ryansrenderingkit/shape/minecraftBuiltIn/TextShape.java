@@ -2,8 +2,12 @@ package ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+//? if >=26.2 {
 import net.minecraft.client.gui.font.TextRenderable;
 import net.minecraft.client.renderer.feature.GizmoFeatureRenderer;
+//?} else {
+/*import net.minecraft.client.renderer.MultiBufferSource;
+*///?}
 import net.minecraft.network.chat.FormattedText;
 import org.joml.*;
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
@@ -108,6 +112,9 @@ public class TextShape extends Shape implements EmptyMesh {
 
 
         Minecraft mc = Minecraft.getInstance();
+        //? if <26.2 {
+        /*MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+        *///?}
         Font font = mc.font;
         float totalHeight = 0f;
         float[] lineHeights = new float[contents.size()];
@@ -131,10 +138,19 @@ public class TextShape extends Shape implements EmptyMesh {
             float x = -font.width(text) / 2f;
             float y = yOffset;
             if (outline) {
+                //? if >=26.2 {
                 font.prepare8xTextOutline(renderMessages[i], x, y,
                         color.getRGB()
                 );
+                //?} else {
+                /*font.drawInBatch8xOutline(renderMessages[i], x, y,
+                        color.getRGB(),
+                        multiplyRGB(color.getRGB(), 0.8f),
+                        convertToMojangIfNeeded(builder.getPositionMatrix()),
+                        bufferSource, LightCoordsUtil.FULL_BRIGHT);
+                *///?}
             } else {
+                //? if >=26.2 {
                 Font.PreparedText preparedText = font.prepareText(
                         text,
                         x, y,
@@ -142,6 +158,32 @@ public class TextShape extends Shape implements EmptyMesh {
                         shadow,
                         backgroundColor.getRGB()
                 );
+                //?} else if >1.18.2 {
+                /*font.drawInBatch(
+                        text,
+                        x, y,
+                        color.getRGB(),
+                        shadow,
+                        convertToMojangIfNeeded(builder.getPositionMatrix()),
+                        bufferSource,
+                        seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.POLYGON_OFFSET,
+                        backgroundColor.getRGB(),
+                        LightCoordsUtil.FULL_BRIGHT
+                );
+                *///?} else {
+                /*font.drawInBatch(
+                        text,
+                        x, y,
+                        color.getRGB(),
+                        shadow,
+                        convertToMojangIfNeeded(builder.getPositionMatrix()),
+                        bufferSource,
+                        seeThrough,
+                        backgroundColor.getRGB(),
+                        LightCoordsUtil.FULL_BRIGHT,
+                        false
+                );
+                *///?}
             }
 
             yOffset += lineHeights[i];

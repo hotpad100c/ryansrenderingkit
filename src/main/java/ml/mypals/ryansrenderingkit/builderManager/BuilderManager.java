@@ -87,8 +87,8 @@ public class BuilderManager {
         BatchVertexBuilder bvb = seeThrough ? seeThroughBuilderGroup.batchVertexBuilder : normalBuilderGroup.batchVertexBuilder;
         bvb.submitCustom(poseStack, renderMethod, seeThrough, submitNodeStorage, builder);
         //?} else {
-        /*if (seeThrough) seeThroughBuilderGroup.drawBatch(poseStack, builder, this.renderMethod);
-        else normalBuilderGroup.drawBatch(poseStack, builder, this.renderMethod);
+        /*if (seeThrough) seeThroughBuilderGroup.drawBatch(builder, this.renderMethod);
+        else normalBuilderGroup.drawBatch(builder, this.renderMethod);
         *///?}
     }
 

@@ -6,7 +6,11 @@ import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.client.Minecraft;
+//? if >=1.21.9 {
 import net.minecraft.client.renderer.SubmitNodeStorage;
+//?} else {
+/*import net.minecraft.client.renderer.MultiBufferSource;
+*///?}
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -77,6 +81,9 @@ public class EntityShape extends Shape implements EmptyMesh {
         Minecraft mc = Minecraft.getInstance();
 
         EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
+        //? if <1.21.9 {
+        /*MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
+        *///?}
         if(isEndOfWorldTick() && entity != mc.player){
             entity.tick();
         }
@@ -106,7 +113,9 @@ public class EntityShape extends Shape implements EmptyMesh {
         SubmitNodeCollector submitNodeCollector = new SubmitNodeStorage();
         //?if<26.1{
         /*CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
-        *///?}else{
+        *///?} else if <26.2 {
+        /*CameraRenderState cameraRenderState = mc.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
+        *///?} else {
         CameraRenderState cameraRenderState = mc.gameRenderer.gameRenderState().levelRenderState.cameraRenderState;
         //?}
         dispatcher.submit(entityRenderState,cameraRenderState,0,0,0,poseStack,submitNodeCollector);

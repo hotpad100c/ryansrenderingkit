@@ -78,7 +78,8 @@ public class Helpers {
         return alpha << 24 | red << 16 | green << 8 | blue;
     }
 
-    public static void renderLineBox(Vec3 center, float size,
+    public static void renderLineBox(/*? if <1.21.11 {*//*PoseStack poseStack, VertexConsumer consumer,*//*?}*/
+                                     Vec3 center, float size,
                                      float red, float green, float blue, float alpha) {
 
         double half = size / 2.0;

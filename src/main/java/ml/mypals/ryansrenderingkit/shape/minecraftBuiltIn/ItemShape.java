@@ -12,7 +12,11 @@ import net.minecraft.client.Minecraft;
 //? < 1.21.6 {
 /*import com.mojang.blaze3d.systems.RenderSystem;
 *///?}
+//? if >=1.21.9 {
 import net.minecraft.client.renderer.SubmitNodeStorage;
+//?} else {
+/*import net.minecraft.client.renderer.MultiBufferSource;
+*///?}
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.item.ItemEntity;
 //? if > 1.18.2 {
@@ -102,7 +106,8 @@ public class ItemShape extends Shape implements EmptyMesh {
         poseStack.translate(0, -(ItemEntity.DEFAULT_BB_HEIGHT / 16), -0);
 
         //? if <1.21.9 {
-        /*ItemRenderer itemRenderer = mc.getItemRenderer();
+        /*MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
+        ItemRenderer itemRenderer = mc.getItemRenderer();
         itemRenderer.renderStatic(item, itemDisplayContext, light, OverlayTexture.NO_OVERLAY, poseStack,
                 multiBufferSource, /^? if >1.18.2 {^/mc.level,/^?}^/ mc.level.random.nextInt());
         *///?} else {
