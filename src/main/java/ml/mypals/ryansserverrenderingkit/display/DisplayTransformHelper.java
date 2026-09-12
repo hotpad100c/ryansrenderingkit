@@ -1,0 +1,74 @@
+package ml.mypals.ryansserverrenderingkit.display;
+
+import com.mojang.math.Transformation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+public final class DisplayTransformHelper {
+    public static final float DEFAULT_LINE_WIDTH = 0.05F;
+
+    private DisplayTransformHelper() {}
+
+    public static Transformation of(Vector3f translation, Quaternionf leftRotation, Vector3f scale, Quaternionf rightRotation) {
+        return new Transformation(translation, leftRotation, scale, rightRotation);
+    }
+
+    public static Transformation of(Vector3f translation, Quaternionf leftRotation, Vector3f scale) {
+        return new Transformation(translation, leftRotation, scale, new Quaternionf());
+    }
+
+    public static Transformation identity() {
+        return new Transformation(new org.joml.Matrix4f());
+    }
+
+    public static Transformation fromMatrix(org.joml.Matrix4f matrix) {
+        return new Transformation(matrix);
+    }
+
+    @Nullable
+    public static Transformation segment(Vec3 start, Vec3 end, float thickness) {
+        Vec3 direction = end.subtract(start);
+        float length = (float) direction.length();
+
+        if (length <= 0.0001F) {
+            return null;
+        }
+
+        Vector3f dirNorm = new Vector3f((float) direction.x, (float) direction.y, (float) direction.z).normalize();
+        Quaternionf rotation = new Quaternionf().rotateTo(new Vector3f(0.0F, 0.0F, 1.0F), dirNorm);
+
+        Vector3f offset = rotation.transform(new Vector3f(-thickness / 2.0F, -thickness / 2.0F, 0.0F));
+
+        return of(offset, rotation, new Vector3f(thickness, thickness, length));
+    }
+
+    public static Transformation box(Vec3 min, Vec3 max) {
+        float sizeX = (float) Math.abs(max.x - min.x);
+        float sizeY = (float) Math.abs(max.y - min.y);
+        float sizeZ = (float) Math.abs(max.z - min.z);
+        return of(new Vector3f(), new Quaternionf(), new Vector3f(sizeX, sizeY, sizeZ));
+    }
+
+    public static Transformation centeredBox(Vec3 dimension) {
+        float hx = (float) (dimension.x * 0.5);
+        float hy = (float) (dimension.y * 0.5);
+        float hz = (float) (dimension.z * 0.5);
+        return of(new Vector3f(-hx, -hy, -hz), new Quaternionf(), new Vector3f((float) dimension.x, (float) dimension.y, (float) dimension.z));
+    }
+
+    public static Transformation entity(Entity entity, AABB box, double padding) {
+        AABB inflated = box.inflate(padding);
+        Vec3 at = entity.position();
+        return of(
+                new Vector3f(
+                        (float) (inflated.minX - at.x),
+                        (float) (inflated.minY - at.y),
+                        (float) (inflated.minZ - at.z)),
+                new Quaternionf(),
+                new Vector3f((float) inflated.getXsize(), (float) inflated.getYsize(), (float) inflated.getZsize()));
+    }
+}

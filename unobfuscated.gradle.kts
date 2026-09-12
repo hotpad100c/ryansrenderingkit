@@ -36,7 +36,7 @@ dependencies {
 
     minecraft("com.mojang:minecraft:${property("minecraft")}")
     implementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
-    fapi("fabric-lifecycle-events-v1","fabric-rendering-v1", "fabric-resource-loader-v0", "fabric-content-registries-v0", "fabric-command-api-v2")
+    fapi("fabric-lifecycle-events-v1", "fabric-resource-loader-v0", "fabric-content-registries-v0", "fabric-command-api-v2")
 }
 
 val accesswidener = when {

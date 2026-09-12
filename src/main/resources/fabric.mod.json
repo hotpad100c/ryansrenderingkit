@@ -12,15 +12,15 @@
     "sources": "https://github.com/hotpad100c/ryansrenderingkit"
   },
   "license": "MIT",
-  "icon": "assets/ryansrenderingkit/icon.png",
+  "icon": "assets/ryansserverrenderingkit/icon.png",
   "environment": "*",
   "entrypoints": {
-    "client": [
-      "ml.mypals.ryansrenderingkit.RyansRenderingKit"
+    "main": [
+      "ml.mypals.ryansserverrenderingkit.RyansServerRenderingKit"
     ]
   },
   "mixins": [
-    "ryansrenderingkit.mixins.json"
+    "ryansserverrenderingkit.mixins.json"
   ],
   "accessWidener": "accesswideners/${aw_file}",
   "depends": {

@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "package": "ml.mypals.ryansserverrenderingkit.mixin",
+  "compatibilityLevel": "${java}",
+  "mixins": [
+    "DisplayAccessor",
+    "BlockDisplayAccessor",
+    "ItemDisplayAccessor",
+    "TextDisplayAccessor",
+    "SetPassengersPacketAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

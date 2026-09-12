@@ -37,40 +37,5 @@ stonecutter parameters {
         string(eval(current.version, "<1.21.11")) {
             replace("Identifier", "ResourceLocation")
         }
-
-        string(eval(current.version, "<1.21.11")) {
-            replace(
-                "import net.minecraft.client.renderer.rendertype.RenderType;",
-                "import net.minecraft.client.renderer.RenderType;"
-            )
-        }
-
-        string(eval(current.version, "<=1.20.6")) {
-            replace("MeshData.DrawState", "BufferBuilder.DrawState")
-        }
-        string(eval(current.version, "<=1.20.6")) {
-            replace("MeshData.SortState", "BufferBuilder.SortState")
-        }
-        string(eval(current.version, "<=1.20.6")) {
-            replace("MeshData.class", "BufferBuilder.class")
-        }
-
-        string(eval(current.version, "<26.2")) {
-            replace(".mainCamera()", ".getMainCamera()")
-        }
-
-// 5. 26.1 以下的降级，互相独立
-        string(eval(current.version, "<26.1")) {
-            replace("import net.minecraft.util.LightCoordsUtil;", "import net.minecraft.client.renderer.LightTexture;")
-        }
-        string(eval(current.version, "<26.1")) {
-            replace("LightCoordsUtil", "LightTexture")
-        }
-        string(eval(current.version, "<26.1")) {
-            replace("240", "LightTexture.FULL_BLOCK")
-        }
-        string(eval(current.version, "<26.1")) {
-            replace("ClientCommands", "ClientCommandManager")
-        }
     }
 }

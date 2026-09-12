@@ -16,9 +16,6 @@ stonecutter {
     create(rootProject) {
         // See https://stonecutter.kikugie.dev/wiki/start/#choosing-minecraft-versions
         versions(
-            //"1.16.5", TODO
-            "1.17.1",
-            "1.18.2",
             "1.19.4",
             "1.20.1",
             "1.20.6",
@@ -39,4 +36,4 @@ stonecutter {
     }
 }
 
-rootProject.name = "Ryan'sRenderingKit"
+rootProject.name = "Ryan'sServerRenderingKit"
