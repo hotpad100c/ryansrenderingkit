@@ -110,7 +110,11 @@ public class EntityShape extends Shape implements EmptyMesh {
                 poseStack, multiBufferSource, light);
         *///?} else {
         EntityRenderState entityRenderState = dispatcher.extractEntity(entity, transformer.getTickDelta());
-        SubmitNodeCollector submitNodeCollector = new SubmitNodeStorage();
+        //? if <26.2 {
+        /*SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
+        *///?} else {
+        SubmitNodeStorage submitNodeCollector = new SubmitNodeStorage();
+        //?}
         //?if<26.1{
         /*CameraRenderState cameraRenderState = mc.gameRenderer.getLevelRenderState().cameraRenderState;
         *///?} else if <26.2 {
@@ -119,6 +123,9 @@ public class EntityShape extends Shape implements EmptyMesh {
         CameraRenderState cameraRenderState = mc.gameRenderer.gameRenderState().levelRenderState.cameraRenderState;
         //?}
         dispatcher.submit(entityRenderState,cameraRenderState,0,0,0,poseStack,submitNodeCollector);
+        //? if >=26.2 {
+        mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(submitNodeCollector);
+        //?}
         //?}
         poseStack.popPose();
         //? <1.21.6 {

@@ -3,8 +3,7 @@ package ml.mypals.ryansrenderingkit.shape.minecraftBuiltIn;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 //? if >=26.2 {
-import net.minecraft.client.gui.font.TextRenderable;
-import net.minecraft.client.renderer.feature.GizmoFeatureRenderer;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 //?} else {
 /*import net.minecraft.client.renderer.MultiBufferSource;
 *///?}
@@ -114,7 +113,11 @@ public class TextShape extends Shape implements EmptyMesh {
         Minecraft mc = Minecraft.getInstance();
         //? if <26.2 {
         /*MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
-        *///?}
+        *///?} else {
+        SubmitNodeStorage submitNodeStorage = new SubmitNodeStorage();
+        PoseStack textPoseStack = new PoseStack();
+        textPoseStack.mulPose(builder.getPositionMatrix());
+        //?}
         Font font = mc.font;
         float totalHeight = 0f;
         float[] lineHeights = new float[contents.size()];
@@ -139,8 +142,12 @@ public class TextShape extends Shape implements EmptyMesh {
             float y = yOffset;
             if (outline) {
                 //? if >=26.2 {
-                font.prepare8xTextOutline(renderMessages[i], x, y,
-                        color.getRGB()
+                submitNodeStorage.submitText(textPoseStack, x, y, renderMessages[i], false,
+                        Font.DisplayMode.POLYGON_OFFSET,
+                        LightCoordsUtil.FULL_BRIGHT,
+                        color.getRGB(),
+                        0,
+                        multiplyRGB(color.getRGB(), 0.8f)
                 );
                 //?} else {
                 /*font.drawInBatch8xOutline(renderMessages[i], x, y,
@@ -151,12 +158,12 @@ public class TextShape extends Shape implements EmptyMesh {
                 *///?}
             } else {
                 //? if >=26.2 {
-                Font.PreparedText preparedText = font.prepareText(
-                        text,
-                        x, y,
+                submitNodeStorage.submitText(textPoseStack, x, y, renderMessages[i], shadow,
+                        seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.POLYGON_OFFSET,
+                        LightCoordsUtil.FULL_BRIGHT,
                         color.getRGB(),
-                        shadow,
-                        backgroundColor.getRGB()
+                        backgroundColor.getRGB(),
+                        0
                 );
                 //?} else if >1.18.2 {
                 /*font.drawInBatch(
@@ -188,6 +195,9 @@ public class TextShape extends Shape implements EmptyMesh {
 
             yOffset += lineHeights[i];
         }
+        //? if >=26.2 {
+        mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(submitNodeStorage);
+        //?}
     }
 
     @Override

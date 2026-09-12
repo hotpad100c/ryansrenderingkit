@@ -214,7 +214,11 @@ public class BlockShape extends Shape implements EmptyMesh {
         BlockStateModel model = mc.getModelManager().getBlockStateModelSet().get(blockState);
         List<BlockStateModelPart> parts = new ObjectArrayList<>();
         model.collectParts(mc.level.getRandom(), parts);
-        SubmitNodeCollector submitNodeCollector = new SubmitNodeStorage();
+        //? if <26.2 {
+        /*SubmitNodeCollector submitNodeCollector = mc.gameRenderer.getSubmitNodeStorage();
+        *///?} else {
+        SubmitNodeStorage submitNodeCollector = new SubmitNodeStorage();
+        //?}
 
         CameraRenderState cameraRenderState = mc.gameRenderer./*? if <26.2 {*//*getGameRenderState()*//*?} else {*/gameRenderState()/*?}*/.levelRenderState.cameraRenderState;
 
@@ -233,6 +237,10 @@ public class BlockShape extends Shape implements EmptyMesh {
                 blockEntityRenderDispatcher.submit(blockEntityRenderState,poseStack,submitNodeCollector,cameraRenderState);
                 //?}
         }
+
+        //? if >=26.2 {
+        mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(submitNodeCollector);
+        //?}
 
         poseStack.popPose();
 

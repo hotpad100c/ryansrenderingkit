@@ -118,7 +118,13 @@ public class ItemShape extends Shape implements EmptyMesh {
 
 
 
-        itemStackRenderState.submit(poseStack, new SubmitNodeStorage(),light,OverlayTexture.NO_OVERLAY, 0);
+        //? if <26.2 {
+        /*itemStackRenderState.submit(poseStack, mc.gameRenderer.getSubmitNodeStorage(),light,OverlayTexture.NO_OVERLAY, 0);
+        *///?} else {
+        SubmitNodeStorage submitNodeStorage = new SubmitNodeStorage();
+        itemStackRenderState.submit(poseStack, submitNodeStorage,light,OverlayTexture.NO_OVERLAY, 0);
+        mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(submitNodeStorage);
+        //?}
         //?}
 
 
