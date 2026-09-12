@@ -8,6 +8,8 @@ import ml.mypals.ryansserverrenderingkit.shape.Shape;
 import ml.mypals.ryansserverrenderingkit.shape.basics.core.StripLineLikeShape;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -80,13 +82,30 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
         for (int i = 0; i < n; i++) indexBuffer[i] = i;
     }
 
+    private List<Vec3> getWorldVertices() {
+        if (modelVertexes.isEmpty()) {
+            generateRawGeometry(false);
+        }
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
+        List<Vec3> result = new ArrayList<>(modelVertexes.size());
+        Vector3f v = new Vector3f();
+        for (Vec3 local : modelVertexes) {
+            v.set((float) local.x, (float) local.y, (float) local.z);
+            rot.transform(v);
+            result.add(new Vec3(center.x + v.x, center.y + v.y, center.z + v.z));
+        }
+        return result;
+    }
+
     @Override
     public void initDisplays(ServerLevel level) {
+        List<Vec3> points = getWorldVertices();
         float width = getLineWidth(false);
-        int segCount = Math.max(0, vertexes.size() - 1);
+        int segCount = Math.max(0, points.size() - 1);
         for (int i = 0; i < segCount; i++) {
-            Vec3 a = vertexes.get(i);
-            Vec3 b = vertexes.get(i + 1);
+            Vec3 a = points.get(i);
+            Vec3 b = points.get(i + 1);
             VirtualDisplay display = VirtualDisplay.block(level, a.x, a.y, a.z, getBlockState())
                     .bright()
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
@@ -97,7 +116,8 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
 
     @Override
     public void updateDisplays() {
-        int segCount = Math.max(0, vertexes.size() - 1);
+        List<Vec3> points = getWorldVertices();
+        int segCount = Math.max(0, points.size() - 1);
         if (this.displays.size() != segCount) {
             ServerLevel lvl = this.displays.isEmpty() ? this.level : this.displays.getFirst().getLevel();
             removeDisplays();
@@ -109,8 +129,8 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
 
         float width = getLineWidth(true);
         for (int i = 0; i < segCount; i++) {
-            Vec3 a = vertexes.get(i);
-            Vec3 b = vertexes.get(i + 1);
+            Vec3 a = points.get(i);
+            Vec3 b = points.get(i + 1);
             Transformation t = DisplayTransformHelper.segment(a, b, width);
             VirtualDisplay display = this.displays.get(i);
             display.pos(a.x, a.y, a.z)

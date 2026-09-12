@@ -13,6 +13,20 @@ public final class DisplayTransformHelper {
 
     private DisplayTransformHelper() {}
 
+    public static float sanitizeThickness(float thickness) {
+        if (thickness <= 0.0001F) {
+            return DEFAULT_LINE_WIDTH;
+        }
+        // In client-side OpenGL rendering, lineWidth was in pixels (typically 1.0F to 5.0F).
+        // In Minecraft 3D block space, 1.0F is 1 full block (1 meter) thick!
+        // Therefore, if thickness >= 0.5F, it represents legacy pixel/stroke width:
+        // 1.0F -> 0.03F blocks, 2.0F -> 0.045F blocks, 3.0F -> 0.06F blocks, 4.0F -> 0.08F blocks.
+        if (thickness >= 0.5F) {
+            return Math.min(0.3F, thickness * 0.02F);
+        }
+        return thickness;
+    }
+
     public static Transformation of(Vector3f translation, Quaternionf leftRotation, Vector3f scale, Quaternionf rightRotation) {
         return new Transformation(translation, leftRotation, scale, rightRotation);
     }
@@ -31,6 +45,7 @@ public final class DisplayTransformHelper {
 
     @Nullable
     public static Transformation segment(Vec3 start, Vec3 end, float thickness) {
+        thickness = sanitizeThickness(thickness);
         Vec3 direction = end.subtract(start);
         float length = (float) direction.length();
 
@@ -41,7 +56,7 @@ public final class DisplayTransformHelper {
         Vector3f dirNorm = new Vector3f((float) direction.x, (float) direction.y, (float) direction.z).normalize();
         Quaternionf rotation = new Quaternionf().rotateTo(new Vector3f(0.0F, 0.0F, 1.0F), dirNorm);
 
-        Vector3f offset = rotation.transform(new Vector3f(-thickness / 2.0F, -thickness / 2.0F, 0.0F));
+        Vector3f offset = rotation.transform(new Vector3f(-thickness / 2.0F, -thickness / 2.0F, 0.0F), new Vector3f());
 
         return of(offset, rotation, new Vector3f(thickness, thickness, length));
     }
@@ -53,11 +68,16 @@ public final class DisplayTransformHelper {
         return of(new Vector3f(), new Quaternionf(), new Vector3f(sizeX, sizeY, sizeZ));
     }
 
-    public static Transformation centeredBox(Vec3 dimension) {
+    public static Transformation centeredBox(Vec3 dimension, Quaternionf rotation) {
         float hx = (float) (dimension.x * 0.5);
         float hy = (float) (dimension.y * 0.5);
         float hz = (float) (dimension.z * 0.5);
-        return of(new Vector3f(-hx, -hy, -hz), new Quaternionf(), new Vector3f((float) dimension.x, (float) dimension.y, (float) dimension.z));
+        Vector3f offset = rotation.transform(new Vector3f(-hx, -hy, -hz), new Vector3f());
+        return of(offset, rotation, new Vector3f((float) dimension.x, (float) dimension.y, (float) dimension.z));
+    }
+
+    public static Transformation centeredBox(Vec3 dimension) {
+        return centeredBox(dimension, new Quaternionf());
     }
 
     public static Transformation entity(Entity entity, AABB box, double padding) {

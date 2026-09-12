@@ -7,6 +7,8 @@ import ml.mypals.ryansserverrenderingkit.shape.Shape;
 import ml.mypals.ryansserverrenderingkit.shape.basics.core.TwoPointsLineShape;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.awt.*;
 import java.util.function.Consumer;
@@ -125,28 +127,46 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         generateRawGeometry(false);
     }
 
+    private Vec3[] getWorldPoints(boolean lerp) {
+        Vec3 start = getStart(lerp);
+        Vec3 end = getEnd(lerp);
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
+
+        Vec3 rawCenter = calculateShapeCenterPos();
+        Vec3 localA = start.subtract(rawCenter);
+        Vec3 localB = end.subtract(rawCenter);
+
+        Vector3f va = new Vector3f((float) localA.x, (float) localA.y, (float) localA.z);
+        Vector3f vb = new Vector3f((float) localB.x, (float) localB.y, (float) localB.z);
+        rot.transform(va);
+        rot.transform(vb);
+
+        Vec3 pA = new Vec3(center.x + va.x, center.y + va.y, center.z + va.z);
+        Vec3 pB = new Vec3(center.x + vb.x, center.y + vb.y, center.z + vb.z);
+        return new Vec3[]{pA, pB};
+    }
+
     @Override
     public void initDisplays(ServerLevel level) {
-        Vec3 s = getStart(false);
-        Vec3 e = getEnd(false);
+        Vec3[] pts = getWorldPoints(false);
         float w = getLineWidth(false);
-        VirtualDisplay display = VirtualDisplay.block(level, s.x, s.y, s.z, getBlockState())
+        VirtualDisplay display = VirtualDisplay.block(level, pts[0].x, pts[0].y, pts[0].z, getBlockState())
                 .bright()
                 .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                .transform(DisplayTransformHelper.segment(s, e, w));
+                .transform(DisplayTransformHelper.segment(pts[0], pts[1], w));
         this.displays.add(display);
     }
 
     @Override
     public void updateDisplays() {
         if (this.displays.isEmpty()) return;
-        Vec3 s = getStart(true);
-        Vec3 e = getEnd(true);
+        Vec3[] pts = getWorldPoints(true);
         float w = getLineWidth(true);
-        Transformation transform = DisplayTransformHelper.segment(s, e, w);
+        Transformation transform = DisplayTransformHelper.segment(pts[0], pts[1], w);
 
         VirtualDisplay display = this.displays.getFirst();
-        display.pos(s.x, s.y, s.z)
+        display.pos(pts[0].x, pts[0].y, pts[0].z)
                 .blockState(getBlockState())
                 .seeThrough(this.seeThrough, this.baseColor.getRGB())
                 .transform(transform);

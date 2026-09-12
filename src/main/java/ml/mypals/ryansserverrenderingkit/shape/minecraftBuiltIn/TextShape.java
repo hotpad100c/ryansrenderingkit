@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static ml.mypals.ryansserverrenderingkit.display.VirtualDisplay.FLAG_SEE_THROUGH;
+import static ml.mypals.ryansserverrenderingkit.display.VirtualDisplay.FLAG_SHADOW;
+
 public class TextShape extends Shape {
 
     public ArrayList<String> contents = new ArrayList<>();
@@ -103,8 +106,8 @@ public class TextShape extends Shape {
             TextDisplayAccessor accessor = (TextDisplayAccessor) textDisplay;
             accessor.rrk$setBackgroundColor(backgroundColor.getRGB());
             byte flags = 0;
-            if (shadow) flags |= TextDisplayAccessor.FLAG_SHADOW;
-            if (seeThrough) flags |= TextDisplayAccessor.FLAG_SEE_THROUGH;
+            if (shadow) flags |= FLAG_SHADOW;
+            if (seeThrough) flags |= FLAG_SEE_THROUGH;
             accessor.rrk$setFlags(flags);
         }
         this.displays.add(display);
@@ -126,8 +129,8 @@ public class TextShape extends Shape {
             TextDisplayAccessor accessor = (TextDisplayAccessor) textDisplay;
             accessor.rrk$setBackgroundColor(backgroundColor.getRGB());
             byte flags = 0;
-            if (shadow) flags |= TextDisplayAccessor.FLAG_SHADOW;
-            if (seeThrough) flags |= TextDisplayAccessor.FLAG_SEE_THROUGH;
+            if (shadow) flags |= FLAG_SHADOW;
+            if (seeThrough) flags |= FLAG_SEE_THROUGH;
             accessor.rrk$setFlags(flags);
         }
     }

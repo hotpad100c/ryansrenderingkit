@@ -23,9 +23,17 @@ public interface DisplayAccessor {
     @Invoker("setBillboardConstraints")
     void rrk$setBillboardConstraints(Display.BillboardConstraints billboardConstraints);
 
-    @Invoker("setInterpolationDuration")
+    //? if < 1.20.2 {
+    /*@Invoker("setInterpolationDuration")
     void rrk$setInterpolationDuration(int interpolationDuration);
 
     @Invoker("setInterpolationDelay")
     void rrk$setInterpolationDelay(int interpolationDelay);
+    *///?} else {
+    @Invoker("setTransformationInterpolationDuration")
+    void rrk$setInterpolationDuration(int interpolationDuration);
+
+    @Invoker("setTransformationInterpolationDelay")
+    void rrk$setInterpolationDelay(int interpolationDelay);
+    //?}
 }

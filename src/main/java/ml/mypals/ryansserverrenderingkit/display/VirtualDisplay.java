@@ -32,6 +32,13 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 public final class VirtualDisplay {
+
+    public static final byte FLAG_SHADOW = 1;
+    public static final byte FLAG_SEE_THROUGH = 2;
+    public static final byte FLAG_USE_DEFAULT_BACKGROUND = 4;
+    public static final byte FLAG_ALIGN_LEFT = 8;
+    public static final byte FLAG_ALIGN_RIGHT = 16;
+
     //? if >= 26.2 {
     private static final EntityType<Display.BlockDisplay> BLOCK_TYPE =
             net.minecraft.world.entity.EntityTypes.BLOCK_DISPLAY;
@@ -167,9 +174,9 @@ public final class VirtualDisplay {
             TextDisplayAccessor accessor = (TextDisplayAccessor) display;
             byte flags = accessor.rrk$getFlags();
             if (seeThrough) {
-                flags |= TextDisplayAccessor.FLAG_SEE_THROUGH;
+                flags |= FLAG_SEE_THROUGH;
             } else {
-                flags &= ~TextDisplayAccessor.FLAG_SEE_THROUGH;
+                flags &= (byte) ~FLAG_SEE_THROUGH;
             }
             accessor.rrk$setFlags(flags);
             this.dataDirty = true;

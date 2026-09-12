@@ -72,15 +72,7 @@ public class BoxFaceShape extends BoxShape implements DrawableQuad {
         Vec3 dims = bt.getDimension(false);
         Quaternionf rot = bt.getWorldRotation();
 
-        float hx = (float) (dims.x * 0.5);
-        float hy = (float) (dims.y * 0.5);
-        float hz = (float) (dims.z * 0.5);
-
-        Transformation transformation = DisplayTransformHelper.of(
-                new Vector3f(-hx, -hy, -hz),
-                rot,
-                new Vector3f((float) dims.x, (float) dims.y, (float) dims.z)
-        );
+        Transformation transformation = DisplayTransformHelper.centeredBox(dims, rot);
 
         VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
                 .bright()
@@ -99,15 +91,7 @@ public class BoxFaceShape extends BoxShape implements DrawableQuad {
         Vec3 dims = bt.getDimension(true);
         Quaternionf rot = bt.getWorldRotation();
 
-        float hx = (float) (dims.x * 0.5);
-        float hy = (float) (dims.y * 0.5);
-        float hz = (float) (dims.z * 0.5);
-
-        Transformation transformation = DisplayTransformHelper.of(
-                new Vector3f(-hx, -hy, -hz),
-                rot,
-                new Vector3f((float) dims.x, (float) dims.y, (float) dims.z)
-        );
+        Transformation transformation = DisplayTransformHelper.centeredBox(dims, rot);
 
         VirtualDisplay display = this.displays.getFirst();
         display.pos(center.x, center.y, center.z)

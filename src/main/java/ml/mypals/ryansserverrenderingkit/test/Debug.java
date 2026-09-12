@@ -122,6 +122,7 @@ public class Debug {
         switch (type.toLowerCase()) {
             case "box" -> spawnBox(level, basePos);
             case "wire_box" -> spawnWireBox(level, basePos);
+            case "wireframed_box" -> spawnWireframedBox(level, basePos);
             case "line" -> spawnLine(level, basePos);
             case "strip_line" -> spawnStripLine(level, basePos);
             case "circle" -> spawnCircle(level, basePos);
@@ -156,12 +157,29 @@ public class Debug {
     private static void spawnWireBox(ServerLevel level, Vec3 pos) {
         ShapeManagers.addShape(
                 Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_wire_box"),
+                ShapeGenerator.generateBoxWireframe()
+                        .level(level)
+                        .aabb(pos.add(-1.5, -1.5, -1.5), pos.add(1.5, 1.5, 1.5))
+                        .color(Color.WHITE)
+                        .edgeWidth(0.05f)
+                        .construction(BoxShape.BoxConstructionType.CORNERS)
+                        .transform(t -> {
+                            long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
+                            t.setShapeWorldRotationDegrees(time * 1.5f, time * 2.5f, 0);
+                        })
+                        .build()
+        );
+    }
+
+    private static void spawnWireframedBox(ServerLevel level, Vec3 pos) {
+        ShapeManagers.addShape(
+                Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_wireframed_box"),
                 ShapeGenerator.generateWireframedBox()
                         .level(level)
                         .aabb(pos.add(-1.5, -1.5, -1.5), pos.add(1.5, 1.5, 1.5))
                         .color(new Color(255, 128, 0, 140))
                         .edgeColor(Color.WHITE)
-                        .edgeWidth(3.0f)
+                        .edgeWidth(0.05f)
                         .construction(BoxShape.BoxConstructionType.CORNERS)
                         .transform(t -> {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
@@ -178,7 +196,7 @@ public class Debug {
                         .level(level)
                         .start(pos.add(-2, 0, 0))
                         .end(pos.add(2, 2, 0))
-                        .lineWidth(4.0f)
+                        .lineWidth(0.05f)
                         .color(Color.GREEN)
                         .transform(t -> {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
@@ -194,7 +212,7 @@ public class Debug {
                 ShapeGenerator.generateStripLine()
                         .level(level)
                         .vertexes(generateSpiral(pos, 40, 1.5f, 3.0f, 0))
-                        .lineWidth(3.0f)
+                        .lineWidth(0.05f)
                         .color(Color.CYAN)
                         .transform(t -> {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
@@ -212,7 +230,7 @@ public class Debug {
                         .pos(pos)
                         .radius(2.0f)
                         .segments(32)
-                        .lineWidth(3.0f)
+                        .lineWidth(0.05f)
                         .color(Color.MAGENTA)
                         .axis(CircleLikeShape.CircleAxis.Y)
                         .transform(t -> {
@@ -251,7 +269,7 @@ public class Debug {
                         .height(3.0f)
                         .segments(24)
                         .color(Color.YELLOW)
-                        .width(3.0f)
+                        .width(0.05f)
                         .axis(CircleLikeShape.CircleAxis.Y)
                         .transform(t -> {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
@@ -271,7 +289,7 @@ public class Debug {
                         .height(3.0f)
                         .segments(24)
                         .color(Color.ORANGE)
-                        .width(3.0f)
+                        .width(0.05f)
                         .axis(CircleLikeShape.CircleAxis.Y)
                         .transform(t -> {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
@@ -339,6 +357,7 @@ public class Debug {
         int i = 0;
         spawnBox(level, pos.add((i++) * spacing, 0, 0));
         spawnWireBox(level, pos.add((i++) * spacing, 0, 0));
+        spawnWireframedBox(level, pos.add((i++) * spacing, 0, 0));
         spawnLine(level, pos.add((i++) * spacing, 0, 0));
         spawnStripLine(level, pos.add((i++) * spacing, 0, 0));
         spawnCircle(level, pos.add((i++) * spacing, 0, 0));
