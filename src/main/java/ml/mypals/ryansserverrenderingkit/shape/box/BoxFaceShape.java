@@ -91,11 +91,13 @@ public class BoxFaceShape extends BoxShape implements DrawableQuad {
         Vec3 dims = bt.getDimension(true);
         Quaternionf rot = bt.getWorldRotation();
 
-        Transformation transformation = DisplayTransformHelper.centeredBox(dims, rot);
-
         VirtualDisplay display = this.displays.getFirst();
-        display.pos(center.x, center.y, center.z)
-                .blockState(getBlockState())
+        Vec3 spawnPos = new Vec3(display.getEntity().getX(), display.getEntity().getY(), display.getEntity().getZ());
+        Vec3 centerOffset = center.subtract(spawnPos);
+
+        Transformation transformation = DisplayTransformHelper.centeredBox(dims, rot, centerOffset);
+
+        display.blockState(getBlockState())
                 .seeThrough(this.seeThrough, this.baseColor.getRGB())
                 .transform(transformation);
     }

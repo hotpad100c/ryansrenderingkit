@@ -16,11 +16,11 @@ public abstract class ValueTransformer<T> {
     public abstract void syncLastToTarget();
 
     public T getValue(boolean lerp) {
-        return lerp ? current : target;
+        return target;
     }
 
     public boolean async() {
-        return !current.equals(target);
+        return last == null || !last.equals(target);
     }
 
     protected abstract void setTarget(T value);

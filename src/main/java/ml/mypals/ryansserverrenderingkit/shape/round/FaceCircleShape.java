@@ -116,40 +116,52 @@ public class FaceCircleShape extends Shape implements CircleLikeShape {
 
     @Override
     public void initDisplays(ServerLevel level) {
-        List<Vec3> points = getWorldPerimeter(false);
-        int n = points.size();
-        if (n < 3) return;
+        generateRawGeometry(false);
+        int total = modelVertexes.size();
+        if (total < 4) return; // 1 center + at least 3 perimeter
 
+        int n = total - 1;
         Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
         float width = 0.05f;
 
         // Perimeter segments
         for (int i = 0; i < n; i++) {
-            Vec3 a = points.get(i);
-            Vec3 b = points.get((i + 1) % n);
-            VirtualDisplay display = VirtualDisplay.block(level, a.x, a.y, a.z, getBlockState())
+            Vec3 p1 = modelVertexes.get(1 + i);
+            Vec3 p2 = modelVertexes.get(1 + (i + 1) % n);
+            Vector3f va = new Vector3f((float) p1.x, (float) p1.y, (float) p1.z);
+            Vector3f vb = new Vector3f((float) p2.x, (float) p2.y, (float) p2.z);
+            Transformation t = DisplayTransformHelper.localSegment(va, vb, width, rot, null);
+
+            VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
                     .bright()
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(DisplayTransformHelper.segment(a, b, width));
+                    .transform(t);
             this.displays.add(display);
         }
 
         // Spokes from center to perimeter
+        Vector3f centerLocal = new Vector3f(0, 0, 0);
         for (int i = 0; i < n; i += 2) {
-            Vec3 a = center;
-            Vec3 b = points.get(i);
-            VirtualDisplay display = VirtualDisplay.block(level, a.x, a.y, a.z, getBlockState())
+            Vec3 p = modelVertexes.get(1 + i);
+            Vector3f vb = new Vector3f((float) p.x, (float) p.y, (float) p.z);
+            Transformation t = DisplayTransformHelper.localSegment(centerLocal, vb, width, rot, null);
+
+            VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
                     .bright()
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(DisplayTransformHelper.segment(a, b, width));
+                    .transform(t);
             this.displays.add(display);
         }
     }
 
     @Override
     public void updateDisplays() {
-        List<Vec3> points = getWorldPerimeter(true);
-        int n = points.size();
+        generateRawGeometry(true);
+        int total = modelVertexes.size();
+        if (total < 4) return;
+
+        int n = total - 1;
         int expected = n + (n + 1) / 2;
         if (this.displays.size() != expected) {
             ServerLevel lvl = this.displays.isEmpty() ? this.level : this.displays.getFirst().getLevel();
@@ -161,27 +173,33 @@ public class FaceCircleShape extends Shape implements CircleLikeShape {
         }
 
         Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
         float width = 0.05f;
-        int idx = 0;
 
+        VirtualDisplay first = this.displays.getFirst();
+        Vec3 spawnPos = new Vec3(first.getEntity().getX(), first.getEntity().getY(), first.getEntity().getZ());
+        Vec3 centerOffset = center.subtract(spawnPos);
+
+        int idx = 0;
         for (int i = 0; i < n; i++) {
-            Vec3 a = points.get(i);
-            Vec3 b = points.get((i + 1) % n);
-            Transformation t = DisplayTransformHelper.segment(a, b, width);
+            Vec3 p1 = modelVertexes.get(1 + i);
+            Vec3 p2 = modelVertexes.get(1 + (i + 1) % n);
+            Vector3f va = new Vector3f((float) p1.x, (float) p1.y, (float) p1.z);
+            Vector3f vb = new Vector3f((float) p2.x, (float) p2.y, (float) p2.z);
+            Transformation t = DisplayTransformHelper.localSegment(va, vb, width, rot, centerOffset);
             VirtualDisplay display = this.displays.get(idx++);
-            display.pos(a.x, a.y, a.z)
-                    .blockState(getBlockState())
+            display.blockState(getBlockState())
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
                     .transform(t);
         }
 
+        Vector3f centerLocal = new Vector3f(0, 0, 0);
         for (int i = 0; i < n; i += 2) {
-            Vec3 a = center;
-            Vec3 b = points.get(i);
-            Transformation t = DisplayTransformHelper.segment(a, b, width);
+            Vec3 p = modelVertexes.get(1 + i);
+            Vector3f vb = new Vector3f((float) p.x, (float) p.y, (float) p.z);
+            Transformation t = DisplayTransformHelper.localSegment(centerLocal, vb, width, rot, centerOffset);
             VirtualDisplay display = this.displays.get(idx++);
-            display.pos(a.x, a.y, a.z)
-                    .blockState(getBlockState())
+            display.blockState(getBlockState())
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
                     .transform(t);
         }

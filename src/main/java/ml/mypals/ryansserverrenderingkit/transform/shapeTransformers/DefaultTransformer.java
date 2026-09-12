@@ -94,11 +94,20 @@ public class DefaultTransformer {
         return mat;
     }
 
-    public Transformation toTransformation(boolean lerp) {
+    public Transformation toTransformation(boolean lerp, Vec3 spawnPos) {
         Matrix4f mat = new Matrix4f();
-        applyLayer(mat, local, lerp);
-        applyLayer(mat, matrix, lerp);
+        if (spawnPos != null) {
+            mat.translate((float) -spawnPos.x, (float) -spawnPos.y, (float) -spawnPos.z);
+        } else {
+            Vec3 p = getShapeWorldPivot(lerp);
+            mat.translate((float) -p.x, (float) -p.y, (float) -p.z);
+        }
+        mat.mul(buildCombinedMatrix(lerp));
         return DisplayTransformHelper.fromMatrix(mat);
+    }
+
+    public Transformation toTransformation(boolean lerp) {
+        return toTransformation(lerp, null);
     }
 
     public Vec3 getShapeWorldPivot(boolean lerp) {

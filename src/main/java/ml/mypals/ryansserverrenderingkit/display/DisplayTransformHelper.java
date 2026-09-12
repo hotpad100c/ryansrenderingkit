@@ -61,6 +61,30 @@ public final class DisplayTransformHelper {
         return of(offset, rotation, new Vector3f(thickness, thickness, length));
     }
 
+    @Nullable
+    public static Transformation localSegment(Vector3f localA, Vector3f localB, float thickness, Quaternionf parentRot, @Nullable Vec3 centerOffset) {
+        thickness = sanitizeThickness(thickness);
+        Vector3f localDir = new Vector3f(localB).sub(localA);
+        float length = localDir.length();
+        if (length <= 0.0001F) {
+            return null;
+        }
+
+        Vector3f dirNorm = new Vector3f(localDir).normalize();
+        Quaternionf segRot = new Quaternionf().rotateTo(new Vector3f(0.0F, 0.0F, 1.0F), dirNorm);
+
+        Vector3f cornerOffset = segRot.transform(new Vector3f(-thickness / 2.0F, -thickness / 2.0F, 0.0F), new Vector3f());
+        Vector3f localPos = new Vector3f(localA).add(cornerOffset);
+
+        Quaternionf totalRot = new Quaternionf(parentRot).mul(segRot);
+        Vector3f worldTranslation = parentRot.transform(new Vector3f(localPos), new Vector3f());
+        if (centerOffset != null) {
+            worldTranslation.add((float) centerOffset.x, (float) centerOffset.y, (float) centerOffset.z);
+        }
+
+        return of(worldTranslation, totalRot, new Vector3f(thickness, thickness, length));
+    }
+
     public static Transformation box(Vec3 min, Vec3 max) {
         float sizeX = (float) Math.abs(max.x - min.x);
         float sizeY = (float) Math.abs(max.y - min.y);
@@ -68,16 +92,23 @@ public final class DisplayTransformHelper {
         return of(new Vector3f(), new Quaternionf(), new Vector3f(sizeX, sizeY, sizeZ));
     }
 
-    public static Transformation centeredBox(Vec3 dimension, Quaternionf rotation) {
+    public static Transformation centeredBox(Vec3 dimension, Quaternionf rotation, @Nullable Vec3 centerOffset) {
         float hx = (float) (dimension.x * 0.5);
         float hy = (float) (dimension.y * 0.5);
         float hz = (float) (dimension.z * 0.5);
         Vector3f offset = rotation.transform(new Vector3f(-hx, -hy, -hz), new Vector3f());
+        if (centerOffset != null) {
+            offset.add((float) centerOffset.x, (float) centerOffset.y, (float) centerOffset.z);
+        }
         return of(offset, rotation, new Vector3f((float) dimension.x, (float) dimension.y, (float) dimension.z));
     }
 
+    public static Transformation centeredBox(Vec3 dimension, Quaternionf rotation) {
+        return centeredBox(dimension, rotation, null);
+    }
+
     public static Transformation centeredBox(Vec3 dimension) {
-        return centeredBox(dimension, new Quaternionf());
+        return centeredBox(dimension, new Quaternionf(), null);
     }
 
     public static Transformation entity(Entity entity, AABB box, double padding) {

@@ -100,7 +100,7 @@ public class TextShape extends Shape {
         VirtualDisplay display = VirtualDisplay.text(level, pos.x, pos.y, pos.z, buildTextComponent())
                 .billboard(toBillboardConstraints())
                 .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                .transform(transformer.toTransformation(false));
+                .transform(transformer.toTransformation(false, pos));
 
         if (display.getEntity() instanceof Display.TextDisplay textDisplay) {
             TextDisplayAccessor accessor = (TextDisplayAccessor) textDisplay;
@@ -116,11 +116,10 @@ public class TextShape extends Shape {
     @Override
     public void updateDisplays() {
         if (this.displays.isEmpty()) return;
-        Vec3 pos = transformer.getWorldPivot();
-        Transformation t = transformer.toTransformation(true);
         VirtualDisplay display = this.displays.getFirst();
-        display.pos(pos.x, pos.y, pos.z)
-                .textComponent(buildTextComponent())
+        Vec3 spawnPos = new Vec3(display.getEntity().getX(), display.getEntity().getY(), display.getEntity().getZ());
+        Transformation t = transformer.toTransformation(true, spawnPos);
+        display.textComponent(buildTextComponent())
                 .billboard(toBillboardConstraints())
                 .seeThrough(this.seeThrough, this.baseColor.getRGB())
                 .transform(t);

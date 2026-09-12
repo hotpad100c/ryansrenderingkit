@@ -8,29 +8,37 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static ml.mypals.ryansserverrenderingkit.utils.Helpers.generateUniqueId;
 
 public class ShapeManagers {
     public static final String TEMP_HEADER = "temp_shape";
 
-    public static ShapeManager DEFAULT_SHAPE_MANAGER;
-    public static ShapeManager LINES_SHAPE_MANAGER;
-    public static ShapeManager LINE_STRIP_SHAPE_MANAGER;
-    public static ShapeManager TRIANGLES_SHAPE_MANAGER;
-    public static ShapeManager NON_SHAPE_OBJECTS;
+    /**
+     * Unified ShapeManager for all shapes in the server-side DisplayEntity rendering system.
+     * In server-side rendering, OpenGL pipelines (lines, line_strip, triangles, etc.) do not exist,
+     * so all shapes are handled cleanly by this single manager.
+     */
+    public static final ShapeManager INSTANCE = new ShapeManager("shapes");
 
-    public static final List<ShapeManager> managers = new ArrayList<>();
+    // Backwards-compatibility aliases all pointing to the single unified manager
+    public static final ShapeManager DEFAULT_SHAPE_MANAGER = INSTANCE;
+    @Deprecated
+    public static final ShapeManager LINES_SHAPE_MANAGER = INSTANCE;
+    @Deprecated
+    public static final ShapeManager LINE_STRIP_SHAPE_MANAGER = INSTANCE;
+    @Deprecated
+    public static final ShapeManager TRIANGLES_SHAPE_MANAGER = INSTANCE;
+    @Deprecated
+    public static final ShapeManager NON_SHAPE_OBJECTS = INSTANCE;
+
+    public static final List<ShapeManager> managers = new CopyOnWriteArrayList<>(Collections.singletonList(INSTANCE));
 
     public static void init() {
-        DEFAULT_SHAPE_MANAGER = register("default_shape_manager");
-        LINES_SHAPE_MANAGER = register("lines_shape_manager");
-        LINE_STRIP_SHAPE_MANAGER = register("line_strip_shape_manager");
-        TRIANGLES_SHAPE_MANAGER = register("triangles_shape_manager");
-        NON_SHAPE_OBJECTS = register("empty");
-
         ServerTickEvents.END_SERVER_TICK.register(ShapeManagers::tick);
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> ShapeManagers.clear());
     }
@@ -41,6 +49,10 @@ public class ShapeManagers {
         return shapeManager;
     }
 
+    public static ShapeManager getInstance() {
+        return INSTANCE;
+    }
+
     public static void tick(MinecraftServer server) {
         ServerLevel overworld = server.overworld();
         for (ShapeManager manager : managers) {
@@ -49,11 +61,15 @@ public class ShapeManagers {
     }
 
     public static void removeShape(Identifier identifier) {
-        managers.forEach(shapeManager -> shapeManager.removeShape(identifier));
+        for (ShapeManager manager : managers) {
+            manager.removeShape(identifier);
+        }
     }
 
     public static void removeShapes(Identifier root) {
-        managers.forEach(shapeManager -> shapeManager.removeShapes(root));
+        for (ShapeManager manager : managers) {
+            manager.removeShapes(root);
+        }
     }
 
     public static void addShape(Identifier identifier, Shape shape) {
@@ -62,11 +78,23 @@ public class ShapeManagers {
             exts.addGroup(identifier);
             return;
         }
-        DEFAULT_SHAPE_MANAGER.addShape(identifier, shape);
+        INSTANCE.addShape(identifier, shape);
     }
 
     public static void addShape(Shape shape) {
         addShape(generateUniqueId(TEMP_HEADER), shape);
+    }
+
+    public static Shape getShape(Identifier identifier) {
+        return INSTANCE.getShape(identifier);
+    }
+
+    public static Collection<Shape> getAllShapes() {
+        return INSTANCE.getAllShapes();
+    }
+
+    public static int getShapeCount() {
+        return INSTANCE.getShapeCount();
     }
 
     public static void syncShapeTransform() {
@@ -81,3 +109,4 @@ public class ShapeManagers {
         }
     }
 }
+

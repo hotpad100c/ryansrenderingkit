@@ -62,7 +62,7 @@ public class EntityShape extends Shape {
             VirtualDisplay display = VirtualDisplay.block(level, pos.x, pos.y, pos.z, getBlockState())
                     .bright()
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(transformer.toTransformation(false));
+                    .transform(transformer.toTransformation(false, pos));
             this.displays.add(display);
         }
     }
@@ -80,11 +80,11 @@ public class EntityShape extends Shape {
                     .transform(t)
                     .ride(entity);
         } else {
-            Vec3 pos = transformer.getWorldPivot();
-            display.pos(pos.x, pos.y, pos.z)
-                    .blockState(getBlockState())
+            Vec3 spawnPos = new Vec3(display.getEntity().getX(), display.getEntity().getY(), display.getEntity().getZ());
+            Transformation t = transformer.toTransformation(true, spawnPos);
+            display.blockState(getBlockState())
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(transformer.toTransformation(true));
+                    .transform(t);
         }
     }
 }

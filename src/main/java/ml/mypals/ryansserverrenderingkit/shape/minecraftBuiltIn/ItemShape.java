@@ -49,7 +49,7 @@ public class ItemShape extends Shape {
         Vec3 pos = transformer.getWorldPivot();
         VirtualDisplay display = VirtualDisplay.item(level, pos.x, pos.y, pos.z, this.item, this.itemDisplayContext)
                 .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                .transform(transformer.toTransformation(false));
+                .transform(transformer.toTransformation(false, pos));
         if (this.light > 0) {
             display.brightness(new Brightness(light & 15, (light >> 4) & 15));
         }
@@ -59,11 +59,10 @@ public class ItemShape extends Shape {
     @Override
     public void updateDisplays() {
         if (this.displays.isEmpty()) return;
-        Vec3 pos = transformer.getWorldPivot();
-        Transformation t = transformer.toTransformation(true);
         VirtualDisplay display = this.displays.getFirst();
-        display.pos(pos.x, pos.y, pos.z)
-                .itemStack(this.item)
+        Vec3 spawnPos = new Vec3(display.getEntity().getX(), display.getEntity().getY(), display.getEntity().getZ());
+        Transformation t = transformer.toTransformation(true, spawnPos);
+        display.itemStack(this.item)
                 .seeThrough(this.seeThrough, this.baseColor.getRGB())
                 .transform(t);
         if (this.light > 0) {

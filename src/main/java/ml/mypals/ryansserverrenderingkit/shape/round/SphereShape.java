@@ -89,15 +89,11 @@ public class SphereShape extends Shape implements CircleLikeShape, DrawableTrian
         return new Vec3(x, y, z);
     }
 
-    private List<Vec3[]> getSphereRingEdges(boolean lerp) {
-        Vec3 center = transformer.getWorldPivot();
-        Quaternionf rot = transformer.getWorldRotation();
+    private List<Vector3f[]> getSphereRingEdges(boolean lerp) {
         float radius = getRadius(lerp);
         int ringSegs = Math.max(8, Math.min(24, getSegments(lerp)));
 
-        List<Vec3[]> edges = new ArrayList<>();
-        Vector3f va = new Vector3f();
-        Vector3f vb = new Vector3f();
+        List<Vector3f[]> edges = new ArrayList<>();
 
         for (int axis = 0; axis < 3; axis++) {
             for (int i = 0; i < ringSegs; i++) {
@@ -118,14 +114,9 @@ public class SphereShape extends Shape implements CircleLikeShape, DrawableTrian
                     x2 = radius * Math.cos(theta2); z2 = radius * Math.sin(theta2);
                 }
 
-                va.set((float) x1, (float) y1, (float) z1);
-                vb.set((float) x2, (float) y2, (float) z2);
-                rot.transform(va);
-                rot.transform(vb);
-
-                Vec3 a = new Vec3(center.x + va.x, center.y + va.y, center.z + va.z);
-                Vec3 b = new Vec3(center.x + vb.x, center.y + vb.y, center.z + vb.z);
-                edges.add(new Vec3[]{a, b});
+                Vector3f va = new Vector3f((float) x1, (float) y1, (float) z1);
+                Vector3f vb = new Vector3f((float) x2, (float) y2, (float) z2);
+                edges.add(new Vector3f[]{va, vb});
             }
         }
         return edges;
@@ -133,20 +124,24 @@ public class SphereShape extends Shape implements CircleLikeShape, DrawableTrian
 
     @Override
     public void initDisplays(ServerLevel level) {
-        List<Vec3[]> edges = getSphereRingEdges(false);
+        List<Vector3f[]> edges = getSphereRingEdges(false);
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
         float width = 0.05f;
-        for (Vec3[] edge : edges) {
-            VirtualDisplay display = VirtualDisplay.block(level, edge[0].x, edge[0].y, edge[0].z, getBlockState())
+
+        for (Vector3f[] edge : edges) {
+            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, null);
+            VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
                     .bright()
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(DisplayTransformHelper.segment(edge[0], edge[1], width));
+                    .transform(t);
             this.displays.add(display);
         }
     }
 
     @Override
     public void updateDisplays() {
-        List<Vec3[]> edges = getSphereRingEdges(true);
+        List<Vector3f[]> edges = getSphereRingEdges(true);
         if (this.displays.size() != edges.size()) {
             ServerLevel lvl = this.displays.isEmpty() ? this.level : this.displays.getFirst().getLevel();
             removeDisplays();
@@ -156,13 +151,19 @@ public class SphereShape extends Shape implements CircleLikeShape, DrawableTrian
             return;
         }
 
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
         float width = 0.05f;
+
+        VirtualDisplay first = this.displays.getFirst();
+        Vec3 spawnPos = new Vec3(first.getEntity().getX(), first.getEntity().getY(), first.getEntity().getZ());
+        Vec3 centerOffset = center.subtract(spawnPos);
+
         for (int i = 0; i < edges.size(); i++) {
-            Vec3[] edge = edges.get(i);
-            Transformation t = DisplayTransformHelper.segment(edge[0], edge[1], width);
+            Vector3f[] edge = edges.get(i);
+            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, centerOffset);
             VirtualDisplay display = this.displays.get(i);
-            display.pos(edge[0].x, edge[0].y, edge[0].z)
-                    .blockState(getBlockState())
+            display.blockState(getBlockState())
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
                     .transform(t);
         }

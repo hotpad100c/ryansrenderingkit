@@ -22,6 +22,7 @@ public class BlockShape extends Shape {
         super(transform, Color.WHITE, center, false);
         this.blockState = block;
         this.light = light;
+        this.transformer.setShapeLocalPivot(new Vec3(-0.5, -0.5, -0.5));
         this.transformer.setShapeWorldPivot(center);
         generateRawGeometry(false);
         syncLastToTarget();
@@ -46,7 +47,7 @@ public class BlockShape extends Shape {
         Vec3 pos = transformer.getWorldPivot();
         VirtualDisplay display = VirtualDisplay.block(level, pos.x, pos.y, pos.z, this.blockState)
                 .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                .transform(transformer.toTransformation(false));
+                .transform(transformer.toTransformation(false, pos));
         if (this.light > 0) {
             display.brightness(new Brightness(light & 15, (light >> 4) & 15));
         }
@@ -56,11 +57,10 @@ public class BlockShape extends Shape {
     @Override
     public void updateDisplays() {
         if (this.displays.isEmpty()) return;
-        Vec3 pos = transformer.getWorldPivot();
-        Transformation t = transformer.toTransformation(true);
         VirtualDisplay display = this.displays.getFirst();
-        display.pos(pos.x, pos.y, pos.z)
-                .blockState(this.blockState)
+        Vec3 spawnPos = new Vec3(display.getEntity().getX(), display.getEntity().getY(), display.getEntity().getZ());
+        Transformation t = transformer.toTransformation(true, spawnPos);
+        display.blockState(this.blockState)
                 .seeThrough(this.seeThrough, this.baseColor.getRGB())
                 .transform(t);
         if (this.light > 0) {

@@ -27,6 +27,7 @@ public final class IntTransformer extends ValueTransformer<Integer> {
     @Override
     protected void setTarget(Integer value) {
         this.target = value;
+        this.current = value;
     }
 
     public void setTargetValue(int v) {
@@ -34,7 +35,7 @@ public final class IntTransformer extends ValueTransformer<Integer> {
     }
 
     public int getCurrentValue() {
-        return current;
+        return target;
     }
 }
 

@@ -147,7 +147,26 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
 
     @Override
     public void initDisplays(ServerLevel level) {
-        List<Vec3> corners = getWorldCorners(false);
+        BoxTransformer bt = (BoxTransformer) transformer;
+        Vec3 center = bt.getWorldPivot();
+        Vec3 dims = bt.getDimension(false);
+        Quaternionf rot = bt.getWorldRotation();
+
+        float hx = (float) (dims.x * 0.5);
+        float hy = (float) (dims.y * 0.5);
+        float hz = (float) (dims.z * 0.5);
+
+        Vector3f[] local = new Vector3f[]{
+                new Vector3f(-hx, -hy, -hz),
+                new Vector3f(+hx, -hy, -hz),
+                new Vector3f(+hx, -hy, +hz),
+                new Vector3f(-hx, -hy, +hz),
+                new Vector3f(-hx, +hy, -hz),
+                new Vector3f(+hx, +hy, -hz),
+                new Vector3f(+hx, +hy, +hz),
+                new Vector3f(-hx, +hy, +hz),
+        };
+
         int[] edges = new int[]{
                 0, 1, 1, 2, 2, 3, 3, 0,
                 4, 5, 5, 6, 6, 7, 7, 4,
@@ -155,12 +174,14 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
         };
 
         for (int i = 0; i < 12; i++) {
-            Vec3 a = corners.get(edges[i * 2]);
-            Vec3 b = corners.get(edges[i * 2 + 1]);
-            VirtualDisplay display = VirtualDisplay.block(level, a.x, a.y, a.z, getBlockState())
+            Vector3f localA = local[edges[i * 2]];
+            Vector3f localB = local[edges[i * 2 + 1]];
+            Transformation t = DisplayTransformHelper.localSegment(localA, localB, edgeWidth, rot, null);
+
+            VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
                     .bright()
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(DisplayTransformHelper.segment(a, b, edgeWidth));
+                    .transform(t);
             this.displays.add(display);
         }
     }
@@ -176,7 +197,30 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
             return;
         }
 
-        List<Vec3> corners = getWorldCorners(true);
+        BoxTransformer bt = (BoxTransformer) transformer;
+        Vec3 center = bt.getWorldPivot();
+        Vec3 dims = bt.getDimension(true);
+        Quaternionf rot = bt.getWorldRotation();
+
+        VirtualDisplay first = this.displays.getFirst();
+        Vec3 spawnPos = new Vec3(first.getEntity().getX(), first.getEntity().getY(), first.getEntity().getZ());
+        Vec3 centerOffset = center.subtract(spawnPos);
+
+        float hx = (float) (dims.x * 0.5);
+        float hy = (float) (dims.y * 0.5);
+        float hz = (float) (dims.z * 0.5);
+
+        Vector3f[] local = new Vector3f[]{
+                new Vector3f(-hx, -hy, -hz),
+                new Vector3f(+hx, -hy, -hz),
+                new Vector3f(+hx, -hy, +hz),
+                new Vector3f(-hx, -hy, +hz),
+                new Vector3f(-hx, +hy, -hz),
+                new Vector3f(+hx, +hy, -hz),
+                new Vector3f(+hx, +hy, +hz),
+                new Vector3f(-hx, +hy, +hz),
+        };
+
         int[] edges = new int[]{
                 0, 1, 1, 2, 2, 3, 3, 0,
                 4, 5, 5, 6, 6, 7, 7, 4,
@@ -184,12 +228,11 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
         };
 
         for (int i = 0; i < 12; i++) {
-            Vec3 a = corners.get(edges[i * 2]);
-            Vec3 b = corners.get(edges[i * 2 + 1]);
-            Transformation t = DisplayTransformHelper.segment(a, b, edgeWidth);
+            Vector3f localA = local[edges[i * 2]];
+            Vector3f localB = local[edges[i * 2 + 1]];
+            Transformation t = DisplayTransformHelper.localSegment(localA, localB, edgeWidth, rot, centerOffset);
             VirtualDisplay display = this.displays.get(i);
-            display.pos(a.x, a.y, a.z)
-                    .blockState(getBlockState())
+            display.blockState(getBlockState())
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
                     .transform(t);
         }

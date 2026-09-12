@@ -12,6 +12,8 @@ import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.util.List;
 import java.util.function.Consumer;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class CylinderWireframeShape extends CylinderShape implements DrawableLine, LineLikeShape {
 
@@ -41,20 +43,24 @@ public class CylinderWireframeShape extends CylinderShape implements DrawableLin
 
     @Override
     public void initDisplays(ServerLevel level) {
-        List<Vec3[]> edges = getCylinderEdges(false);
+        List<Vector3f[]> edges = getLocalCylinderEdges(false);
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
         float width = getLineWidth(false);
-        for (Vec3[] edge : edges) {
-            VirtualDisplay display = VirtualDisplay.block(level, edge[0].x, edge[0].y, edge[0].z, getBlockState())
+
+        for (Vector3f[] edge : edges) {
+            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, null);
+            VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
                     .bright()
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(DisplayTransformHelper.segment(edge[0], edge[1], width));
+                    .transform(t);
             this.displays.add(display);
         }
     }
 
     @Override
     public void updateDisplays() {
-        List<Vec3[]> edges = getCylinderEdges(true);
+        List<Vector3f[]> edges = getLocalCylinderEdges(true);
         if (this.displays.size() != edges.size()) {
             ServerLevel lvl = this.displays.isEmpty() ? this.level : this.displays.getFirst().getLevel();
             removeDisplays();
@@ -64,13 +70,19 @@ public class CylinderWireframeShape extends CylinderShape implements DrawableLin
             return;
         }
 
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
         float width = getLineWidth(true);
+
+        VirtualDisplay first = this.displays.getFirst();
+        Vec3 spawnPos = new Vec3(first.getEntity().getX(), first.getEntity().getY(), first.getEntity().getZ());
+        Vec3 centerOffset = center.subtract(spawnPos);
+
         for (int i = 0; i < edges.size(); i++) {
-            Vec3[] edge = edges.get(i);
-            Transformation t = DisplayTransformHelper.segment(edge[0], edge[1], width);
+            Vector3f[] edge = edges.get(i);
+            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, centerOffset);
             VirtualDisplay display = this.displays.get(i);
-            display.pos(edge[0].x, edge[0].y, edge[0].z)
-                    .blockState(getBlockState())
+            display.blockState(getBlockState())
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
                     .transform(t);
         }

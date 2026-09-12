@@ -199,7 +199,10 @@ public final class VirtualDisplay {
 
     public VirtualDisplay transform(@Nullable Transformation transformation) {
         if (transformation != null) {
-            ((DisplayAccessor) this.entity).rrk$setTransformation(transformation);
+            DisplayAccessor accessor = (DisplayAccessor) this.entity;
+            accessor.rrk$setInterpolationDuration(1);
+            accessor.rrk$setInterpolationDelay(0);
+            accessor.rrk$setTransformation(transformation);
             this.dataDirty = true;
         }
         return this;
@@ -229,12 +232,12 @@ public final class VirtualDisplay {
     }
 
     public void sync() {
-        @Nullable List<SynchedEntityData.DataValue<?>> data =
-                this.dataDirty ? this.entity.getEntityData().getNonDefaultValues() : null;
-
-        if (data != null && data.isEmpty()) {
-            data = null;
+        @Nullable List<SynchedEntityData.DataValue<?>> dirtyData =
+                this.dataDirty ? this.entity.getEntityData().packDirty() : null;
+        if (dirtyData != null && dirtyData.isEmpty()) {
+            dirtyData = null;
         }
+        @Nullable List<SynchedEntityData.DataValue<?>> allData = null;
 
         double x = this.entity.getX();
         double y = this.entity.getY();
@@ -252,18 +255,22 @@ public final class VirtualDisplay {
             }
 
             if (!this.viewers.add(viewer)) {
-                if (data != null) {
-                    player.connection.send(new ClientboundSetEntityDataPacket(id, data));
+                if (dirtyData != null) {
+                    player.connection.send(new ClientboundSetEntityDataPacket(id, dirtyData));
                 }
                 continue;
+            }
+
+            if (allData == null) {
+                allData = this.entity.getEntityData().getNonDefaultValues();
             }
 
             player.connection.send(new ClientboundAddEntityPacket(
                     id, this.entity.getUUID(), x, y, z,
                     0.0F, 0.0F, this.entity.getType(), 0, Vec3.ZERO, 0.0D));
 
-            if (data != null) {
-                player.connection.send(new ClientboundSetEntityDataPacket(id, data));
+            if (allData != null && !allData.isEmpty()) {
+                player.connection.send(new ClientboundSetEntityDataPacket(id, allData));
             }
 
             if (this.vehicle != null) {

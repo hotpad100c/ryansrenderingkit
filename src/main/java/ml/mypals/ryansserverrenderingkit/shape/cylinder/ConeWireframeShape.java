@@ -10,6 +10,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class ConeWireframeShape extends CylinderWireframeShape {
 
@@ -88,49 +90,52 @@ public class ConeWireframeShape extends CylinderWireframeShape {
         indexBuffer = indices.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    protected List<Vec3[]> getConeEdges(boolean lerp) {
+    protected List<Vector3f[]> getLocalConeEdges(boolean lerp) {
         generateRawGeometry(lerp);
-        Vec3 center = transformer.getWorldPivot();
-        org.joml.Quaternionf rot = transformer.getWorldRotation();
-
         int segments = Math.max(4, getSegments(lerp));
-        List<Vec3> worldVerts = new ArrayList<>(modelVertexes.size());
-        org.joml.Vector3f v = new org.joml.Vector3f();
-        for (Vec3 local : modelVertexes) {
-            v.set((float) local.x, (float) local.y, (float) local.z);
-            rot.transform(v);
-            worldVerts.add(new Vec3(center.x + v.x, center.y + v.y, center.z + v.z));
-        }
-
-        List<Vec3[]> edges = new ArrayList<>();
-        Vec3 apex = worldVerts.get(segments);
+        List<Vector3f[]> edges = new ArrayList<>();
+        Vec3 apex = modelVertexes.get(segments);
+        Vector3f apexV = new Vector3f((float) apex.x, (float) apex.y, (float) apex.z);
 
         for (int i = 0; i < segments; i++) {
             int next = (i + 1) % segments;
-            edges.add(new Vec3[]{worldVerts.get(i), worldVerts.get(next)});
+            Vec3 p1 = modelVertexes.get(i);
+            Vec3 p2 = modelVertexes.get(next);
+            edges.add(new Vector3f[]{
+                    new Vector3f((float) p1.x, (float) p1.y, (float) p1.z),
+                    new Vector3f((float) p2.x, (float) p2.y, (float) p2.z)
+            });
         }
         for (int i = 0; i < segments; i++) {
-            edges.add(new Vec3[]{worldVerts.get(i), apex});
+            Vec3 p1 = modelVertexes.get(i);
+            edges.add(new Vector3f[]{
+                    new Vector3f((float) p1.x, (float) p1.y, (float) p1.z),
+                    apexV
+            });
         }
         return edges;
     }
 
     @Override
     public void initDisplays(ServerLevel level) {
-        List<Vec3[]> edges = getConeEdges(false);
+        List<Vector3f[]> edges = getLocalConeEdges(false);
+        Vec3 center = transformer.getWorldPivot();
+        org.joml.Quaternionf rot = transformer.getWorldRotation();
         float width = getLineWidth(false);
-        for (Vec3[] edge : edges) {
-            VirtualDisplay display = VirtualDisplay.block(level, edge[0].x, edge[0].y, edge[0].z, getBlockState())
+
+        for (Vector3f[] edge : edges) {
+            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, null);
+            VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
                     .bright()
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(DisplayTransformHelper.segment(edge[0], edge[1], width));
+                    .transform(t);
             this.displays.add(display);
         }
     }
 
     @Override
     public void updateDisplays() {
-        List<Vec3[]> edges = getConeEdges(true);
+        List<Vector3f[]> edges = getLocalConeEdges(true);
         if (this.displays.size() != edges.size()) {
             ServerLevel lvl = this.displays.isEmpty() ? this.level : this.displays.getFirst().getLevel();
             removeDisplays();
@@ -140,13 +145,19 @@ public class ConeWireframeShape extends CylinderWireframeShape {
             return;
         }
 
+        Vec3 center = transformer.getWorldPivot();
+        org.joml.Quaternionf rot = transformer.getWorldRotation();
         float width = getLineWidth(true);
+
+        VirtualDisplay first = this.displays.getFirst();
+        Vec3 spawnPos = new Vec3(first.getEntity().getX(), first.getEntity().getY(), first.getEntity().getZ());
+        Vec3 centerOffset = center.subtract(spawnPos);
+
         for (int i = 0; i < edges.size(); i++) {
-            Vec3[] edge = edges.get(i);
-            Transformation t = DisplayTransformHelper.segment(edge[0], edge[1], width);
+            Vector3f[] edge = edges.get(i);
+            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, centerOffset);
             VirtualDisplay display = this.displays.get(i);
-            display.pos(edge[0].x, edge[0].y, edge[0].z)
-                    .blockState(getBlockState())
+            display.blockState(getBlockState())
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
                     .transform(t);
         }

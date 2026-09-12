@@ -262,6 +262,10 @@ public abstract class Shape {
             }
         }
 
+        if (this.transformer != null) {
+            this.transformer.syncLastToTarget();
+        }
+
         if (isTemp) {
             discard();
         }

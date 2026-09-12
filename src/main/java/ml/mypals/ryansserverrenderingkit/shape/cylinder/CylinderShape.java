@@ -112,54 +112,62 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
         indexBuffer = indices.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    protected List<Vec3[]> getCylinderEdges(boolean lerp) {
+    protected List<Vector3f[]> getLocalCylinderEdges(boolean lerp) {
         generateCylinderVertices(lerp);
-        Vec3 center = transformer.getWorldPivot();
-        Quaternionf rot = transformer.getWorldRotation();
-
         int segments = getSegments(lerp);
-        List<Vec3> worldVerts = new ArrayList<>(modelVertexes.size());
-        Vector3f v = new Vector3f();
-        for (Vec3 local : modelVertexes) {
-            v.set((float) local.x, (float) local.y, (float) local.z);
-            rot.transform(v);
-            worldVerts.add(new Vec3(center.x + v.x, center.y + v.y, center.z + v.z));
-        }
-
-        List<Vec3[]> edges = new ArrayList<>();
+        List<Vector3f[]> edges = new ArrayList<>();
         // Bottom ring
         for (int i = 0; i < segments; i++) {
             int next = (i + 1) % segments;
-            edges.add(new Vec3[]{worldVerts.get(i), worldVerts.get(next)});
+            Vec3 p1 = modelVertexes.get(i);
+            Vec3 p2 = modelVertexes.get(next);
+            edges.add(new Vector3f[]{
+                    new Vector3f((float) p1.x, (float) p1.y, (float) p1.z),
+                    new Vector3f((float) p2.x, (float) p2.y, (float) p2.z)
+            });
         }
         // Top ring
         for (int i = 0; i < segments; i++) {
             int next = (i + 1) % segments;
-            edges.add(new Vec3[]{worldVerts.get(segments + i), worldVerts.get(segments + next)});
+            Vec3 p1 = modelVertexes.get(segments + i);
+            Vec3 p2 = modelVertexes.get(segments + next);
+            edges.add(new Vector3f[]{
+                    new Vector3f((float) p1.x, (float) p1.y, (float) p1.z),
+                    new Vector3f((float) p2.x, (float) p2.y, (float) p2.z)
+            });
         }
         // Side connectors
         for (int i = 0; i < segments; i++) {
-            edges.add(new Vec3[]{worldVerts.get(i), worldVerts.get(segments + i)});
+            Vec3 p1 = modelVertexes.get(i);
+            Vec3 p2 = modelVertexes.get(segments + i);
+            edges.add(new Vector3f[]{
+                    new Vector3f((float) p1.x, (float) p1.y, (float) p1.z),
+                    new Vector3f((float) p2.x, (float) p2.y, (float) p2.z)
+            });
         }
         return edges;
     }
 
     @Override
     public void initDisplays(ServerLevel level) {
-        List<Vec3[]> edges = getCylinderEdges(false);
+        List<Vector3f[]> edges = getLocalCylinderEdges(false);
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
         float width = 0.05f;
-        for (Vec3[] edge : edges) {
-            VirtualDisplay display = VirtualDisplay.block(level, edge[0].x, edge[0].y, edge[0].z, getBlockState())
+
+        for (Vector3f[] edge : edges) {
+            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, null);
+            VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
                     .bright()
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(DisplayTransformHelper.segment(edge[0], edge[1], width));
+                    .transform(t);
             this.displays.add(display);
         }
     }
 
     @Override
     public void updateDisplays() {
-        List<Vec3[]> edges = getCylinderEdges(true);
+        List<Vector3f[]> edges = getLocalCylinderEdges(true);
         if (this.displays.size() != edges.size()) {
             ServerLevel lvl = this.displays.isEmpty() ? this.level : this.displays.getFirst().getLevel();
             removeDisplays();
@@ -169,13 +177,19 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
             return;
         }
 
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
         float width = 0.05f;
+
+        VirtualDisplay first = this.displays.getFirst();
+        Vec3 spawnPos = new Vec3(first.getEntity().getX(), first.getEntity().getY(), first.getEntity().getZ());
+        Vec3 centerOffset = center.subtract(spawnPos);
+
         for (int i = 0; i < edges.size(); i++) {
-            Vec3[] edge = edges.get(i);
-            Transformation t = DisplayTransformHelper.segment(edge[0], edge[1], width);
+            Vector3f[] edge = edges.get(i);
+            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, centerOffset);
             VirtualDisplay display = this.displays.get(i);
-            display.pos(edge[0].x, edge[0].y, edge[0].z)
-                    .blockState(getBlockState())
+            display.blockState(getBlockState())
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
                     .transform(t);
         }

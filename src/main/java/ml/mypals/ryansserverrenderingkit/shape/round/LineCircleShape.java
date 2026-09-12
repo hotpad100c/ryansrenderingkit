@@ -113,26 +113,33 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
 
     @Override
     public void initDisplays(ServerLevel level) {
-        List<Vec3> worldPoints = getWorldVertices(false);
-        int n = worldPoints.size();
+        generateRawGeometry(false);
+        int n = modelVertexes.size();
         if (n < 3) return;
 
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
         float width = getLineWidth(false);
+
         for (int i = 0; i < n; i++) {
-            Vec3 a = worldPoints.get(i);
-            Vec3 b = worldPoints.get((i + 1) % n);
-            VirtualDisplay display = VirtualDisplay.block(level, a.x, a.y, a.z, getBlockState())
+            Vec3 p1 = modelVertexes.get(i);
+            Vec3 p2 = modelVertexes.get((i + 1) % n);
+            Vector3f va = new Vector3f((float) p1.x, (float) p1.y, (float) p1.z);
+            Vector3f vb = new Vector3f((float) p2.x, (float) p2.y, (float) p2.z);
+            Transformation t = DisplayTransformHelper.localSegment(va, vb, width, rot, null);
+
+            VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
                     .bright()
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(DisplayTransformHelper.segment(a, b, width));
+                    .transform(t);
             this.displays.add(display);
         }
     }
 
     @Override
     public void updateDisplays() {
-        List<Vec3> worldPoints = getWorldVertices(true);
-        int n = worldPoints.size();
+        generateRawGeometry(true);
+        int n = modelVertexes.size();
         if (this.displays.size() != n) {
             ServerLevel lvl = this.displays.isEmpty() ? this.level : this.displays.getFirst().getLevel();
             removeDisplays();
@@ -142,14 +149,22 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
             return;
         }
 
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
         float width = getLineWidth(true);
+
+        VirtualDisplay first = this.displays.getFirst();
+        Vec3 spawnPos = new Vec3(first.getEntity().getX(), first.getEntity().getY(), first.getEntity().getZ());
+        Vec3 centerOffset = center.subtract(spawnPos);
+
         for (int i = 0; i < n; i++) {
-            Vec3 a = worldPoints.get(i);
-            Vec3 b = worldPoints.get((i + 1) % n);
-            Transformation t = DisplayTransformHelper.segment(a, b, width);
+            Vec3 p1 = modelVertexes.get(i);
+            Vec3 p2 = modelVertexes.get((i + 1) % n);
+            Vector3f va = new Vector3f((float) p1.x, (float) p1.y, (float) p1.z);
+            Vector3f vb = new Vector3f((float) p2.x, (float) p2.y, (float) p2.z);
+            Transformation t = DisplayTransformHelper.localSegment(va, vb, width, rot, centerOffset);
             VirtualDisplay display = this.displays.get(i);
-            display.pos(a.x, a.y, a.z)
-                    .blockState(getBlockState())
+            display.blockState(getBlockState())
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
                     .transform(t);
         }

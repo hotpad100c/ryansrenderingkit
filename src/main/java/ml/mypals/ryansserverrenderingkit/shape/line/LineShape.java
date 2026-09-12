@@ -149,25 +149,52 @@ public class LineShape extends Shape implements TwoPointsLineShape {
 
     @Override
     public void initDisplays(ServerLevel level) {
-        Vec3[] pts = getWorldPoints(false);
+        Vec3 start = getStart(false);
+        Vec3 end = getEnd(false);
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
+
+        Vec3 rawCenter = calculateShapeCenterPos();
+        Vec3 localA = start.subtract(rawCenter);
+        Vec3 localB = end.subtract(rawCenter);
+
+        Vector3f va = new Vector3f((float) localA.x, (float) localA.y, (float) localA.z);
+        Vector3f vb = new Vector3f((float) localB.x, (float) localB.y, (float) localB.z);
+
         float w = getLineWidth(false);
-        VirtualDisplay display = VirtualDisplay.block(level, pts[0].x, pts[0].y, pts[0].z, getBlockState())
+        Transformation transform = DisplayTransformHelper.localSegment(va, vb, w, rot, null);
+
+        VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
                 .bright()
                 .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                .transform(DisplayTransformHelper.segment(pts[0], pts[1], w));
+                .transform(transform);
         this.displays.add(display);
     }
 
     @Override
     public void updateDisplays() {
         if (this.displays.isEmpty()) return;
-        Vec3[] pts = getWorldPoints(true);
+        Vec3 start = getStart(true);
+        Vec3 end = getEnd(true);
+        Vec3 center = transformer.getWorldPivot();
+        Quaternionf rot = transformer.getWorldRotation();
+
+        Vec3 rawCenter = calculateShapeCenterPos();
+        Vec3 localA = start.subtract(rawCenter);
+        Vec3 localB = end.subtract(rawCenter);
+
+        Vector3f va = new Vector3f((float) localA.x, (float) localA.y, (float) localA.z);
+        Vector3f vb = new Vector3f((float) localB.x, (float) localB.y, (float) localB.z);
+
         float w = getLineWidth(true);
-        Transformation transform = DisplayTransformHelper.segment(pts[0], pts[1], w);
 
         VirtualDisplay display = this.displays.getFirst();
-        display.pos(pts[0].x, pts[0].y, pts[0].z)
-                .blockState(getBlockState())
+        Vec3 spawnPos = new Vec3(display.getEntity().getX(), display.getEntity().getY(), display.getEntity().getZ());
+        Vec3 centerOffset = center.subtract(spawnPos);
+
+        Transformation transform = DisplayTransformHelper.localSegment(va, vb, w, rot, centerOffset);
+
+        display.blockState(getBlockState())
                 .seeThrough(this.seeThrough, this.baseColor.getRGB())
                 .transform(transform);
     }

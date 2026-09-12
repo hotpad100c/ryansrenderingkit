@@ -27,6 +27,7 @@ public final class FloatTransformer extends ValueTransformer<Float> {
     @Override
     protected void setTarget(Float value) {
         this.target = value;
+        this.current = value;
     }
 
     public void setTargetValue(float v) {
@@ -38,6 +39,6 @@ public final class FloatTransformer extends ValueTransformer<Float> {
     }
 
     public float getCurrentValue() {
-        return current;
+        return target;
     }
 }

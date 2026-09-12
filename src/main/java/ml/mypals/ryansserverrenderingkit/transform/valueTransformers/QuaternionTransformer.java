@@ -29,6 +29,7 @@ public final class QuaternionTransformer extends ValueTransformer<Quaternionf> {
     @Override
     protected void setTarget(Quaternionf value) {
         this.target.set(value);
+        this.current.set(value);
     }
 
     public void setTargetRotation(Quaternionfc rot) {

@@ -4,10 +4,12 @@ import ml.mypals.ryansserverrenderingkit.shape.Shape;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 
 public class ShapeManager {
     public final String id;
@@ -22,6 +24,19 @@ public class ShapeManager {
         shapeMap.put(identifier, shape);
     }
 
+    @Nullable
+    public Shape getShape(Identifier identifier) {
+        return shapeMap.get(identifier);
+    }
+
+    public Collection<Shape> getAllShapes() {
+        return shapeMap.values();
+    }
+
+    public int getShapeCount() {
+        return shapeMap.size();
+    }
+
     public boolean removeShape(@NotNull Identifier identifier) {
         Shape shape = shapeMap.remove(identifier);
         if (shape != null) {
@@ -34,17 +49,20 @@ public class ShapeManager {
     public boolean removeShapes(@NotNull Identifier identifier) {
         String namespace = identifier.getNamespace();
         String path = identifier.getPath();
-        Predicate<Map.Entry<Identifier, Shape>> pred = entry ->
-                entry.getKey().getNamespace().equals(namespace)
-                        && entry.getKey().getPath().startsWith(path);
+
+        List<Identifier> toRemove = new ArrayList<>();
+        for (Identifier key : shapeMap.keySet()) {
+            if (key.getNamespace().equals(namespace) && key.getPath().startsWith(path)) {
+                toRemove.add(key);
+            }
+        }
 
         boolean removed = false;
-        for (Map.Entry<Identifier, Shape> entry : shapeMap.entrySet()) {
-            if (pred.test(entry)) {
-                if (shapeMap.remove(entry.getKey()) != null) {
-                    entry.getValue().removeDisplays();
-                    removed = true;
-                }
+        for (Identifier key : toRemove) {
+            Shape shape = shapeMap.remove(key);
+            if (shape != null) {
+                shape.removeDisplays();
+                removed = true;
             }
         }
         return removed;
@@ -67,3 +85,4 @@ public class ShapeManager {
         shapeMap.clear();
     }
 }
+
