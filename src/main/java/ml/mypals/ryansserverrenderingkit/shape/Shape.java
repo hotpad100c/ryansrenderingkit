@@ -255,8 +255,7 @@ public abstract class Shape {
                 d.sync();
             }
         } else {
-            // allDim mode: synchronize across all levels of the server
-            if (targetLevel != null && targetLevel.getServer() != null) {
+            if (targetLevel != null) {
                 for (ServerLevel lvl : targetLevel.getServer().getAllLevels()) {
                     ResourceKey<Level> dimKey = lvl.dimension();
                     List<VirtualDisplay> list = dimDisplays.computeIfAbsent(dimKey, k -> {

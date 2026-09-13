@@ -9,6 +9,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.awt.*;
@@ -132,7 +133,6 @@ public class ObjModelShape extends Shape {
         Set<Long> uniqueEdges = new LinkedHashSet<>();
         wireframeEdges.clear();
         for (int[] face : model.faces) {
-            // ponytail: OBJ faces are fan-triangulated; add ear clipping only if concave polygons are needed.
             for (int i = 1; i < face.length - 1; i++) {
                 triangles.add(face[0]);
                 triangles.add(face[i]);
@@ -171,11 +171,12 @@ public class ObjModelShape extends Shape {
     private List<Transformation> getWireframeSegments(boolean lerp, Vec3 spawnPosition) {
         Matrix4f modelMatrix = relativeModelMatrix(lerp, spawnPosition);
         List<Transformation> segments = new ArrayList<>(wireframeEdges.size());
+        Quaternionf identityRotation = new Quaternionf();
         for (int[] edge : wireframeEdges) {
             Vector3f a = vector(modelVertexes.get(edge[0])).mulPosition(modelMatrix);
             Vector3f b = vector(modelVertexes.get(edge[1])).mulPosition(modelMatrix);
-            Transformation segment = DisplayTransformHelper.segment(
-                    new Vec3(a.x, a.y, a.z), new Vec3(b.x, b.y, b.z), wireframeWidth);
+            Transformation segment = DisplayTransformHelper.localSegment(
+                    a, b, wireframeWidth, identityRotation, null);
             if (segment != null) segments.add(segment);
         }
         return segments;
