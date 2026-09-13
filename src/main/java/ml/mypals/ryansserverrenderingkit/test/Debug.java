@@ -46,16 +46,15 @@ public class Debug {
     }
 
     public static void sendMessage(CommandSourceStack source, String msg) {
-        // ? if >=1.20 {
+        //? if >=1.20 {
         source.sendSuccess(() -> Component.literal(msg), false);
-        // ?} else {
-        /*
-         * source.sendSuccess(Component.literal(msg), false);
-         */// ?}
+        //? } else {
+         /*source.sendSuccess(Component.literal(msg), false);
+         *///? }
     }
 
     public static void registerDebugCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
-        var root = Commands.literal("rrk")
+        var root = Commands.literal("ryansRenderingKit_DEBUG")
                 .then(Commands.literal("toggle")
                         .executes(ctx -> {
                             boolean val = toggleDebugMode(ctx.getSource());
@@ -103,7 +102,6 @@ public class Debug {
                                 })));
 
         dispatcher.register(root);
-        dispatcher.register(Commands.literal("ryansRenderingKit_DEBUG").redirect(dispatcher.getRoot().getChild("rrk")));
     }
 
     public static void init() {
@@ -155,11 +153,7 @@ public class Debug {
                         .color(new Color(64, 64, 64, 180))
                         .construction(BoxShape.BoxConstructionType.CENTER_AND_DIMENSIONS)
                         .transform(t -> {
-                            /*
-                             * long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() :
-                             * 0;
-                             * t.setShapeWorldRotationDegrees(time * 2, time * 3, time * 1.5f);
-                             */
+
                             RayModelIntersection.HitResult hitResult = t.shape.isAnyPlayerLookingAt(20);
                             if (hitResult.hit) {
                                 t.shape.setBaseColor(new Color(64, 128, 255, 180));
