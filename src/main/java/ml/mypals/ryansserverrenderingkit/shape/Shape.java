@@ -1,5 +1,6 @@
 package ml.mypals.ryansserverrenderingkit.shape;
 
+import ml.mypals.ryansserverrenderingkit.display.DisplayTransformHelper;
 import ml.mypals.ryansserverrenderingkit.display.VirtualDisplay;
 import ml.mypals.ryansserverrenderingkit.shapeManagers.ShapeManagers;
 import ml.mypals.ryansserverrenderingkit.transform.shapeTransformers.DefaultTransformer;
@@ -23,14 +24,10 @@ import static ml.mypals.ryansserverrenderingkit.shapeManagers.ShapeManagers.TEMP
 import static ml.mypals.ryansserverrenderingkit.transform.shapeTransformers.DefaultTransformer.*;
 
 public abstract class Shape {
-    @Deprecated
-    public enum RenderingType {
-        BUFFERED,
-        BATCH,
-        IMMEDIATE
-    }
-
     public boolean isTemp = false;
+    public boolean renderFace = true;
+    public boolean renderWireframe = false;
+    public float wireframeWidth = DisplayTransformHelper.DEFAULT_LINE_WIDTH;
     public Identifier id;
     public DefaultTransformer transformer;
     public Consumer<DefaultTransformer> transformFunction;
@@ -89,6 +86,21 @@ public abstract class Shape {
 
     public ServerLevel getLevel() {
         return this.level;
+    }
+
+    public Shape renderFace(boolean renderFace) {
+        this.renderFace = renderFace;
+        return this;
+    }
+
+    public Shape renderWireframe(boolean renderWireframe) {
+        this.renderWireframe = renderWireframe;
+        return this;
+    }
+
+    public Shape wireframeWidth(float width) {
+        this.wireframeWidth = DisplayTransformHelper.sanitizeThickness(width);
+        return this;
     }
 
     public Shape allDim(boolean allDim) {

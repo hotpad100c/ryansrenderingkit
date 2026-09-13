@@ -42,18 +42,6 @@ public class FaceCircleShape extends Shape implements CircleLikeShape {
         syncLastToTarget();
     }
 
-    @Deprecated
-    public FaceCircleShape(Object ignored,
-                           Consumer<FaceCircleTransformer> transform,
-                           CircleAxis axis,
-                           Vec3 center,
-                           int segments,
-                           float radius,
-                           Color color,
-                           boolean seeThrough) {
-        this(transform, axis, center, segments, radius, color, seeThrough);
-    }
-
     @Override
     protected void generateRawGeometry(boolean lerp) {
         modelVertexes.clear();

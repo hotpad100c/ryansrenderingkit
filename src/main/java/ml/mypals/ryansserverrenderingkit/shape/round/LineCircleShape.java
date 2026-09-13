@@ -45,19 +45,6 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
         syncLastToTarget();
     }
 
-    @Deprecated
-    public LineCircleShape(Object ignored,
-                           Consumer<LineCircleTransformer> transform,
-                           CircleAxis axis,
-                           Vec3 center,
-                           int segments,
-                           float radius,
-                           float width,
-                           Color color,
-                           boolean seeThrough) {
-        this(transform, axis, center, segments, radius, width, color, seeThrough);
-    }
-
     @Override
     protected void generateRawGeometry(boolean lerp) {
         modelVertexes.clear();

@@ -120,6 +120,19 @@ public final class VirtualDisplay {
         return new VirtualDisplay(level, display);
     }
 
+    public static VirtualDisplay solidTextPanel(ServerLevel level, double x, double y, double z, int argb) {
+        VirtualDisplay result = text(level, x, y, z, Component.literal(" "))
+                .billboard(Display.BillboardConstraints.FIXED);
+        if (result.entity instanceof Display.TextDisplay display) {
+            TextDisplayAccessor accessor = (TextDisplayAccessor) display;
+            accessor.rrk$setBackgroundColor(argb);
+            accessor.rrk$setTextOpacity((byte) 0);
+            accessor.rrk$setLineWidth(1);
+            accessor.rrk$setFlags(FLAG_ALIGN_LEFT);
+        }
+        return result;
+    }
+
     public VirtualDisplay filter(@Nullable Predicate<ServerPlayer> filter) {
         this.viewerFilter = filter;
         return this;
@@ -144,6 +157,14 @@ public final class VirtualDisplay {
     public VirtualDisplay textComponent(Component text) {
         if (this.entity instanceof Display.TextDisplay display) {
             ((TextDisplayAccessor) display).rrk$setText(text);
+            this.dataDirty = true;
+        }
+        return this;
+    }
+
+    public VirtualDisplay backgroundColor(int argb) {
+        if (this.entity instanceof Display.TextDisplay display) {
+            ((TextDisplayAccessor) display).rrk$setBackgroundColor(argb);
             this.dataDirty = true;
         }
         return this;

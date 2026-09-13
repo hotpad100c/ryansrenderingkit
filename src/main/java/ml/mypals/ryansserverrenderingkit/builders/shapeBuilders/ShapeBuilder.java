@@ -16,6 +16,10 @@ public interface ShapeBuilder<T extends ShapeBuilder<T>> {
 
     T seeThrough(boolean seeThrough);
 
+    T renderFace(boolean renderFace);
+
+    T renderWireframe(boolean renderWireframe);
+
     T level(ServerLevel level);
 
     T allDim(boolean allDim);
@@ -25,9 +29,4 @@ public interface ShapeBuilder<T extends ShapeBuilder<T>> {
     T block(BlockState state);
 
     Shape build();
-
-    @Deprecated
-    default Shape build(Object ignored) {
-        return build();
-    }
 }

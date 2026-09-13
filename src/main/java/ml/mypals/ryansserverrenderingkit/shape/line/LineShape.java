@@ -33,15 +33,6 @@ public class LineShape extends Shape implements TwoPointsLineShape {
         this.transformer.setShapeWorldPivot(calculateShapeCenterPos());
     }
 
-    @Deprecated
-    public LineShape(Object ignored,
-                     Consumer<TwoPointsLineTransformer> transform,
-                     Vec3 start, Vec3 end,
-                     Color color, float lineWidth,
-                     boolean seeThrough) {
-        this(transform, start, end, color, lineWidth, seeThrough);
-    }
-
     public Vec3 calculateShapeCenterPos() {
         double centerX = (getStart(false).x + getEnd(false).x) / 2.0;
         double centerY = (getStart(false).y + getEnd(false).y) / 2.0;

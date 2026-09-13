@@ -39,16 +39,6 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
         generateRawGeometry(false);
     }
 
-    @Deprecated
-    public StripLineShape(Object ignored,
-                          Consumer<SimpleLineTransformer> transform,
-                          List<Vec3> vertexes,
-                          float lineWidth,
-                          Color color,
-                          boolean seeThrough) {
-        this(transform, vertexes, lineWidth, color, seeThrough);
-    }
-
     public Vec3 calculateShapeCenterPos() {
         if (vertexes.isEmpty()) return Vec3.ZERO;
 

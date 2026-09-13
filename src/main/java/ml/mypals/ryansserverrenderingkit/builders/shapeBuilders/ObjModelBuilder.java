@@ -1,6 +1,5 @@
 package ml.mypals.ryansserverrenderingkit.builders.shapeBuilders;
 
-import ml.mypals.ryansserverrenderingkit.shape.Shape;
 import ml.mypals.ryansserverrenderingkit.shape.model.ObjModelShape;
 import ml.mypals.ryansserverrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.resources.Identifier;
@@ -20,10 +19,5 @@ public class ObjModelBuilder extends BaseBuilder<ObjModelBuilder, DefaultTransfo
         ObjModelShape shape = new ObjModelShape(t, resourceLocation, center, color, seeThrough);
         applyCommon(shape);
         return shape;
-    }
-
-    @Deprecated
-    public ObjModelShape build(Shape.RenderingType type) {
-        return build();
     }
 }

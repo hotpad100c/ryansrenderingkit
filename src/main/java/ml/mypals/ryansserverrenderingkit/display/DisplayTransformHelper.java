@@ -5,22 +5,41 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class DisplayTransformHelper {
     public static final float DEFAULT_LINE_WIDTH = 0.05F;
+    private static final Matrix4f TEXT_DISPLAY_UNIT_SQUARE = new Matrix4f()
+            .translate(0.4F, 0.0F, 0.0F)
+            .scale(8.0F, 4.0F, 1.0F);
+    private static final Matrix4f[] TEXT_DISPLAY_UNIT_TRIANGLE = {
+            new Matrix4f().scale(0.5F).mul(TEXT_DISPLAY_UNIT_SQUARE),
+            new Matrix4f().scale(0.5F).translate(1.0F, 0.0F, 0.0F)
+                    .mul(shear(0.0F, -1.0F)).mul(TEXT_DISPLAY_UNIT_SQUARE),
+            new Matrix4f().scale(0.5F).translate(0.0F, 1.0F, 0.0F)
+                    .mul(shear(-1.0F, 0.0F)).mul(TEXT_DISPLAY_UNIT_SQUARE)
+    };
 
     private DisplayTransformHelper() {}
+
+    private static Matrix4f shear(float xy, float yx) {
+        return new Matrix4f(
+                1.0F, xy, 0.0F, 0.0F,
+                yx, 1.0F, 0.0F, 0.0F,
+                0.0F, 0.0F, 1.0F, 0.0F,
+                0.0F, 0.0F, 0.0F, 1.0F
+        );
+    }
 
     public static float sanitizeThickness(float thickness) {
         if (thickness <= 0.0001F) {
             return DEFAULT_LINE_WIDTH;
         }
-        // In client-side OpenGL rendering, lineWidth was in pixels (typically 1.0F to 5.0F).
-        // In Minecraft 3D block space, 1.0F is 1 full block (1 meter) thick!
-        // Therefore, if thickness >= 0.5F, it represents legacy pixel/stroke width:
-        // 1.0F -> 0.03F blocks, 2.0F -> 0.045F blocks, 3.0F -> 0.06F blocks, 4.0F -> 0.08F blocks.
         if (thickness >= 0.5F) {
             return Math.min(0.3F, thickness * 0.02F);
         }
@@ -41,6 +60,69 @@ public final class DisplayTransformHelper {
 
     public static Transformation fromMatrix(org.joml.Matrix4f matrix) {
         return new Transformation(matrix);
+    }
+
+    @Nullable
+    public static Transformation localTextPanel(Vector3f localOrigin, Vector3f localX, Vector3f localY,
+                                                Quaternionf parentRot, @Nullable Vec3 centerOffset) {
+        Vector3f normal = new Vector3f(localX).cross(localY);
+        if (localX.lengthSquared() <= 0.00000001F || localY.lengthSquared() <= 0.00000001F
+                || normal.lengthSquared() <= 0.00000001F) {
+            return null;
+        }
+        normal.normalize();
+
+        Matrix4f panel = new Matrix4f(
+                localX.x, localX.y, localX.z, 0.0F,
+                localY.x, localY.y, localY.z, 0.0F,
+                normal.x, normal.y, normal.z, 0.0F,
+                localOrigin.x, localOrigin.y, localOrigin.z, 1.0F
+        ).mul(TEXT_DISPLAY_UNIT_SQUARE);
+
+        Matrix4f result = new Matrix4f();
+        if (centerOffset != null) {
+            result.translate((float) centerOffset.x, (float) centerOffset.y, (float) centerOffset.z);
+        }
+        result.rotate(parentRot).mul(panel);
+        return fromMatrix(result);
+    }
+
+    /** Returns the three TextDisplay transforms that exactly tile an arbitrary local-space triangle. */
+    public static List<Transformation> localTextTriangle(Vector3f p1, Vector3f p2, Vector3f p3,
+                                                         Quaternionf parentRot, @Nullable Vec3 centerOffset) {
+        Matrix4f parent = new Matrix4f();
+        if (centerOffset != null) {
+            parent.translate((float) centerOffset.x, (float) centerOffset.y, (float) centerOffset.z);
+        }
+        parent.rotate(parentRot);
+        return localTextTriangle(p1, p2, p3, parent);
+    }
+
+    /** Returns three triangle pieces after applying a complete parent/model matrix. */
+    public static List<Transformation> localTextTriangle(Vector3f p1, Vector3f p2, Vector3f p3,
+                                                         Matrix4f parentTransform) {
+        Vector3f x = new Vector3f(p2).sub(p1);
+        Vector3f y = new Vector3f(p3).sub(p1);
+        Vector3f normal = new Vector3f(x).cross(y);
+        if (x.lengthSquared() <= 0.00000001F || y.lengthSquared() <= 0.00000001F
+                || normal.lengthSquared() <= 0.00000001F) {
+            return List.of();
+        }
+        normal.normalize();
+
+        Matrix4f triangle = new Matrix4f(
+                x.x, x.y, x.z, 0.0F,
+                y.x, y.y, y.z, 0.0F,
+                normal.x, normal.y, normal.z, 0.0F,
+                p1.x, p1.y, p1.z, 1.0F
+        );
+        Matrix4f parent = new Matrix4f(parentTransform).mul(triangle);
+
+        List<Transformation> result = new ArrayList<>(3);
+        for (Matrix4f piece : TEXT_DISPLAY_UNIT_TRIANGLE) {
+            result.add(fromMatrix(new Matrix4f(parent).mul(piece)));
+        }
+        return result;
     }
 
     @Nullable

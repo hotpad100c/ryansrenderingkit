@@ -31,13 +31,6 @@ public class SphereShape extends Shape implements CircleLikeShape, DrawableTrian
         generateSphereShape(true);
     }
 
-    @Deprecated
-    public SphereShape(Object ignored,
-                       Consumer<FaceCircleShape.FaceCircleTransformer> transform,
-                       Vec3 center, int segments, float radius, Color color, boolean seeThrough) {
-        this(transform, center, segments, radius, color, seeThrough);
-    }
-
     @Override
     protected void generateRawGeometry(boolean lerp) {
         generateSphereShape(lerp);
@@ -122,27 +115,95 @@ public class SphereShape extends Shape implements CircleLikeShape, DrawableTrian
         return edges;
     }
 
+    private List<Transformation> getSpherePanels(boolean lerp, Vec3 centerOffset) {
+        float radius = getRadius(lerp);
+        Quaternionf rotation = transformer.getWorldRotation();
+        float goldenRatio = (1.0F + (float) Math.sqrt(5.0D)) * 0.5F;
+        Vector3f[] vertices = {
+                spherePoint(-1, goldenRatio, 0, radius), spherePoint(1, goldenRatio, 0, radius),
+                spherePoint(-1, -goldenRatio, 0, radius), spherePoint(1, -goldenRatio, 0, radius),
+                spherePoint(0, -1, goldenRatio, radius), spherePoint(0, 1, goldenRatio, radius),
+                spherePoint(0, -1, -goldenRatio, radius), spherePoint(0, 1, -goldenRatio, radius),
+                spherePoint(goldenRatio, 0, -1, radius), spherePoint(goldenRatio, 0, 1, radius),
+                spherePoint(-goldenRatio, 0, -1, radius), spherePoint(-goldenRatio, 0, 1, radius)
+        };
+        int[][] faceIndices = {
+                {0, 11, 5}, {0, 5, 1}, {0, 1, 7}, {0, 7, 10}, {0, 10, 11},
+                {1, 5, 9}, {5, 11, 4}, {11, 10, 2}, {10, 7, 6}, {7, 1, 8},
+                {3, 9, 4}, {3, 4, 2}, {3, 2, 6}, {3, 6, 8}, {3, 8, 9},
+                {4, 9, 5}, {2, 4, 11}, {6, 2, 10}, {8, 6, 7}, {9, 8, 1}
+        };
+        List<Vector3f[]> triangles = new ArrayList<>(20);
+        for (int[] face : faceIndices) {
+            triangles.add(new Vector3f[]{vertices[face[0]], vertices[face[1]], vertices[face[2]]});
+        }
+
+        // ponytail: cap at one subdivision (80 faces / 240 displays); raise only after profiling.
+        if (getSegments(lerp) >= 10) {
+            List<Vector3f[]> subdivided = new ArrayList<>(80);
+            for (Vector3f[] triangle : triangles) {
+                Vector3f ab = spherePoint(new Vector3f(triangle[0]).add(triangle[1]), radius);
+                Vector3f bc = spherePoint(new Vector3f(triangle[1]).add(triangle[2]), radius);
+                Vector3f ca = spherePoint(new Vector3f(triangle[2]).add(triangle[0]), radius);
+                subdivided.add(new Vector3f[]{triangle[0], ab, ca});
+                subdivided.add(new Vector3f[]{triangle[1], bc, ab});
+                subdivided.add(new Vector3f[]{triangle[2], ca, bc});
+                subdivided.add(new Vector3f[]{ab, bc, ca});
+            }
+            triangles = subdivided;
+        }
+
+        List<Transformation> panels = new ArrayList<>();
+        for (Vector3f[] triangle : triangles) {
+            panels.addAll(DisplayTransformHelper.localTextTriangle(
+                    triangle[0], triangle[1], triangle[2], rotation, centerOffset));
+        }
+        return panels;
+    }
+
+    private Vector3f spherePoint(float x, float y, float z, float radius) {
+        return spherePoint(new Vector3f(x, y, z), radius);
+    }
+
+    private Vector3f spherePoint(Vector3f point, float radius) {
+        return point.normalize().mul(radius);
+    }
+
     @Override
     public void initDisplays(ServerLevel level) {
-        List<Vector3f[]> edges = getSphereRingEdges(false);
         Vec3 center = transformer.getWorldPivot();
-        Quaternionf rot = transformer.getWorldRotation();
-        float width = 0.05f;
 
-        for (Vector3f[] edge : edges) {
-            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, null);
-            VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
-                    .bright()
-                    .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(t);
-            this.displays.add(display);
+        if (renderFace) {
+            for (Transformation panel : getSpherePanels(false, null)) {
+                this.displays.add(VirtualDisplay.solidTextPanel(
+                                level, center.x, center.y, center.z, this.baseColor.getRGB())
+                        .bright()
+                        .seeThrough(this.seeThrough, this.baseColor.getRGB())
+                        .transform(panel));
+            }
+        }
+        if (renderWireframe) {
+            Quaternionf rotation = transformer.getWorldRotation();
+            for (Vector3f[] edge : getSphereRingEdges(false)) {
+                this.displays.add(VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
+                        .bright()
+                        .seeThrough(this.seeThrough, this.baseColor.getRGB())
+                        .transform(DisplayTransformHelper.localSegment(
+                                edge[0], edge[1], wireframeWidth, rotation, null)));
+            }
         }
     }
 
     @Override
     public void updateDisplays() {
-        List<Vector3f[]> edges = getSphereRingEdges(true);
-        if (this.displays.size() != edges.size()) {
+        Vec3 center = transformer.getWorldPivot();
+        Vec3 centerOffset = this.displays.isEmpty()
+                ? null
+                : center.subtract(new Vec3(this.displays.getFirst().getEntity().getX(),
+                        this.displays.getFirst().getEntity().getY(), this.displays.getFirst().getEntity().getZ()));
+        List<Transformation> panels = renderFace ? getSpherePanels(true, centerOffset) : List.of();
+        List<Vector3f[]> edges = renderWireframe ? getSphereRingEdges(true) : List.of();
+        if (this.displays.size() != panels.size() + edges.size()) {
             ServerLevel lvl = this.displays.isEmpty() ? this.level : this.displays.getFirst().getLevel();
             removeDisplays();
             if (lvl != null) {
@@ -150,22 +211,20 @@ public class SphereShape extends Shape implements CircleLikeShape, DrawableTrian
             }
             return;
         }
-
-        Vec3 center = transformer.getWorldPivot();
-        Quaternionf rot = transformer.getWorldRotation();
-        float width = 0.05f;
-
-        VirtualDisplay first = this.displays.getFirst();
-        Vec3 spawnPos = new Vec3(first.getEntity().getX(), first.getEntity().getY(), first.getEntity().getZ());
-        Vec3 centerOffset = center.subtract(spawnPos);
-
-        for (int i = 0; i < edges.size(); i++) {
-            Vector3f[] edge = edges.get(i);
-            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, centerOffset);
-            VirtualDisplay display = this.displays.get(i);
-            display.blockState(getBlockState())
+        int displayIndex = 0;
+        for (Transformation panel : panels) {
+            this.displays.get(displayIndex++)
+                    .backgroundColor(this.baseColor.getRGB())
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(t);
+                    .transform(panel);
+        }
+        Quaternionf rotation = transformer.getWorldRotation();
+        for (Vector3f[] edge : edges) {
+            this.displays.get(displayIndex++)
+                    .blockState(getBlockState())
+                    .seeThrough(this.seeThrough, this.baseColor.getRGB())
+                    .transform(DisplayTransformHelper.localSegment(
+                            edge[0], edge[1], wireframeWidth, rotation, centerOffset));
         }
     }
 

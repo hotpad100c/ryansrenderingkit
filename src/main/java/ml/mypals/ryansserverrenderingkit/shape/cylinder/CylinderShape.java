@@ -40,17 +40,6 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
         syncLastToTarget();
     }
 
-    public CylinderShape(boolean seeThrough) {
-        super(Color.WHITE, seeThrough);
-    }
-
-    @Deprecated
-    public CylinderShape(Object ignored, Consumer<CylinderTransformer> transform,
-                         CircleAxis circleAxis, Vec3 center, int segments,
-                         float radius, float height, Color color, boolean seeThrough) {
-        this(transform, circleAxis, center, segments, radius, height, color, seeThrough);
-    }
-
     void generateCylinderVertices(boolean lerp) {
         modelVertexes.clear();
 
@@ -90,7 +79,7 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
     protected void generateRawGeometry(boolean lerp) {
         generateCylinderVertices(lerp);
 
-        int segments = getSegments(lerp);
+        int segments = Math.max(4, getSegments(lerp));
         List<Integer> indices = new ArrayList<>();
 
         for (int i = 0; i < segments; i++) {
@@ -148,27 +137,106 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
         return edges;
     }
 
+    protected List<Vector3f[]> getLocalWireframeEdges(boolean lerp) {
+        return getLocalCylinderEdges(lerp);
+    }
+
+    protected Vector3f localPoint(float axial, float u, float v) {
+        return switch (axis) {
+            case X -> new Vector3f(axial, u, v);
+            case Y -> new Vector3f(u, axial, v);
+            case Z -> new Vector3f(u, v, axial);
+        };
+    }
+
+    protected static Vector3f vector(Vec3 value) {
+        return new Vector3f((float) value.x, (float) value.y, (float) value.z);
+    }
+
+    protected void addDiscTriangles(List<Transformation> panels, float axial, float radius, int segments,
+                                    boolean reverse, Quaternionf rotation, Vec3 centerOffset) {
+        Vector3f center = localPoint(axial, 0.0F, 0.0F);
+        for (int i = 0; i < segments; i++) {
+            double angleA = 2.0D * Math.PI * i / segments;
+            double angleB = 2.0D * Math.PI * (i + 1) / segments;
+            Vector3f a = localPoint(axial, radius * (float) Math.cos(angleA), radius * (float) Math.sin(angleA));
+            Vector3f b = localPoint(axial, radius * (float) Math.cos(angleB), radius * (float) Math.sin(angleB));
+            panels.addAll(reverse
+                    ? DisplayTransformHelper.localTextTriangle(center, b, a, rotation, centerOffset)
+                    : DisplayTransformHelper.localTextTriangle(center, a, b, rotation, centerOffset));
+        }
+    }
+
+    protected List<Transformation> getLocalCylinderPanels(boolean lerp, Vec3 centerOffset) {
+        generateCylinderVertices(lerp);
+        int segments = Math.max(4, getSegments(lerp));
+        List<Transformation> panels = new ArrayList<>();
+        Quaternionf rotation = transformer.getWorldRotation();
+
+        for (int i = 0; i < segments; i++) {
+            int next = (i + 1) % segments;
+            Vec3 b = modelVertexes.get(i);
+            Vec3 bn = modelVertexes.get(next);
+            Vec3 t = modelVertexes.get(segments + i);
+            Vector3f bottom = new Vector3f((float) b.x, (float) b.y, (float) b.z);
+            Vector3f bottomNext = new Vector3f((float) bn.x, (float) bn.y, (float) bn.z);
+            Vector3f top = new Vector3f((float) t.x, (float) t.y, (float) t.z);
+            Transformation panel = DisplayTransformHelper.localTextPanel(
+                    bottom,
+                    top.sub(bottom, new Vector3f()),
+                    bottomNext.sub(bottom, new Vector3f()),
+                    rotation,
+                    centerOffset
+            );
+            if (panel != null) panels.add(panel);
+        }
+
+        float halfHeight = getHeight(lerp) * 0.5F;
+        float radius = getRadius(lerp);
+        addDiscTriangles(panels, -halfHeight, radius, segments, false, rotation, centerOffset);
+        addDiscTriangles(panels, halfHeight, radius, segments, true, rotation, centerOffset);
+        return panels;
+    }
+
+    protected List<Transformation> getLocalFacePanels(boolean lerp, Vec3 centerOffset) {
+        return getLocalCylinderPanels(lerp, centerOffset);
+    }
+
     @Override
     public void initDisplays(ServerLevel level) {
-        List<Vector3f[]> edges = getLocalCylinderEdges(false);
         Vec3 center = transformer.getWorldPivot();
-        Quaternionf rot = transformer.getWorldRotation();
-        float width = 0.05f;
 
-        for (Vector3f[] edge : edges) {
-            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, null);
-            VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
-                    .bright()
-                    .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(t);
-            this.displays.add(display);
+        if (renderFace) {
+            for (Transformation panel : getLocalFacePanels(false, null)) {
+                this.displays.add(VirtualDisplay.solidTextPanel(
+                                level, center.x, center.y, center.z, this.baseColor.getRGB())
+                        .bright()
+                        .seeThrough(this.seeThrough, this.baseColor.getRGB())
+                        .transform(panel));
+            }
+        }
+        if (renderWireframe) {
+            Quaternionf rotation = transformer.getWorldRotation();
+            for (Vector3f[] edge : getLocalWireframeEdges(false)) {
+                this.displays.add(VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
+                        .bright()
+                        .seeThrough(this.seeThrough, this.baseColor.getRGB())
+                        .transform(DisplayTransformHelper.localSegment(
+                                edge[0], edge[1], wireframeWidth, rotation, null)));
+            }
         }
     }
 
     @Override
     public void updateDisplays() {
-        List<Vector3f[]> edges = getLocalCylinderEdges(true);
-        if (this.displays.size() != edges.size()) {
+        Vec3 center = transformer.getWorldPivot();
+        Vec3 centerOffset = this.displays.isEmpty()
+                ? null
+                : center.subtract(new Vec3(this.displays.getFirst().getEntity().getX(),
+                        this.displays.getFirst().getEntity().getY(), this.displays.getFirst().getEntity().getZ()));
+        List<Transformation> panels = renderFace ? getLocalFacePanels(true, centerOffset) : List.of();
+        List<Vector3f[]> edges = renderWireframe ? getLocalWireframeEdges(true) : List.of();
+        if (this.displays.size() != panels.size() + edges.size()) {
             ServerLevel lvl = this.displays.isEmpty() ? this.level : this.displays.getFirst().getLevel();
             removeDisplays();
             if (lvl != null) {
@@ -176,22 +244,20 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
             }
             return;
         }
-
-        Vec3 center = transformer.getWorldPivot();
-        Quaternionf rot = transformer.getWorldRotation();
-        float width = 0.05f;
-
-        VirtualDisplay first = this.displays.getFirst();
-        Vec3 spawnPos = new Vec3(first.getEntity().getX(), first.getEntity().getY(), first.getEntity().getZ());
-        Vec3 centerOffset = center.subtract(spawnPos);
-
-        for (int i = 0; i < edges.size(); i++) {
-            Vector3f[] edge = edges.get(i);
-            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, centerOffset);
-            VirtualDisplay display = this.displays.get(i);
-            display.blockState(getBlockState())
+        int displayIndex = 0;
+        for (Transformation panel : panels) {
+            this.displays.get(displayIndex++)
+                    .backgroundColor(this.baseColor.getRGB())
                     .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(t);
+                    .transform(panel);
+        }
+        Quaternionf rotation = transformer.getWorldRotation();
+        for (Vector3f[] edge : edges) {
+            this.displays.get(displayIndex++)
+                    .blockState(getBlockState())
+                    .seeThrough(this.seeThrough, this.baseColor.getRGB())
+                    .transform(DisplayTransformHelper.localSegment(
+                            edge[0], edge[1], wireframeWidth, rotation, centerOffset));
         }
     }
 

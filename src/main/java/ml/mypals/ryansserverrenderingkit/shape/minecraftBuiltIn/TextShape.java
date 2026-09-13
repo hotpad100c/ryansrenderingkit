@@ -58,14 +58,6 @@ public class TextShape extends Shape {
         this(transform, center, texts, textColors, new Color(0, 0, 0, 0), mode, seeThrough, shadow, outline);
     }
 
-    @Deprecated
-    public TextShape(Object ignored,
-                     Consumer<DefaultTransformer> transform,
-                     Vec3 center, List<String> texts, List<Color> textColors,
-                     BillBoardMode mode, boolean seeThrough, boolean shadow, boolean outline) {
-        this(transform, center, texts, textColors, mode, seeThrough, shadow, outline);
-    }
-
     @Override
     protected void generateRawGeometry(boolean lerp) {
         modelVertexes.clear();

@@ -37,24 +37,12 @@ public final class ShapeGenerator {
         return new ObjModelBuilder();
     }
 
-    public static ObjModelOutlineBuilder generateObjModelOutline() {
-        return new ObjModelOutlineBuilder();
-    }
-
     public static ConeBuilder generateCone() {
         return new ConeBuilder();
     }
 
     public static CylinderBuilder generateCylinder() {
         return new CylinderBuilder();
-    }
-
-    public static ConeWireframeBuilder generateConeWireframe() {
-        return new ConeWireframeBuilder();
-    }
-
-    public static CylinderWireframeBuilder generateCylinderWireframe() {
-        return new CylinderWireframeBuilder();
     }
 
     public static LineBuilder generateLine() {
@@ -65,15 +53,7 @@ public final class ShapeGenerator {
         return new StripLineBuilder();
     }
 
-    public static BoxFaceBuilder generateBoxFace() {
-        return new BoxFaceBuilder();
-    }
-
-    public static BoxWireframeBuilder generateBoxWireframe() {
-        return new BoxWireframeBuilder();
-    }
-
-    public static WireframedBoxBuilder generateWireframedBox() {
-        return new WireframedBoxBuilder();
+    public static BoxShapeBuilder generateBox() {
+        return new BoxShapeBuilder();
     }
 }

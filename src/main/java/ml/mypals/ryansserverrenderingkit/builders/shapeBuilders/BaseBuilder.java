@@ -15,6 +15,9 @@ public abstract class BaseBuilder<T extends BaseBuilder<T, R>, R> implements Sha
     protected Vec3 center = Vec3.ZERO;
     protected Color color = Color.WHITE;
     protected boolean seeThrough = false;
+    protected boolean renderFace = true;
+    protected boolean renderWireframe = false;
+    protected float wireframeWidth = 0.05F;
 
     protected ServerLevel level;
     protected boolean allDim = false;
@@ -48,6 +51,23 @@ public abstract class BaseBuilder<T extends BaseBuilder<T, R>, R> implements Sha
     @Override
     public T seeThrough(boolean seeThrough) {
         this.seeThrough = seeThrough;
+        return self();
+    }
+
+    @Override
+    public T renderFace(boolean renderFace) {
+        this.renderFace = renderFace;
+        return self();
+    }
+
+    @Override
+    public T renderWireframe(boolean renderWireframe) {
+        this.renderWireframe = renderWireframe;
+        return self();
+    }
+
+    public T wireframeWidth(float width) {
+        this.wireframeWidth = width;
         return self();
     }
 
@@ -93,6 +113,9 @@ public abstract class BaseBuilder<T extends BaseBuilder<T, R>, R> implements Sha
         if (this.level != null) shape.level(this.level);
         shape.allDim(this.allDim);
         shape.visibleTo(this.viewerFilter);
+        shape.renderFace(this.renderFace);
+        shape.renderWireframe(this.renderWireframe);
+        shape.wireframeWidth(this.wireframeWidth);
         if (this.blockState != null) shape.block(this.blockState);
         return shape;
     }

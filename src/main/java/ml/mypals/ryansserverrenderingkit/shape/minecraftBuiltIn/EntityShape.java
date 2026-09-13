@@ -28,13 +28,6 @@ public class EntityShape extends Shape {
         syncLastToTarget();
     }
 
-    @Deprecated
-    public EntityShape(Object ignored,
-                       Consumer<DefaultTransformer> transform,
-                       Vec3 center, Entity entity, int light) {
-        this(transform, center, entity, light);
-    }
-
     @Override
     protected void generateRawGeometry(boolean lerp) {
         modelVertexes.clear();

@@ -1,7 +1,6 @@
 package ml.mypals.ryansserverrenderingkit.shapeManagers;
 
 import ml.mypals.ryansserverrenderingkit.shape.Shape;
-import ml.mypals.ryansserverrenderingkit.shape.basics.tags.ExtractableShape;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.resources.Identifier;
@@ -18,23 +17,7 @@ import static ml.mypals.ryansserverrenderingkit.utils.Helpers.generateUniqueId;
 public class ShapeManagers {
     public static final String TEMP_HEADER = "temp_shape";
 
-    /**
-     * Unified ShapeManager for all shapes in the server-side DisplayEntity rendering system.
-     * In server-side rendering, OpenGL pipelines (lines, line_strip, triangles, etc.) do not exist,
-     * so all shapes are handled cleanly by this single manager.
-     */
     public static final ShapeManager INSTANCE = new ShapeManager("shapes");
-
-    // Backwards-compatibility aliases all pointing to the single unified manager
-    public static final ShapeManager DEFAULT_SHAPE_MANAGER = INSTANCE;
-    @Deprecated
-    public static final ShapeManager LINES_SHAPE_MANAGER = INSTANCE;
-    @Deprecated
-    public static final ShapeManager LINE_STRIP_SHAPE_MANAGER = INSTANCE;
-    @Deprecated
-    public static final ShapeManager TRIANGLES_SHAPE_MANAGER = INSTANCE;
-    @Deprecated
-    public static final ShapeManager NON_SHAPE_OBJECTS = INSTANCE;
 
     public static final List<ShapeManager> managers = new CopyOnWriteArrayList<>(Collections.singletonList(INSTANCE));
 
@@ -74,10 +57,6 @@ public class ShapeManagers {
 
     public static void addShape(Identifier identifier, Shape shape) {
         shape.setId(identifier);
-        if (shape instanceof ExtractableShape exts) {
-            exts.addGroup(identifier);
-            return;
-        }
         INSTANCE.addShape(identifier, shape);
     }
 

@@ -28,13 +28,6 @@ public class BlockShape extends Shape {
         syncLastToTarget();
     }
 
-    @Deprecated
-    public BlockShape(Object ignored,
-                      Consumer<DefaultTransformer> transform,
-                      Vec3 center, BlockState block, int light) {
-        this(transform, center, block, light);
-    }
-
     @Override
     protected void generateRawGeometry(boolean lerp) {
         modelVertexes.clear();

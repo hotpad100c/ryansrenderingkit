@@ -30,13 +30,6 @@ public class ItemShape extends Shape {
         syncLastToTarget();
     }
 
-    @Deprecated
-    public ItemShape(Object ignored,
-                     Consumer<DefaultTransformer> transform,
-                     Vec3 center, ItemStack item, ItemDisplayContext itemDisplayContext, int light) {
-        this(transform, center, item, itemDisplayContext, light);
-    }
-
     @Override
     protected void generateRawGeometry(boolean lerp) {
         modelVertexes.clear();

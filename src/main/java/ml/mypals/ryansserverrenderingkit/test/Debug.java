@@ -81,6 +81,7 @@ public class Debug {
                                     builder.suggest("sphere");
                                     builder.suggest("cylinder");
                                     builder.suggest("cone");
+                                    builder.suggest("obj");
                                     builder.suggest("text");
                                     builder.suggest("block");
                                     builder.suggest("item");
@@ -122,13 +123,13 @@ public class Debug {
         switch (type.toLowerCase()) {
             case "box" -> spawnBox(level, basePos);
             case "wire_box" -> spawnWireBox(level, basePos);
-            case "wireframed_box" -> spawnWireframedBox(level, basePos);
             case "line" -> spawnLine(level, basePos);
             case "strip_line" -> spawnStripLine(level, basePos);
             case "circle" -> spawnCircle(level, basePos);
             case "sphere" -> spawnSphere(level, basePos);
             case "cylinder" -> spawnCylinder(level, basePos);
             case "cone" -> spawnCone(level, basePos);
+            case "obj" -> spawnObj(level, basePos);
             case "text" -> spawnText(level, basePos);
             case "block" -> spawnBlock(level, basePos);
             case "item" -> spawnItem(level, basePos);
@@ -140,15 +141,15 @@ public class Debug {
     private static void spawnBox(ServerLevel level, Vec3 pos) {
         ShapeManagers.addShape(
                 Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_box"),
-                ShapeGenerator.generateBoxFace()
+                ShapeGenerator.generateBox()
                         .level(level)
                         .pos(pos)
                         .size(new Vec3(2, 2, 2))
                         .color(new Color(64, 128, 255, 180))
                         .construction(BoxShape.BoxConstructionType.CENTER_AND_DIMENSIONS)
                         .transform(t -> {
-                            long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
-                            t.setShapeWorldRotationDegrees(time * 2, time * 3, time * 1.5f);
+                            /*long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
+                            t.setShapeWorldRotationDegrees(time * 2, time * 3, time * 1.5f);*/
                         })
                         .build()
         );
@@ -157,11 +158,13 @@ public class Debug {
     private static void spawnWireBox(ServerLevel level, Vec3 pos) {
         ShapeManagers.addShape(
                 Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_wire_box"),
-                ShapeGenerator.generateBoxWireframe()
+                ShapeGenerator.generateBox()
                         .level(level)
                         .aabb(pos.add(-1.5, -1.5, -1.5), pos.add(1.5, 1.5, 1.5))
                         .color(Color.WHITE)
-                        .edgeWidth(0.05f)
+                        .renderFace(false)
+                        .renderWireframe(true)
+                        .wireframeWidth(0.05f)
                         .construction(BoxShape.BoxConstructionType.CORNERS)
                         .transform(t -> {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
@@ -171,19 +174,20 @@ public class Debug {
         );
     }
 
-    private static void spawnWireframedBox(ServerLevel level, Vec3 pos) {
+    private static void spawnObj(ServerLevel level, Vec3 pos) {
         ShapeManagers.addShape(
-                Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_wireframed_box"),
-                ShapeGenerator.generateWireframedBox()
+                Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_obj"),
+                ShapeGenerator.generateObjModel()
                         .level(level)
-                        .aabb(pos.add(-1.5, -1.5, -1.5), pos.add(1.5, 1.5, 1.5))
-                        .color(new Color(255, 128, 0, 140))
-                        .edgeColor(Color.WHITE)
-                        .edgeWidth(0.05f)
-                        .construction(BoxShape.BoxConstructionType.CORNERS)
+                        .pos(pos)
+                        .model(Identifier.fromNamespaceAndPath(MOD_ID, "models/monkey.obj"))
+                        .color(new Color(100, 180, 255, 190))
+                        .renderFace(true)
+                        .renderWireframe(true)
+                        .wireframeWidth(0.025F)
                         .transform(t -> {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
-                            t.setShapeWorldRotationDegrees(time * 1.5f, time * 2.5f, 0);
+                            t.setShapeWorldRotationDegrees(0, time * 2, 0);
                         })
                         .build()
         );
@@ -248,9 +252,10 @@ public class Debug {
                         .level(level)
                         .pos(pos)
                         .radius(1.8f)
-                        .segments(16)
-                        .color(new Color(255, 60, 60, 180))
-                        .seeThrough(true)
+                        .segments(12)
+                        .color(new Color(255, 60, 60))
+                        .seeThrough(false)
+                        .renderWireframe(true)
                         .transform(t -> {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
                             t.setShapeWorldRotationDegrees(time * 2, time * 3, 0);
@@ -262,14 +267,14 @@ public class Debug {
     private static void spawnCylinder(ServerLevel level, Vec3 pos) {
         ShapeManagers.addShape(
                 Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_cylinder"),
-                ShapeGenerator.generateCylinderWireframe()
+                ShapeGenerator.generateCylinder()
                         .level(level)
                         .pos(pos)
                         .radius(1.5f)
                         .height(3.0f)
-                        .segments(24)
+                        .segments(12)
                         .color(Color.YELLOW)
-                        .width(0.05f)
+                        .renderWireframe(true)
                         .axis(CircleLikeShape.CircleAxis.Y)
                         .transform(t -> {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
@@ -282,14 +287,14 @@ public class Debug {
     private static void spawnCone(ServerLevel level, Vec3 pos) {
         ShapeManagers.addShape(
                 Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_cone"),
-                ShapeGenerator.generateConeWireframe()
+                ShapeGenerator.generateCone()
                         .level(level)
                         .pos(pos)
                         .radius(1.5f)
                         .height(3.0f)
-                        .segments(24)
+                        .segments(12)
                         .color(Color.ORANGE)
-                        .width(0.05f)
+                        .renderWireframe(true)
                         .axis(CircleLikeShape.CircleAxis.Y)
                         .transform(t -> {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
@@ -357,7 +362,6 @@ public class Debug {
         int i = 0;
         spawnBox(level, pos.add((i++) * spacing, 0, 0));
         spawnWireBox(level, pos.add((i++) * spacing, 0, 0));
-        spawnWireframedBox(level, pos.add((i++) * spacing, 0, 0));
         spawnLine(level, pos.add((i++) * spacing, 0, 0));
         spawnStripLine(level, pos.add((i++) * spacing, 0, 0));
         spawnCircle(level, pos.add((i++) * spacing, 0, 0));

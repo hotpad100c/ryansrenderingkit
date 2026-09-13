@@ -19,11 +19,6 @@ public class ConeShape extends CylinderShape {
         super(transform, circleAxis, center, segments, radius, height, color, seeThrough);
     }
 
-    @Deprecated
-    public ConeShape(Object ignored, Consumer<CylinderTransformer> transform, CircleAxis circleAxis, Vec3 center, int segments, float radius, float height, Color color, boolean seeThrough) {
-        this(transform, circleAxis, center, segments, radius, height, color, seeThrough);
-    }
-
     private List<Vec3> generateConeVertices(double halfH, int segments, float radius, CircleAxis axis) {
         List<Vec3> vertices = new ArrayList<>();
 
@@ -63,7 +58,7 @@ public class ConeShape extends CylinderShape {
         List<Integer> indices = new ArrayList<>();
 
         float height = ((CylinderTransformer) this.transformer).getHeight(lerp);
-        int segments = ((CylinderTransformer) this.transformer).getSegments(lerp);
+        int segments = Math.max(4, ((CylinderTransformer) this.transformer).getSegments(lerp));
         float radius = ((CylinderTransformer) this.transformer).getRadius(lerp);
         double halfH = height / 2.0;
 
@@ -115,49 +110,27 @@ public class ConeShape extends CylinderShape {
     }
 
     @Override
-    public void initDisplays(ServerLevel level) {
-        List<Vector3f[]> edges = getLocalConeEdges(false);
-        Vec3 center = transformer.getWorldPivot();
-        Quaternionf rot = transformer.getWorldRotation();
-        float width = 0.05f;
-
-        for (Vector3f[] edge : edges) {
-            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, null);
-            VirtualDisplay display = VirtualDisplay.block(level, center.x, center.y, center.z, getBlockState())
-                    .bright()
-                    .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(t);
-            this.displays.add(display);
-        }
+    protected List<Vector3f[]> getLocalWireframeEdges(boolean lerp) {
+        return getLocalConeEdges(lerp);
     }
 
     @Override
-    public void updateDisplays() {
-        List<Vector3f[]> edges = getLocalConeEdges(true);
-        if (this.displays.size() != edges.size()) {
-            ServerLevel lvl = this.displays.isEmpty() ? this.level : this.displays.getFirst().getLevel();
-            removeDisplays();
-            if (lvl != null) {
-                initDisplays(lvl);
-            }
-            return;
+    protected List<Transformation> getLocalFacePanels(boolean lerp, Vec3 centerOffset) {
+        generateRawGeometry(lerp);
+        int segments = Math.max(4, getSegments(lerp));
+        Vec3 apex = modelVertexes.get(segments);
+        Quaternionf rotation = transformer.getWorldRotation();
+        List<Transformation> panels = new ArrayList<>();
+
+        for (int i = 0; i < segments; i++) {
+            panels.addAll(DisplayTransformHelper.localTextTriangle(
+                    vector(modelVertexes.get(i)), vector(apex),
+                    vector(modelVertexes.get((i + 1) % segments)), rotation, centerOffset));
         }
 
-        Vec3 center = transformer.getWorldPivot();
-        Quaternionf rot = transformer.getWorldRotation();
-        float width = 0.05f;
-
-        VirtualDisplay first = this.displays.getFirst();
-        Vec3 spawnPos = new Vec3(first.getEntity().getX(), first.getEntity().getY(), first.getEntity().getZ());
-        Vec3 centerOffset = center.subtract(spawnPos);
-
-        for (int i = 0; i < edges.size(); i++) {
-            Vector3f[] edge = edges.get(i);
-            Transformation t = DisplayTransformHelper.localSegment(edge[0], edge[1], width, rot, centerOffset);
-            VirtualDisplay display = this.displays.get(i);
-            display.blockState(getBlockState())
-                    .seeThrough(this.seeThrough, this.baseColor.getRGB())
-                    .transform(t);
-        }
+        addDiscTriangles(panels, -getHeight(lerp) * 0.5F, getRadius(lerp),
+                segments, false, rotation, centerOffset);
+        return panels;
     }
+
 }
