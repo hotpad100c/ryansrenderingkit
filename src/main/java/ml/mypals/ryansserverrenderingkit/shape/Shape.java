@@ -1,13 +1,17 @@
 package ml.mypals.ryansserverrenderingkit.shape;
 
+import ml.mypals.ryansserverrenderingkit.collision.RayModelIntersection;
 import ml.mypals.ryansserverrenderingkit.display.DisplayTransformHelper;
 import ml.mypals.ryansserverrenderingkit.display.VirtualDisplay;
+import ml.mypals.ryansserverrenderingkit.shape.line.LineShape;
 import ml.mypals.ryansserverrenderingkit.shapeManagers.ShapeManagers;
 import ml.mypals.ryansserverrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -319,6 +323,36 @@ public abstract class Shape {
     public void setId(Identifier id) {
         this.id = id;
         this.isTemp = this.id.getPath().startsWith(TEMP_HEADER);
+    }
+    public RayModelIntersection.HitResult isAnyPlayerLookingAt(double range) {
+        if (level == null) {
+            return new RayModelIntersection.HitResult(false, null, -1);
+        }
+
+        List<ServerPlayer> players = allDim
+                ? level.getServer().getPlayerList().getPlayers()
+                : level.players();
+
+        for (ServerPlayer player : players) {
+            if (!isVisibleTo(player)) continue;
+
+            RayModelIntersection.HitResult result = isPlayerLookingAt(player);
+            if (result.hit && (range < 0 || result.distance <= range)) {
+                return result;
+            }
+        }
+
+        return new RayModelIntersection.HitResult(false, null, -1);
+    }
+    public RayModelIntersection.HitResult isPlayerLookingAt(ServerPlayer p) {
+        if (p == null || this instanceof LineShape) return new RayModelIntersection.HitResult(false, null, -1);
+        RayModelIntersection.Ray r = new RayModelIntersection.Ray(p.getCamera().position(), p.getForward());
+
+        return RayModelIntersection.rayIntersectsModel(
+                r,
+                this.getModel(false),
+                this.indexBuffer
+        );
     }
 
     public void discard() {

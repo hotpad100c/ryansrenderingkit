@@ -3,6 +3,7 @@ package ml.mypals.ryansserverrenderingkit.test;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import ml.mypals.ryansserverrenderingkit.builders.shapeBuilders.ShapeGenerator;
+import ml.mypals.ryansserverrenderingkit.collision.RayModelIntersection;
 import ml.mypals.ryansserverrenderingkit.shape.basics.CircleLikeShape;
 import ml.mypals.ryansserverrenderingkit.shape.box.BoxShape;
 import ml.mypals.ryansserverrenderingkit.shape.minecraftBuiltIn.BlockShape;
@@ -150,6 +151,12 @@ public class Debug {
                         .transform(t -> {
                             /*long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
                             t.setShapeWorldRotationDegrees(time * 2, time * 3, time * 1.5f);*/
+                            RayModelIntersection.HitResult hitResult = t.shape.isAnyPlayerLookingAt(5);
+                            if(hitResult.hit){
+                                t.shape.setBaseColor(new Color(64, 64, 64, 180));
+                            }else {
+                                new Color(64, 128, 255, 180);
+                            }
                         })
                         .build()
         );
