@@ -46,11 +46,12 @@ public class Debug {
     }
 
     public static void sendMessage(CommandSourceStack source, String msg) {
-        //? if >=1.20 {
+        // ? if >=1.20 {
         source.sendSuccess(() -> Component.literal(msg), false);
-        //? } else {
-         /*source.sendSuccess(Component.literal(msg), false);
-         *///? }
+        // ? } else {
+        /*
+         * source.sendSuccess(Component.literal(msg), false);
+         */// ? }
     }
 
     public static void registerDebugCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
