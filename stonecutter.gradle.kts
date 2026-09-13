@@ -7,6 +7,16 @@ plugins {
 
 stonecutter active "26.2"
 
+stonecutter tasks {
+    order("publishToMavenCentral")
+}
+
+tasks.register("mavenUpload") {
+    group = "publishing"
+    description = "Uploads every supported Minecraft version to Maven Central for validation."
+    dependsOn(stonecutter.tasks.named("publishToMavenCentral"))
+}
+
 /*
 // Make newer versions be published last
 stonecutter tasks {
