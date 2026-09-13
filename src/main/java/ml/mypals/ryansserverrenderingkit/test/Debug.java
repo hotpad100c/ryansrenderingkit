@@ -10,11 +10,15 @@ import ml.mypals.ryansserverrenderingkit.shape.minecraftBuiltIn.BlockShape;
 import ml.mypals.ryansserverrenderingkit.shape.minecraftBuiltIn.ItemShape;
 import ml.mypals.ryansserverrenderingkit.shape.minecraftBuiltIn.TextShape;
 import ml.mypals.ryansserverrenderingkit.shapeManagers.ShapeManagers;
+import ml.mypals.ryansserverrenderingkit.transform.shapeTransformers.DefaultTransformer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import ml.mypals.ryansserverrenderingkit.shape.Shape;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -24,6 +28,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import static ml.mypals.ryansserverrenderingkit.RyansServerRenderingKit.MOD_ID;
 import static ml.mypals.ryansserverrenderingkit.RyansServerRenderingKit.RENDER_PROFILER;
@@ -37,16 +42,16 @@ public class Debug {
                 random.nextInt(256),
                 random.nextInt(256),
                 random.nextInt(256),
-                180
-        );
+                180);
     }
 
     public static void sendMessage(CommandSourceStack source, String msg) {
-        //? if >=1.20 {
+        // ? if >=1.20 {
         source.sendSuccess(() -> Component.literal(msg), false);
-        //?} else {
-        /*source.sendSuccess(Component.literal(msg), false);
-        *///?}
+        // ?} else {
+        /*
+         * source.sendSuccess(Component.literal(msg), false);
+         */// ?}
     }
 
     public static void registerDebugCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -54,7 +59,8 @@ public class Debug {
                 .then(Commands.literal("toggle")
                         .executes(ctx -> {
                             boolean val = toggleDebugMode(ctx.getSource());
-                            sendMessage(ctx.getSource(), "Ryan's Server Rendering Kit Debug Mode: " + (val ? "§aENABLED" : "§cDISABLED"));
+                            sendMessage(ctx.getSource(),
+                                    "Ryan's Server Rendering Kit Debug Mode: " + (val ? "§aENABLED" : "§cDISABLED"));
                             return 1;
                         }))
                 .then(Commands.literal("clear")
@@ -86,6 +92,7 @@ public class Debug {
                                     builder.suggest("text");
                                     builder.suggest("block");
                                     builder.suggest("item");
+                                    builder.suggest("drag_box");
                                     return builder.buildFuture();
                                 })
                                 .executes(ctx -> {
@@ -93,9 +100,7 @@ public class Debug {
                                     spawnDemoShapes(ctx.getSource(), type);
                                     sendMessage(ctx.getSource(), "Spawned debug shape: " + type);
                                     return 1;
-                                })
-                        )
-                );
+                                })));
 
         dispatcher.register(root);
         dispatcher.register(Commands.literal("ryansRenderingKit_DEBUG").redirect(dispatcher.getRoot().getChild("rrk")));
@@ -134,6 +139,7 @@ public class Debug {
             case "text" -> spawnText(level, basePos);
             case "block" -> spawnBlock(level, basePos);
             case "item" -> spawnItem(level, basePos);
+            case "drag_box", "drag" -> spawnDragBox(level, basePos);
             case "all" -> spawnAll(level, basePos);
             default -> sendMessage(source, "Unknown shape type: " + type);
         }
@@ -146,20 +152,22 @@ public class Debug {
                         .level(level)
                         .pos(pos)
                         .size(new Vec3(2, 2, 2))
-                        .color(new Color(64, 128, 255, 180))
+                        .color(new Color(64, 64, 64, 180))
                         .construction(BoxShape.BoxConstructionType.CENTER_AND_DIMENSIONS)
                         .transform(t -> {
-                            /*long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
-                            t.setShapeWorldRotationDegrees(time * 2, time * 3, time * 1.5f);*/
-                            RayModelIntersection.HitResult hitResult = t.shape.isAnyPlayerLookingAt(5);
-                            if(hitResult.hit){
-                                t.shape.setBaseColor(new Color(64, 64, 64, 180));
-                            }else {
+                            /*
+                             * long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() :
+                             * 0;
+                             * t.setShapeWorldRotationDegrees(time * 2, time * 3, time * 1.5f);
+                             */
+                            RayModelIntersection.HitResult hitResult = t.shape.isAnyPlayerLookingAt(20);
+                            if (hitResult.hit) {
                                 t.shape.setBaseColor(new Color(64, 128, 255, 180));
+                            } else {
+                                t.shape.setBaseColor(new Color(64, 64, 64, 180));
                             }
                         })
-                        .build()
-        );
+                        .build());
     }
 
     private static void spawnWireBox(ServerLevel level, Vec3 pos) {
@@ -177,8 +185,7 @@ public class Debug {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
                             t.setShapeWorldRotationDegrees(time * 1.5f, time * 2.5f, 0);
                         })
-                        .build()
-        );
+                        .build());
     }
 
     private static void spawnObj(ServerLevel level, Vec3 pos) {
@@ -196,8 +203,7 @@ public class Debug {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
                             t.setShapeWorldRotationDegrees(0, time * 2, 0);
                         })
-                        .build()
-        );
+                        .build());
     }
 
     private static void spawnLine(ServerLevel level, Vec3 pos) {
@@ -213,8 +219,7 @@ public class Debug {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
                             t.setEnd(pos.add(2, 2 + Math.sin(time * 0.1) * 1.5, 0));
                         })
-                        .build()
-        );
+                        .build());
     }
 
     private static void spawnStripLine(ServerLevel level, Vec3 pos) {
@@ -229,8 +234,7 @@ public class Debug {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
                             t.setShapeWorldRotationDegrees(0, time * 4, 0);
                         })
-                        .build()
-        );
+                        .build());
     }
 
     private static void spawnCircle(ServerLevel level, Vec3 pos) {
@@ -248,8 +252,7 @@ public class Debug {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
                             t.setShapeWorldRotationDegrees(time * 3, time * 2, 0);
                         })
-                        .build()
-        );
+                        .build());
     }
 
     private static void spawnSphere(ServerLevel level, Vec3 pos) {
@@ -267,8 +270,7 @@ public class Debug {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
                             t.setShapeWorldRotationDegrees(time * 2, time * 3, 0);
                         })
-                        .build()
-        );
+                        .build());
     }
 
     private static void spawnCylinder(ServerLevel level, Vec3 pos) {
@@ -287,8 +289,7 @@ public class Debug {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
                             t.setShapeWorldRotationDegrees(0, time * 3, 0);
                         })
-                        .build()
-        );
+                        .build());
     }
 
     private static void spawnCone(ServerLevel level, Vec3 pos) {
@@ -307,8 +308,7 @@ public class Debug {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
                             t.setShapeWorldRotationDegrees(0, time * 3, 0);
                         })
-                        .build()
-        );
+                        .build());
     }
 
     private static void spawnText(ServerLevel level, Vec3 pos) {
@@ -326,8 +326,7 @@ public class Debug {
                             long time = t.shape.getLevel() != null ? t.shape.getLevel().getGameTime() : 0;
                             t.setShapeMatrixPivot(new Vec3(0, Math.sin(time * 0.1) * 0.3, 0));
                         })
-                        .build()
-        );
+                        .build());
     }
 
     private static void spawnBlock(ServerLevel level, Vec3 pos) {
@@ -342,8 +341,7 @@ public class Debug {
                 .build();
         ShapeManagers.addShape(
                 Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_block"),
-                blockShape
-        );
+                blockShape);
     }
 
     private static void spawnItem(ServerLevel level, Vec3 pos) {
@@ -360,8 +358,7 @@ public class Debug {
                 .build();
         ShapeManagers.addShape(
                 Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_item"),
-                itemShape
-        );
+                itemShape);
     }
 
     private static void spawnAll(ServerLevel level, Vec3 pos) {
@@ -378,6 +375,7 @@ public class Debug {
         spawnText(level, pos.add((i++) * spacing, 0, 0));
         spawnBlock(level, pos.add((i++) * spacing, 0, 0));
         spawnItem(level, pos.add((i++) * spacing, 0, 0));
+        spawnDragBox(level, pos.add((i++) * spacing, 0, 0));
     }
 
     private static List<Vec3> generateSpiral(Vec3 center, int segments, float radius, float height, float offset) {
@@ -391,5 +389,101 @@ public class Debug {
             points.add(new Vec3(x, y, z));
         }
         return points;
+    }
+
+    private static void spawnDragBox(ServerLevel level, Vec3 pos) {
+        ShapeManagers.addShape(
+                Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_drag_box"),
+                ShapeGenerator.generateBox()
+                        .level(level)
+                        .pos(pos)
+                        .size(new Vec3(1.5, 1.5, 1.5))
+                        .color(new Color(100, 200, 255, 180))
+                        .construction(BoxShape.BoxConstructionType.CENTER_AND_DIMENSIONS)
+                        .transform(t -> handleDrag(t.shape, t))
+                        .build());
+    }
+
+    public static void handleDrag(Shape shape, DefaultTransformer transformer) {
+        ServerLevel level = shape.getLevel();
+        if (level == null)
+            return;
+
+        UUID holdingPlayerUUID = shape.getCustomData("holdingPlayerUUID", null);
+        if (holdingPlayerUUID != null) {
+            ServerPlayer holdingPlayer = level.getServer().getPlayerList().getPlayer(holdingPlayerUUID);
+            if (holdingPlayer != null && holdingPlayer.isAlive() && level.players().contains(holdingPlayer)) {
+                handlePlayerDrag(holdingPlayer, shape, transformer);
+                return;
+            } else {
+                shape.putCustomData("isHolding", false);
+                shape.removeCustomData("holdingPlayerUUID");
+                shape.removeCustomData("grabDistance");
+                Color originalColor = shape.getCustomData("originalColor", Color.WHITE);
+                shape.setBaseColor(originalColor);
+            }
+        }
+
+        boolean anyLooking = false;
+        for (ServerPlayer player : level.players()) {
+            if (shape.isPlayerLookingAt(player).hit) {
+                handlePlayerDrag(player, shape, transformer);
+                anyLooking = true;
+                break;
+            }
+        }
+
+        if (!anyLooking && !shape.getCustomData("isHolding", false)) {
+            Color originalColor = shape.getCustomData("originalColor", null);
+            if (originalColor != null) {
+                shape.setBaseColor(originalColor);
+            }
+        }
+    }
+
+    public static void handlePlayerDrag(ServerPlayer player, Shape shape, DefaultTransformer transformer) {
+        boolean isActionPressed = player.isShiftKeyDown();
+        boolean wasHolding = shape.getCustomData("isHolding", false);
+        boolean isLookingAt = shape.isPlayerLookingAt(player).hit;
+
+        if (!wasHolding) {
+            shape.putCustomData("originalColor", shape.getBaseColor());
+        }
+
+        boolean shouldHold = wasHolding || (isActionPressed && isLookingAt);
+
+        if (shouldHold && !wasHolding) {
+            double distance = transformer.getShapeWorldPivot(true)
+                    .distanceTo(player.getEyePosition());
+            shape.putCustomData("grabDistance", distance);
+            shape.putCustomData("isHolding", true);
+            shape.putCustomData("holdingPlayerUUID", player.getUUID());
+        }
+
+        if (isActionPressed && shape.getCustomData("isHolding", false)) {
+            double savedDistance = shape.getCustomData("grabDistance", 4.0);
+            Vec3 eyePos = player.getEyePosition();
+            Vec3 look = player.getLookAngle();
+
+            Vec3 targetPos = eyePos.add(look.scale(savedDistance));
+
+            transformer.setShapeWorldPivot(targetPos);
+            transformer.world.position.syncLastToTarget();
+            shape.setBaseColor(new Color(255, 255, 255, 200));
+        } else if (!isActionPressed && wasHolding) {
+
+            shape.putCustomData("isHolding", false);
+            shape.removeCustomData("grabDistance");
+            shape.removeCustomData("holdingPlayerUUID");
+            Color originalColor = shape.getCustomData("originalColor", Color.WHITE);
+            shape.setBaseColor(originalColor);
+        } else if (!isActionPressed) {
+            if (isLookingAt) {
+                shape.setBaseColor(new Color(150, 220, 255, 200));
+            } else {
+                Color originalColor = shape.getCustomData("originalColor", Color.WHITE);
+                shape.setBaseColor(originalColor);
+            }
+        }
     }
 }
