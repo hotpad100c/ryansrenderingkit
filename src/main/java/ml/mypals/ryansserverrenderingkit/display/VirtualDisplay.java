@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 
 import java.util.HashSet;
 import java.util.List;
@@ -72,6 +73,11 @@ public final class VirtualDisplay {
 
     private boolean dataDirty = true;
     private boolean seeThrough = false;
+    @Nullable
+    private Matrix4f lastTransformation;
+    @Nullable
+    private Integer lastBackgroundColor;
+    private int interpolationDuration = 1;
 
     private VirtualDisplay(ServerLevel level, Display entity) {
         this.level = level;
@@ -219,11 +225,14 @@ public final class VirtualDisplay {
     }
 
     public VirtualDisplay transform(@Nullable Transformation transformation) {
-        if (transformation != null) {
+        if (transformation != null && !transformation.getMatrix().equals(lastTransformation)) {
             DisplayAccessor accessor = (DisplayAccessor) this.entity;
-            accessor.rrk$setInterpolationDuration(1);
+            // The delay setter forcibly marks metadata dirty, even when its value stays zero.
+            // Restart only for a new transform; otherwise old text colors can replay every tick.
             accessor.rrk$setInterpolationDelay(0);
             accessor.rrk$setTransformation(transformation);
+            if (lastTransformation == null) lastTransformation = new Matrix4f(transformation.getMatrix());
+            else lastTransformation.set(transformation.getMatrix());
             this.dataDirty = true;
         }
         return this;
@@ -253,6 +262,17 @@ public final class VirtualDisplay {
     }
 
     public void sync() {
+        if (this.entity instanceof Display.TextDisplay display) {
+            int color = ((TextDisplayAccessor) display).rrk$getBackgroundColor();
+            boolean colorChanged = lastBackgroundColor == null || lastBackgroundColor != color;
+            int duration = colorChanged ? 0 : 1;
+            if (interpolationDuration != duration) {
+                ((DisplayAccessor) this.entity).rrk$setInterpolationDuration(duration);
+                interpolationDuration = duration;
+                dataDirty = true;
+            }
+            lastBackgroundColor = color;
+        }
         @Nullable List<SynchedEntityData.DataValue<?>> dirtyData =
                 this.dataDirty ? this.entity.getEntityData().packDirty() : null;
         if (dirtyData != null && dirtyData.isEmpty()) {

@@ -155,7 +155,7 @@ public class Debug {
                             if(hitResult.hit){
                                 t.shape.setBaseColor(new Color(64, 64, 64, 180));
                             }else {
-                                new Color(64, 128, 255, 180);
+                                t.shape.setBaseColor(new Color(64, 128, 255, 180));
                             }
                         })
                         .build()

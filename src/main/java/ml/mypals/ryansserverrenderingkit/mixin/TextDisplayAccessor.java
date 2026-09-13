@@ -21,6 +21,9 @@ public interface TextDisplayAccessor {
     @Invoker("setBackgroundColor")
     void rrk$setBackgroundColor(int backgroundColor);
 
+    @Invoker("getBackgroundColor")
+    int rrk$getBackgroundColor();
+
     @Invoker("setFlags")
     void rrk$setFlags(byte flags);
 

@@ -325,7 +325,7 @@ public abstract class Shape {
         this.isTemp = this.id.getPath().startsWith(TEMP_HEADER);
     }
     public RayModelIntersection.HitResult isAnyPlayerLookingAt(double range) {
-        if (level == null) {
+        if (level == null || this instanceof LineShape) {
             return new RayModelIntersection.HitResult(false, null, -1);
         }
 
@@ -333,10 +333,13 @@ public abstract class Shape {
                 ? level.getServer().getPlayerList().getPlayers()
                 : level.players();
 
+        RayModelIntersection.PreparedModel model = null;
         for (ServerPlayer player : players) {
             if (!isVisibleTo(player)) continue;
 
-            RayModelIntersection.HitResult result = isPlayerLookingAt(player);
+            if (model == null) model = new RayModelIntersection.PreparedModel(getModel(false), indexBuffer);
+            RayModelIntersection.Ray ray = playerViewRay(player);
+            RayModelIntersection.HitResult result = model.intersect(ray, range);
             if (result.hit && (range < 0 || result.distance <= range)) {
                 return result;
             }
@@ -346,13 +349,19 @@ public abstract class Shape {
     }
     public RayModelIntersection.HitResult isPlayerLookingAt(ServerPlayer p) {
         if (p == null || this instanceof LineShape) return new RayModelIntersection.HitResult(false, null, -1);
-        RayModelIntersection.Ray r = new RayModelIntersection.Ray(p.getCamera().position(), p.getForward());
+        RayModelIntersection.Ray r = playerViewRay(p);
 
         return RayModelIntersection.rayIntersectsModel(
                 r,
                 this.getModel(false),
                 this.indexBuffer
         );
+    }
+
+    private static RayModelIntersection.Ray playerViewRay(ServerPlayer player) {
+        var camera = player.getCamera();
+        // Entity position is at the feet. Use the same camera for both eye origin and direction.
+        return new RayModelIntersection.Ray(camera.getEyePosition(), camera.getViewVector(1.0F));
     }
 
     public void discard() {
