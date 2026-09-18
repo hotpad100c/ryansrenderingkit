@@ -6,6 +6,7 @@ import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
+import ml.mypals.ryansrenderingkit.utils.Helpers;
 import net.minecraft.client.Minecraft;
 //?if<26.1{
 /*import net.minecraft.client.renderer.MultiBufferSource;
@@ -239,7 +240,7 @@ public class BlockShape extends Shape implements EmptyMesh {
         }
 
         //? if >=26.2 {
-        mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(submitNodeCollector);
+        Helpers.renderFeatures(mc, submitNodeCollector);
         //?}
 
         poseStack.popPose();

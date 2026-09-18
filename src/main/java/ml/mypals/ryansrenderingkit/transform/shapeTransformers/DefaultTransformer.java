@@ -89,7 +89,7 @@ public class DefaultTransformer {
 
         stack.translate(tx, ty, tz);
         //? if >1.18.2 {
-        stack.mulPose(r);
+        stack.rotate(r);
         //?} else {
         /*stack.mulPose(new Quaternion(r.x, r.y, r.z, r.w));
          *///?}

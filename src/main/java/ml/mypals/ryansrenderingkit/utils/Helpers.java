@@ -22,6 +22,14 @@ import net.minecraft.gizmos.GizmoStyle;
 import net.minecraft.gizmos.Gizmos;
 import net.minecraft.gizmos.SimpleGizmoCollector;
 //?}
+//? if >=26.2 {
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
+import java.util.Optional;
+import java.util.OptionalDouble;
+//?}
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -122,8 +130,8 @@ public class Helpers {
 
         Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
 
-        poseStack.mulPose( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.YP.rotationDegrees(-camera/*? if >=1.21.11 {*/.yRot()/*?} else {*//*.getYRot()*//*?}*/));
-        poseStack.mulPose( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.XP.rotationDegrees(camera/*? if >=1.21.11 {*/.xRot()/*?} else {*//*.getXRot()*//*?}*/));
+        poseStack.rotate( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.YP.rotationDegrees(-camera/*? if >=1.21.11 {*/.yRot()/*?} else {*//*.getYRot()*//*?}*/));
+        poseStack.rotate( /*? if <=1.18.2 {*/ /*com.mojang.math.Vector3f *//*?} else {*/Axis/*?}*/.XP.rotationDegrees(camera/*? if >=1.21.11 {*/.xRot()/*?} else {*//*.getXRot()*//*?}*/));
 
         PoseStack.Pose pose = poseStack.last();
 
@@ -193,4 +201,26 @@ public class Helpers {
         return matrix4f;
     }
     *///?}
+
+    //? if >=26.2 {
+    public static void renderFeatures(Minecraft mc, SubmitNodeStorage submitNodeStorage) {
+        //? if >=26.3 {
+        FeatureRenderDispatcher featureRenderDispatcher = mc.gameRenderer.featureRenderDispatcher();
+        FeatureRenderDispatcher.PreparedFrame preparedFrame = featureRenderDispatcher.prepareFrame(submitNodeStorage);
+        com.mojang.blaze3d.pipeline.RenderTarget renderTarget = mc.gameRenderer.mainRenderTarget();
+        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+                () -> "RyansRenderingKit_Features",
+                renderTarget.getColorTextureView(),
+                Optional.empty(),
+                renderTarget.hasDepth() ? renderTarget.getDepthTextureView() : null,
+                OptionalDouble.empty()
+        )) {
+            RenderSystem.bindDefaultUniforms(renderPass);
+            FeatureRenderDispatcher.renderAllFeatures(renderPass, preparedFrame);
+        }
+        //?} else {
+        /*mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(submitNodeStorage);
+        *///?}
+    }
+    //?}
 }

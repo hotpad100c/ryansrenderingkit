@@ -5,6 +5,7 @@ import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
+import ml.mypals.ryansrenderingkit.utils.Helpers;
 import net.minecraft.client.Minecraft;
 //?if < 26.1{
 /*import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -123,7 +124,7 @@ public class ItemShape extends Shape implements EmptyMesh {
         *///?} else {
         SubmitNodeStorage submitNodeStorage = new SubmitNodeStorage();
         itemStackRenderState.submit(poseStack, submitNodeStorage,light,OverlayTexture.NO_OVERLAY, 0);
-        mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(submitNodeStorage);
+        Helpers.renderFeatures(mc, submitNodeStorage);
         //?}
         //?}
 

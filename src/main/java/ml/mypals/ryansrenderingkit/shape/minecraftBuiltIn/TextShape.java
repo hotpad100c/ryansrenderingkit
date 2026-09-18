@@ -13,6 +13,7 @@ import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
 import ml.mypals.ryansrenderingkit.shape.Shape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.EmptyMesh;
 import ml.mypals.ryansrenderingkit.transform.shapeTransformers.DefaultTransformer;
+import ml.mypals.ryansrenderingkit.utils.Helpers;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -196,7 +197,7 @@ public class TextShape extends Shape implements EmptyMesh {
             yOffset += lineHeights[i];
         }
         //? if >=26.2 {
-        mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(submitNodeStorage);
+        Helpers.renderFeatures(mc, submitNodeStorage);
         //?}
     }
 
@@ -208,15 +209,15 @@ public class TextShape extends Shape implements EmptyMesh {
 
         switch (billBoardMode) {
             case ALL -> {
-                poseStack.mulPose(camera.rotation());
+                poseStack.rotate(camera.rotation());
             }
             case VERTICAL -> {
                 float yaw = (float) Math.toRadians(camera/*? if >=1.21.11 {*/.yRot()/*?} else {*//*.getYRot()*//*?}*/ + 180);
-                poseStack.mulPose(/*? if >1.18.2 {*/new Quaternionf().rotateY(yaw)/*?} else {*//*com.mojang.math.Vector3f.YP.rotationDegrees(yaw)*//*?}*/);
+                poseStack.rotate(/*? if >1.18.2 {*/new Quaternionf().rotateY(yaw)/*?} else {*//*com.mojang.math.Vector3f.YP.rotationDegrees(yaw)*//*?}*/);
             }
             case HORIZONTAL -> {
                 float pitch = (float) Math.toRadians(camera/*? if >=1.21.11 {*/.xRot()/*?} else {*//*.getYRot()*//*?}*/);
-                poseStack.mulPose(/*? if >1.18.2 {*/new Quaternionf().rotateX(pitch)/*?} else {*//*com.mojang.math.Vector3f.XP.rotationDegrees(pitch)*//*?}*/);
+                poseStack.rotate(/*? if >1.18.2 {*/new Quaternionf().rotateX(pitch)/*?} else {*//*com.mojang.math.Vector3f.XP.rotationDegrees(pitch)*//*?}*/);
             }
         }
         poseStack.scale(/*? <1.21 {*//*-*//*?}*/0.015625F, -0.015625F, 0.015625F);

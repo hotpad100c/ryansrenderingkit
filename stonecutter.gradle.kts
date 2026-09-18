@@ -87,6 +87,10 @@ stonecutter parameters {
             replace("com.mojang.renderpearl.api.device.GpuDevice", "com.mojang.blaze3d.systems.GpuDevice")
             replace("com.mojang.renderpearl.api.commands.RenderPass", "com.mojang.blaze3d.systems.RenderPass")
             replace("com.mojang.renderpearl.backend.opengl.GlStateManager", "com.mojang.blaze3d.opengl.GlStateManager")
+
+            // PoseStack rotation
+            replace("poseStack.rotate(", "poseStack.mulPose(")
+            replace("stack.rotate(", "stack.mulPose(")
         }
 
         string(eval(current.version, "<26.2")) {

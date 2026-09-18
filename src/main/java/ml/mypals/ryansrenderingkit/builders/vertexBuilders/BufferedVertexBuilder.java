@@ -48,6 +48,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 //?}
 import ml.mypals.ryansrenderingkit.render.RenderMethod;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
@@ -347,10 +348,19 @@ public class BufferedVertexBuilder extends VertexBuilder {
                 , new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
                 new Vector3f(),
                 /*? if <1.21.11 {*//*RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth()*//*?}else if < 26.2{*//*bufferedRenderMethod.normalRenderType().state.textureTransform.getMatrix()*//*?}else{*/bufferedRenderMethod.normalRenderType().state.textureTransform.createMatrix() /*?}*/);
-        var state = bufferedRenderMethod.normalRenderType().state;
-        RenderTarget renderTarget = state./*? if >=1.21.11 {*/outputTarget/*?} else {*//*outputState*//*?}*/.getRenderTarget();
+        //? if >=26.3 {
+        RenderTarget renderTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+        GpuTextureView gpuTextureView = renderTarget.getColorTextureView();
+        GpuTextureView gpuTextureView2 = renderTarget.hasDepth() ? renderTarget.getDepthTextureView() : null;
+        //?} else if >=1.21.11 {
+        /*RenderTarget renderTarget = bufferedRenderMethod.normalRenderType().state.outputTarget.getRenderTarget();
         GpuTextureView gpuTextureView = RenderSystem.outputColorTextureOverride != null ? RenderSystem.outputColorTextureOverride : renderTarget.getColorTextureView();
         GpuTextureView gpuTextureView2 = renderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride != null ? RenderSystem.outputDepthTextureOverride : renderTarget.getDepthTextureView()) : null;
+        *///?} else {
+        /*RenderTarget renderTarget = bufferedRenderMethod.normalRenderType().state.outputState.getRenderTarget();
+        GpuTextureView gpuTextureView = RenderSystem.outputColorTextureOverride != null ? RenderSystem.outputColorTextureOverride : renderTarget.getColorTextureView();
+        GpuTextureView gpuTextureView2 = renderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride != null ? RenderSystem.outputDepthTextureOverride : renderTarget.getDepthTextureView()) : null;
+        *///?}
 
         try (RenderPass renderPass =
             RenderSystem.getDevice().createCommandEncoder()
@@ -366,9 +376,21 @@ public class BufferedVertexBuilder extends VertexBuilder {
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", gpuBufferSlice);
             if(seeThrough){
-                renderPass.setPipeline(bufferedRenderMethod.seeThroughType()./*? if >=1.21.11 {*/pipeline()/*?} else {*//*renderPipeline*//*?}*/);
+                //? if >=26.3 {
+                renderPass.setPipeline(RenderSystem.getCompiledPipeline(bufferedRenderMethod.seeThroughType().pipeline()));
+                //?} else if >=1.21.11 {
+                /*renderPass.setPipeline(bufferedRenderMethod.seeThroughType().pipeline());
+                *///?} else {
+                /*renderPass.setPipeline(bufferedRenderMethod.seeThroughType().renderPipeline);
+                *///?}
             }else{
-                renderPass.setPipeline(bufferedRenderMethod.normalRenderType()./*? if >=1.21.11 {*/pipeline()/*?} else {*//*renderPipeline*//*?}*/);
+                //? if >=26.3 {
+                renderPass.setPipeline(RenderSystem.getCompiledPipeline(bufferedRenderMethod.normalRenderType().pipeline()));
+                //?} else if >=1.21.11 {
+                /*renderPass.setPipeline(bufferedRenderMethod.normalRenderType().pipeline());
+                *///?} else {
+                /*renderPass.setPipeline(bufferedRenderMethod.normalRenderType().renderPipeline);
+                *///?}
             }
             renderPass.setVertexBuffer(0, vertexBuffer/*? if >=26.2 {*/.slice()/*?}*/);
             ScissorState scissorState = RenderSystem.getScissorStateForRenderTypeDraws();

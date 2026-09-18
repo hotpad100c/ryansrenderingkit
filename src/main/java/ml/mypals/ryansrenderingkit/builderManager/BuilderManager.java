@@ -12,12 +12,17 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 //? >= 26.2 {
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.StagedVertexBuffer;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.feature.CustomFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import java.util.Optional;
+import java.util.OptionalDouble;
 //?}
 
 import java.util.ArrayList;
@@ -160,12 +165,31 @@ public class BuilderManager {
 
         if (!draws.isEmpty()) {
             stagedBuffer.upload();
-            for (int i = 0; i < draws.size(); i++) {
+            //? if >=26.3 {
+            RenderTarget renderTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+            try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+                    () -> "RyansRenderingKit_BuilderManager",
+                    renderTarget.getColorTextureView(),
+                    Optional.empty(),
+                    renderTarget.hasDepth() ? renderTarget.getDepthTextureView() : null,
+                    OptionalDouble.empty()
+            )) {
+                RenderSystem.bindDefaultUniforms(renderPass);
+                for (int i = 0; i < draws.size(); i++) {
+                    StagedVertexBuffer.ExecuteInfo info = stagedBuffer.getExecuteInfo(draws.get(i));
+                    if (info != null) {
+                        renderTypes.get(i).prepare().drawFromBuffer(info, renderPass);
+                    }
+                }
+            }
+            //?} else {
+            /*for (int i = 0; i < draws.size(); i++) {
                 StagedVertexBuffer.ExecuteInfo info = stagedBuffer.getExecuteInfo(draws.get(i));
                 if (info != null) {
                     renderTypes.get(i).prepare().drawFromBuffer(info);
                 }
             }
+            *///?}
             stagedBuffer.endDraw();
         }
 
