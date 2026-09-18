@@ -2,13 +2,15 @@ plugins {
     id("dev.kikugie.stonecutter")
     id("net.fabricmc.fabric-loom") version "1.15.3" apply false
     id("net.fabricmc.fabric-loom-remap") version "1.15.3" apply false
-    // id("me.modmuss50.mod-publish-plugin") version "1.0.+" apply false
+    id("me.modmuss50.mod-publish-plugin") version "2.2.0" apply false
 }
 
 stonecutter active "26.3"
 
 stonecutter tasks {
     order("publishToMavenCentral")
+    order("publishModrinth")
+    order("publishMods")
 }
 
 tasks.register("mavenUpload") {
@@ -17,13 +19,11 @@ tasks.register("mavenUpload") {
     dependsOn(stonecutter.tasks.named("publishToMavenCentral"))
 }
 
-/*
-// Make newer versions be published last
-stonecutter tasks {
-    order("publishModrinth")
-    order("publishCurseforge")
+tasks.register("modrinthUpload") {
+    group = "publishing"
+    description = "Uploads every supported Minecraft version to Modrinth."
+    dependsOn(stonecutter.tasks.named("publishModrinth"))
 }
- */
 
 // See https://stonecutter.kikugie.dev/wiki/config/params
 stonecutter parameters {

@@ -1,9 +1,8 @@
 plugins {
     id("net.fabricmc.fabric-loom")
-    // `maven-publish`
-    //id("me.modmuss50.mod-publish-plugin").version("0.3.5")
+    id("me.modmuss50.mod-publish-plugin")
     id("signing")
-    id ("com.vanniktech.maven.publish").version("0.35.0")
+    id("com.vanniktech.maven.publish").version("0.35.0")
 }
 
 version = "${property("mod.version")}+${stonecutter.current.version}"
@@ -40,8 +39,8 @@ dependencies {
 }
 
 val accesswidener = when {
-    stonecutter.eval(minecraft, "<=26.1") -> "26.1.accesswidener"
-    else -> "26.1.accesswidener"
+    stonecutter.eval(minecraft, "<=26.2") -> "26.1.accesswidener"
+    else -> "26.3.accesswidener"
 }
 
 loom {
@@ -94,39 +93,25 @@ tasks {
     }
 }
 
-/*
-// Publishes builds to Modrinth and Curseforge with changelog from the CHANGELOG.md file
+// Publishes builds to Modrinth with changelog from the CHANGELOG.md file
 publishMods {
-    file = tasks.sourcesJar.map { it.archiveFile.get() }
-    additionalFiles.from(tasks.sourcesJar.map { it.archiveFile.get() })
+    file = tasks.named<Jar>("jar").flatMap { it.archiveFile }
+    additionalFiles.from(tasks.named<Jar>("sourcesJar").flatMap { it.archiveFile })
     displayName = "${property("mod.name")} ${property("mod.version")} for ${property("mod.mc_title")}"
-    version = property("mod.version") as String
-    changelog = rootProject.file("CHANGELOG.md").readText()
+    version = "${property("mod.version")}+${stonecutter.current.version}"
+    changelog = rootProject.file("CHANGELOG.md").let { if (it.exists() && it.readText().isNotBlank()) it.readText() else "Release ${property("mod.version")}" }
     type = STABLE
     modLoaders.add("fabric")
 
     dryRun = providers.environmentVariable("MODRINTH_TOKEN").getOrNull() == null
-        || providers.environmentVariable("CURSEFORGE_TOKEN").getOrNull() == null
 
     modrinth {
-        projectId = property("publish.modrinth") as String
+        projectId = "CdJaAf0y"
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         minecraftVersions.addAll(property("mod.mc_targets").toString().split(' '))
-        requires {
-            slug = "fabric-api"
-        }
-    }
-
-    curseforge {
-        projectId = property("publish.curseforge") as String
-        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
-        minecraftVersions.addAll(property("mod.mc_targets").toString().split(' '))
-        requires {
-            slug = "fabric-api"
-        }
+        requires("fabric-api")
     }
 }
- */
 
 // Publishes builds to a maven repository under `com.example:template:0.1.0+mc`
 /*

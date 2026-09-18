@@ -59,6 +59,9 @@ public class MainRender {
             //?}
             //? >= 26.2 {
             BuilderManagers.flushEndFrame();
+            //? if >= 26.3 {
+            ml.mypals.ryansrenderingkit.utils.Helpers.endFrame();
+            //?}
             //?}
 
             //?if < 26.1{
