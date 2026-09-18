@@ -202,21 +202,50 @@ public class Helpers {
     }
     *///?}
 
+    //? if >=26.3 {
+    private static FeatureRenderDispatcher kitFeatureRenderDispatcher;
+    private static net.minecraft.client.renderer.RenderBuffers kitRenderBuffers;
+
+    private static FeatureRenderDispatcher getFeatureRenderDispatcher(Minecraft mc) {
+        if (kitFeatureRenderDispatcher == null) {
+            kitRenderBuffers = new net.minecraft.client.renderer.RenderBuffers(1);
+            kitFeatureRenderDispatcher = new FeatureRenderDispatcher(
+                    kitRenderBuffers,
+                    mc.getModelManager(),
+                    mc.getAtlasManager(),
+                    mc.font,
+                    mc.gameRenderer.gameRenderState()
+            );
+        }
+        return kitFeatureRenderDispatcher;
+    }
+
+    public static void endFrame() {
+        if (kitRenderBuffers != null) {
+            kitRenderBuffers.endFrame();
+        }
+    }
+    //?}
+
     //? if >=26.2 {
     public static void renderFeatures(Minecraft mc, SubmitNodeStorage submitNodeStorage) {
         //? if >=26.3 {
-        FeatureRenderDispatcher featureRenderDispatcher = mc.gameRenderer.featureRenderDispatcher();
-        FeatureRenderDispatcher.PreparedFrame preparedFrame = featureRenderDispatcher.prepareFrame(submitNodeStorage);
-        com.mojang.blaze3d.pipeline.RenderTarget renderTarget = mc.gameRenderer.mainRenderTarget();
-        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
-                () -> "RyansRenderingKit_Features",
-                renderTarget.getColorTextureView(),
-                Optional.empty(),
-                renderTarget.hasDepth() ? renderTarget.getDepthTextureView() : null,
-                OptionalDouble.empty()
-        )) {
-            RenderSystem.bindDefaultUniforms(renderPass);
-            FeatureRenderDispatcher.renderAllFeatures(renderPass, preparedFrame);
+        FeatureRenderDispatcher featureRenderDispatcher = getFeatureRenderDispatcher(mc);
+        try (FeatureRenderDispatcher.PreparedFrame preparedFrame = featureRenderDispatcher.prepareFrame(submitNodeStorage)) {
+            if (!preparedFrame.isEmpty()) {
+                com.mojang.blaze3d.pipeline.RenderTarget renderTarget = mc.gameRenderer.mainRenderTarget();
+                assert renderTarget.getColorTextureView() != null;
+                try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+                        () -> "RyansRenderingKit_Features",
+                        renderTarget.getColorTextureView(),
+                        Optional.empty(),
+                        renderTarget.hasDepth() ? renderTarget.getDepthTextureView() : null,
+                        OptionalDouble.empty()
+                )) {
+                    RenderSystem.bindDefaultUniforms(renderPass);
+                    FeatureRenderDispatcher.renderAllFeatures(renderPass, preparedFrame);
+                }
+            }
         }
         //?} else {
         /*mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(submitNodeStorage);
