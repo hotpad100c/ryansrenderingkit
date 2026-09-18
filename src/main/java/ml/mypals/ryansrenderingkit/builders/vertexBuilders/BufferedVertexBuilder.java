@@ -29,13 +29,17 @@ import com.mojang.blaze3d.buffers.BufferUsage;
 /*import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
  *///?} else {
-import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 //?}
 
 //? if >1.21.5 {
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
+//? if >=26.2 {
+import com.mojang.renderpearl.api.device.GpuDevice;
+import com.mojang.renderpearl.api.commands.RenderPass;
+//?}
 //? if <1.19.4 {
 /*import com.mojang.math.Vector3f;
 *///?} else {
@@ -204,7 +208,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
         //?} else if > 1.18.2 && < 1.21.5 {
         /*this.vertexBuffer.upload(builtBuffer);
          *///?} else {
-        /*//Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        /*//Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
         //bufferBuilder.setQuadSortOrigin((float) camera.getPosition().x(), (float) camera.getPosition().y(), (float) camera.getPosition().z());
         bufferBuilder.end();
         this.vertexBuffer.upload(bufferBuilder);
@@ -272,7 +276,7 @@ public class BufferedVertexBuilder extends VertexBuilder {
         *///?}
 
         //? if <1.20.6 {
-            /*Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+            /*Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
             RenderSystem.getModelViewStack()./^? <1.20.6 {^//^mulPose^//^?} else {^/rotate/^?}^/(/^? if <=1.18.2 {^/ /^Vector3f ^//^?} else {^/Axis/^?}^/.XP.rotationDegrees(camera.getXRot()));
             RenderSystem.getModelViewStack()./^? <1.20.6 {^//^mulPose^//^?} else {^/rotate/^?}^/(/^? if <=1.18.2 {^/ /^Vector3f ^//^?} else {^/Axis/^?}^/.YP.rotationDegrees(camera.getYRot() + 180.0F));
         *///?}

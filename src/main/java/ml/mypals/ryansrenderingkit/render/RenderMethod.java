@@ -1,10 +1,10 @@
 package ml.mypals.ryansrenderingkit.render;
 
 //? if >=26.2 {
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 //?}
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 //? if >=1.21.5 {
 import ml.mypals.ryansrenderingkit.render.renderTypes.RyansRenderingKitRenderTypes;
 import net.minecraft.client.renderer.rendertype.RenderType;

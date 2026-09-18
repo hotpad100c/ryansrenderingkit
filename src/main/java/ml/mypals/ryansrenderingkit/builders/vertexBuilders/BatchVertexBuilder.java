@@ -106,7 +106,7 @@ public class BatchVertexBuilder extends VertexBuilder {
             //?} else if > 1.18.2 {
             /^BufferUploader.drawWithShader(builtBuffer);
             ^///?} else {
-            /^Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+            /^Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
             bufferBuilder.setQuadSortOrigin((float) camera.getPosition().x(), (float) camera.getPosition().y(), (float) camera.getPosition().z());
             bufferBuilder.end();
             BufferUploader.end(bufferBuilder);

@@ -1,18 +1,18 @@
 package ml.mypals.ryansrenderingkit.render.renderTypes;
 //? if >= 1.21.5 {
 //? if >=26.2 {
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 //?}
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 //?if < 26.1{
 /*import com.mojang.blaze3d.platform.DepthTestFunction;
 *///?}else{
-import com.mojang.blaze3d.pipeline.DepthStencilState;
-import com.mojang.blaze3d.platform.CompareOp;
+import com.mojang.renderpearl.api.pipeline.DepthStencilState;
+import com.mojang.renderpearl.api.pipeline.CompareOp;
 import java.util.Optional;
 //?}
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderPipelines;
 //? if < 1.21.11 {
 /*import net.minecraft.client.renderer.RenderStateShard;

@@ -2,6 +2,8 @@ package ml.mypals.ryansrenderingkit.mixin;
 
 import com.google.common.primitives.Floats;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormatElement;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import ml.mypals.ryansrenderingkit.interfaces.MeshDataExt;
 import org.jetbrains.annotations.Nullable;

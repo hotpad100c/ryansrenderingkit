@@ -38,7 +38,7 @@ public final class SubmitBackend {
             Minecraft mc = Minecraft.getInstance();
             if (mc.player == null) return;
 
-            Camera camera = mc.gameRenderer.getMainCamera();
+            Camera camera = mc.gameRenderer.mainCamera();
             Vec3 cameraPos = camera.position();
             Vec3 anchor = mc.player.position();
 

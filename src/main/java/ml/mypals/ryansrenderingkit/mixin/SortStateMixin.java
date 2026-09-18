@@ -1,7 +1,7 @@
 package ml.mypals.ryansrenderingkit.mixin;
 
 //? if >=26.2 {
-import com.mojang.blaze3d.IndexType;
+import com.mojang.renderpearl.api.pipeline.IndexType;
 //?}
 import com.mojang.blaze3d.vertex.*;
 import org.spongepowered.asm.mixin.Mixin;

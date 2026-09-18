@@ -5,7 +5,7 @@ plugins {
     // id("me.modmuss50.mod-publish-plugin") version "1.0.+" apply false
 }
 
-stonecutter active "26.2"
+stonecutter active "26.3"
 
 stonecutter tasks {
     order("publishToMavenCentral")
@@ -63,6 +63,30 @@ stonecutter parameters {
         }
         string(eval(current.version, "<=1.20.6")) {
             replace("MeshData.class", "BufferBuilder.class")
+        }
+
+        // 26.3 -> 26.2 RenderPearl API 降级为 Blaze3D
+        string(eval(current.version, "<26.3")) {
+            // Pipeline & State
+            replace("com.mojang.renderpearl.api.pipeline.PrimitiveTopology", "com.mojang.blaze3d.PrimitiveTopology")
+            replace("com.mojang.renderpearl.api.pipeline.IndexType", "com.mojang.blaze3d.IndexType")
+            replace("com.mojang.renderpearl.api.pipeline.RenderPipeline", "com.mojang.blaze3d.pipeline.RenderPipeline")
+            replace("com.mojang.renderpearl.api.pipeline.DepthStencilState", "com.mojang.blaze3d.pipeline.DepthStencilState")
+            replace("com.mojang.renderpearl.api.pipeline.CompareOp", "com.mojang.blaze3d.platform.CompareOp")
+
+            // Vertex Formats
+            replace("com.mojang.renderpearl.api.vertex.VertexFormatElement", "com.mojang.blaze3d.vertex.VertexFormatElement")
+            replace("com.mojang.renderpearl.api.vertex.VertexFormat", "com.mojang.blaze3d.vertex.VertexFormat")
+
+            // Buffers & Textures
+            replace("com.mojang.renderpearl.api.buffers.GpuBufferSlice", "com.mojang.blaze3d.buffers.GpuBufferSlice")
+            replace("com.mojang.renderpearl.api.buffers.GpuBuffer", "com.mojang.blaze3d.buffers.GpuBuffer")
+            replace("com.mojang.renderpearl.api.textures.GpuTextureView", "com.mojang.blaze3d.textures.GpuTextureView")
+
+            // Device & Commands & Backend
+            replace("com.mojang.renderpearl.api.device.GpuDevice", "com.mojang.blaze3d.systems.GpuDevice")
+            replace("com.mojang.renderpearl.api.commands.RenderPass", "com.mojang.blaze3d.systems.RenderPass")
+            replace("com.mojang.renderpearl.backend.opengl.GlStateManager", "com.mojang.blaze3d.opengl.GlStateManager")
         }
 
         string(eval(current.version, "<26.2")) {

@@ -1,6 +1,6 @@
 package ml.mypals.ryansrenderingkit.builders.vertexBuilders;
 //? >= 1.21.5 {
-import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.renderpearl.backend.opengl.GlStateManager;
 //?}
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
