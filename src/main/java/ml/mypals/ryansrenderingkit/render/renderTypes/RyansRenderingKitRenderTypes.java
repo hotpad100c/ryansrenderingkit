@@ -3,6 +3,10 @@ package ml.mypals.ryansrenderingkit.render.renderTypes;
 //? if >=26.2 {
 import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 //?}
+//? if >=26.3 {
+import com.mojang.renderpearl.api.pipeline.BlendFunction;
+import com.mojang.renderpearl.api.pipeline.ColorTargetState;
+//?}
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 //?if < 26.1{
 /*import com.mojang.blaze3d.platform.DepthTestFunction;
@@ -110,6 +114,9 @@ public class RyansRenderingKitRenderTypes {
             .withDepthStencilState(Optional.empty())
             //?}
             .withCull(false)
+            //? if >=26.3 {
+            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+            //?}
             //? if <1.21.11 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
             *///?} else if <26.2 {
@@ -151,6 +158,9 @@ public class RyansRenderingKitRenderTypes {
             .withDepthStencilState(Optional.empty())
             //?}
             .withCull(false)
+            //? if >=26.3 {
+            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+            //?}
             //? if <1.21.11 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
              *///?} else if <26.2 {
