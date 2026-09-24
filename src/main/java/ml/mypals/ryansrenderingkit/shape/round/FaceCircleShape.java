@@ -91,7 +91,7 @@ public class FaceCircleShape extends Shape implements CircleLikeShape {
     }
 
     public void forceSetSegments(float segments) {
-        setRadius(segments);
+        setSegments((int) segments);
         ((FaceCircleTransformer) this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }

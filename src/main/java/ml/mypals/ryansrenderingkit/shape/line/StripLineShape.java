@@ -76,41 +76,17 @@ public class StripLineShape extends Shape implements StripLineLikeShape {
         /*RenderSystem.lineWidth(getLineWidth(true));
         *///?}
 
-
-        int n = modelVertexes.size();
-        if (n < 2) return;
-
-        Vec3 first = modelVertexes.getFirst();
-        builder.putColor(new Color(0, 0, 0, 0));
-        builder.putVertex(first, Vec3.ZERO,width);
-        for (int i = 0; i < n; i++) {
-            Color vColor = baseColor;
-            if (i < vertexColors.size()) vColor = vertexColors.get(i);
-            builder.putColor(vColor);
-            Vec3 normal;
-            if (i == 0) {
-                Vec3 dir = modelVertexes.get(1).subtract(modelVertexes.get(0));
-                normal = dir.normalize();
-            } else if (i == n - 1) {
-                Vec3 dir = modelVertexes.get(n - 1).subtract(modelVertexes.get(n - 2));
-                normal = dir.normalize();
-            } else {
-                Vec3 prevDir = modelVertexes.get(i).subtract(modelVertexes.get(i - 1));
-                Vec3 nextDir = modelVertexes.get(i + 1).subtract(modelVertexes.get(i));
-                normal = prevDir.add(nextDir).normalize();
-                if (Double.isNaN(normal.x) || Double.isNaN(normal.y) || Double.isNaN(normal.z)) {
-                    Vec3 fallback = nextDir.lengthSqr() > 0 ? nextDir : prevDir;
-                    normal = fallback.normalize();
-                }
-            }
-
-            Vec3 pos = modelVertexes.get(i);
-            builder.putVertex(pos, normal, width);
+        for (int i = 0; i + 1 < modelVertexes.size(); i++) {
+            Vec3 start = modelVertexes.get(i);
+            Vec3 end = modelVertexes.get(i + 1);
+            Vec3 direction = end.subtract(start);
+            if (direction.lengthSqr() < 1.0e-12) continue;
+            Vec3 normal = direction.normalize();
+            builder.putColor(i < vertexColors.size() ? vertexColors.get(i) : baseColor);
+            builder.putVertex(start, normal, width);
+            builder.putColor(i + 1 < vertexColors.size() ? vertexColors.get(i + 1) : baseColor);
+            builder.putVertex(end, normal, width);
         }
-
-        Vec3 last = modelVertexes.get(n - 1);
-        builder.putColor(new Color(0, 0, 0, 0));
-        builder.putVertex(last, Vec3.ZERO, width);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package ml.mypals.ryansrenderingkit.shape.box;
 
 import ml.mypals.ryansrenderingkit.builders.vertexBuilders.VertexBuilder;
-import ml.mypals.ryansrenderingkit.shape.basics.core.LineLikeShape;
 import ml.mypals.ryansrenderingkit.shape.basics.tags.DrawableLine;
 import net.minecraft.world.phys.Vec3;
 
@@ -14,7 +13,7 @@ import java.util.function.Consumer;
 
 public class BoxWireframeShape extends BoxShape implements DrawableLine {
 
-    public final float edgeWidth;
+    public float edgeWidth;
 
     public BoxWireframeShape(RenderingType type,
                              Consumer<BoxTransformer> transform,
@@ -32,12 +31,10 @@ public class BoxWireframeShape extends BoxShape implements DrawableLine {
 
     public void forceSetLineWidth(float width) {
         setLineWidth(width);
-        ((LineLikeShape.SimpleLineTransformer) this.transformer).lineModelInfo.widthTransformer.syncLastToTarget();
-        generateRawGeometry(false);
     }
 
     public void setLineWidth(float width) {
-        ((LineLikeShape.SimpleLineTransformer) this.transformer).setWidth(width);
+        this.edgeWidth = Math.max(0.1f, width);
     }
 
     @Override

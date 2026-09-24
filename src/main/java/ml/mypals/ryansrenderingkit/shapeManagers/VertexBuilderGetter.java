@@ -39,8 +39,8 @@ public class VertexBuilderGetter {
         registerShapeBuilder(BoxWireframeShape.class, ShapeManagers.LINES_SHAPE_MANAGER);
         registerShapeBuilder(BoxFaceShape.class, ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(LineShape.class, ShapeManagers.LINES_SHAPE_MANAGER);
-        registerShapeBuilder(StripLineShape.class, ShapeManagers.LINE_STRIP_SHAPE_MANAGER);
-        registerShapeBuilder(LineCircleShape.class, ShapeManagers.LINE_STRIP_SHAPE_MANAGER);
+        registerShapeBuilder(StripLineShape.class, ShapeManagers.LINES_SHAPE_MANAGER);
+        registerShapeBuilder(LineCircleShape.class, ShapeManagers.LINES_SHAPE_MANAGER);
         registerShapeBuilder(FaceCircleShape.class, ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(SphereShape.class, ShapeManagers.TRIANGLES_SHAPE_MANAGER);
         registerShapeBuilder(ObjModelShape.class, ShapeManagers.TRIANGLES_SHAPE_MANAGER);

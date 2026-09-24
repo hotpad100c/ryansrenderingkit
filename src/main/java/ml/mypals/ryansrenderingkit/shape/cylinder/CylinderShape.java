@@ -214,7 +214,7 @@ public class CylinderShape extends Shape implements CircleLikeShape, DrawableTri
     }
 
     public void forceSetSegments(float segments) {
-        setRadius(segments);
+        setSegments((int) segments);
         ((CylinderTransformer) this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }

@@ -87,7 +87,7 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
     }
 
     public void forceSetSegments(float segments) {
-        setRadius(segments);
+        setSegments((int) segments);
         ((LineCircleTransformer) this.transformer).circleModelInfo.segmentTransformer.syncLastToTarget();
         generateRawGeometry(false);
     }
@@ -178,7 +178,6 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
 
     @Override
     protected void drawInternal(VertexBuilder builder) {
-
         float width = getLineWidth(true);
         //? if <1.21.11 {
         /*RenderSystem.lineWidth(width);
@@ -186,39 +185,14 @@ public class LineCircleShape extends Shape implements CircleLikeShape, LineLikeS
         int n = modelVertexes.size();
         if (n < 2) return;
 
-        Vec3 first = modelVertexes.getFirst();
-        builder.putColor(new Color(0, 0, 0, 0));
-        builder.putVertex(first, Vec3.ZERO,width);
+        // Drawn as separate segments, closing back to the first point; see StripLineShape.
         builder.putColor(baseColor);
         for (int i = 0; i < n; i++) {
-
-            Vec3 normal;
-            if (i == 0) {
-                Vec3 dir = modelVertexes.get(1).subtract(modelVertexes.get(0));
-                normal = dir.normalize();
-            } else if (i == n - 1) {
-                Vec3 dir = modelVertexes.get(n - 1).subtract(modelVertexes.get(n - 2));
-                normal = dir.normalize();
-            } else {
-                Vec3 prevDir = modelVertexes.get(i).subtract(modelVertexes.get(i - 1));
-                Vec3 nextDir = modelVertexes.get(i + 1).subtract(modelVertexes.get(i));
-                normal = prevDir.add(nextDir).normalize();
-                if (Double.isNaN(normal.x) || Double.isNaN(normal.y) || Double.isNaN(normal.z)) {
-                    Vec3 fallback = nextDir.lengthSqr() > 0 ? nextDir : prevDir;
-                    normal = fallback.normalize();
-                }
-            }
-
-            Vec3 pos = modelVertexes.get(i);
-            builder.putVertex(pos, normal,width);
+            Vec3 start = modelVertexes.get(i);
+            Vec3 end = modelVertexes.get((i + 1) % n);
+            if (end.subtract(start).lengthSqr() < 1.0e-12) continue;
+            addLineSegment(builder, start, end, width);
         }
-        Vec3 finish = modelVertexes.getFirst();
-
-        builder.putVertex(finish, Vec3.ZERO,width);
-
-        Vec3 last = modelVertexes.get(n - 1);
-        builder.putColor(new Color(0, 0, 0, 0));
-        builder.putVertex(last, Vec3.ZERO,width);
     }
 }
 
