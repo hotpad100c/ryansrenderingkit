@@ -119,11 +119,11 @@ publishMods {
     type = STABLE
     modLoaders.add("fabric")
 
-    dryRun = providers.environmentVariable("MODRINTH_TOKEN").getOrNull() == null
+    dryRun = property("modrinthToken").toString() == ""
 
     modrinth {
         projectId = "CdJaAf0y"
-        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        accessToken = property("modrinthToken").toString()
         minecraftVersions.addAll(property("mod.mc_targets").toString().split(' '))
         requires("fabric-api")
     }
