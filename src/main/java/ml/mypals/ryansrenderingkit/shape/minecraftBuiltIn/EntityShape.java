@@ -96,8 +96,12 @@ public class EntityShape extends Shape implements EmptyMesh {
         *///?}
         poseStack.pushPose();
         //? > 1.20.4 {
-        poseStack.mulPose(builder.getPositionMatrix());
-         //?} else {
+            //? if <26.3 {
+            /*poseStack.rotate(builder.getPositionMatrix());
+            *///?} else {
+            poseStack.mulPose(builder.getPositionMatrix());
+            //?}
+        //?} else {
         /*poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
         *///?}
         //? if <1.21.9 {

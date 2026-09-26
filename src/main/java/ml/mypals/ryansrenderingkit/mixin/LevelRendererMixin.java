@@ -3,7 +3,7 @@ package ml.mypals.ryansrenderingkit.mixin;
 import net.minecraft.client.renderer.LevelRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 //? if = 1.21.9 {
-/*import com.mojang.blaze3d.buffers.GpuBufferSlice;
+/*import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
 import net.minecraft.client.Camera;

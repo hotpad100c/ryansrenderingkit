@@ -65,14 +65,14 @@ public class RyansRenderingKitRenderTypes {
     //?}
 
     //? if >= 1.21.5 {
-    private static final RenderPipeline noDepthTriangles = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+    private static final RenderPipeline noDepthTriangles = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_quads"))
 
             //?if<26.1{
             /*.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             *///?}else{
-            .withDepthStencilState(Optional.empty())
+            .withDepthStencilState(Optional.of(new DepthStencilState(CompareOp.ALWAYS_PASS, true)))
             //?}
             .withCull(false)
             //? if <26.2 {
@@ -81,7 +81,7 @@ public class RyansRenderingKitRenderTypes {
             .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
             .withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
             //?}
-            .build();
+            .build());
 
     //? if >=1.21.11 {
 
@@ -105,27 +105,27 @@ public class RyansRenderingKitRenderTypes {
     *///?}
 
 
-    private static final RenderPipeline noDepthLines = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
+    private static final RenderPipeline noDepthLines = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_lines"))
             //? < 26.1{
             /*.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             *///?}else{
-            .withDepthStencilState(Optional.empty())
+            .withDepthStencilState(Optional.of(new DepthStencilState(CompareOp.ALWAYS_PASS, true)))
             //?}
             .withCull(false)
             //? if >=26.3 {
             .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
             //?}
             //? if <1.21.11 {
-            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
+            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.LINES)
             *///?} else if <26.2 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.LINES)
             *///?} else {
             .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH)
             .withPrimitiveTopology(PrimitiveTopology.LINES)
             //?}
-            .build();
+            .build());
 
     //? if >=1.21.11 {
     public static final RenderType SEE_THROUGH_LINES =
@@ -149,27 +149,27 @@ public class RyansRenderingKitRenderTypes {
                             .createCompositeState(false)
     );
     *///?}
-    private static final RenderPipeline noDepthLineStrip = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
+    private static final RenderPipeline noDepthLineStrip = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
             //? < 26.1{
             /*.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .withDepthWrite(false)
             *///?}else{
-            .withDepthStencilState(Optional.empty())
+            .withDepthStencilState(Optional.of(new DepthStencilState(CompareOp.ALWAYS_PASS, true)))
             //?}
             .withCull(false)
             //? if >=26.3 {
             .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
             //?}
             //? if <1.21.11 {
-            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES)
+            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.LINE_STRIP)
              *///?} else if <26.2 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
             *///?} else {
             .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH)
             .withPrimitiveTopology(PrimitiveTopology.DEBUG_LINE_STRIP)
             //?}
-            .build();
+            .build());
 
     //? if >=1.21.11 {
     public static final RenderType SEE_THROUGH_LINE_STRIP =
@@ -177,8 +177,8 @@ public class RyansRenderingKitRenderTypes {
                     RenderSetup.builder(noDepthLineStrip).createRenderSetup());
 
 
-    private static final RenderPipeline lineStrip = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-            .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "no_depth_line_strip"))
+    private static final RenderPipeline lineStrip = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
+            .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "line_strip"))
             .withCull(false)
             //? if <26.2 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
@@ -186,7 +186,7 @@ public class RyansRenderingKitRenderTypes {
             .withVertexBinding(0 , DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH)
             .withPrimitiveTopology(PrimitiveTopology.DEBUG_LINE_STRIP)
             //?}
-            .build();
+            .build());
 
     public static final RenderType LINE_STRIP =
             RenderType.create("line_strip",

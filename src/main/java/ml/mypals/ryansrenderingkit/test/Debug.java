@@ -140,7 +140,6 @@ public class Debug {
                             })
                             .build(Shape.RenderingType.BATCH)
             );
-
             ShapeManagers.addShape(
                     Identifier.fromNamespaceAndPath(MOD_ID, "test/demo_line_circle"),
                     ShapeGenerator.generateLineCircle()
@@ -380,7 +379,7 @@ public class Debug {
                             .segments(32)
                             .axis(CircleLikeShape.CircleAxis.Z)
                             .color(randomColor())
-                            .seeThrough(false)
+                            .seeThrough(true)
                             .transform((t) -> {
                                 float time = client.getGameTime();
                                 t.setShapeWorldRotationDegrees(time * 2, time * 5, 0);
@@ -442,7 +441,7 @@ public class Debug {
                                     new Vec3(xPos() + 2, 4, 2))
                             .edgeWidth(3.0f)
                             .color(randomColor())
-                            .seeThrough(false)
+                            .seeThrough(true)
                             .construction(BoxShape.BoxConstructionType.CORNERS)
                             .transform((t) -> {
                                 float time = client.getGameTime();

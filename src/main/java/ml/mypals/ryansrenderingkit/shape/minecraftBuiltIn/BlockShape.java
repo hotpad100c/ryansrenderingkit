@@ -200,7 +200,11 @@ public class BlockShape extends Shape implements EmptyMesh {
         *///?}
         poseStack.pushPose();
         //? > 1.20.4 {
-        poseStack.mulPose(builder.getPositionMatrix());
+            //? if <26.3 {
+            /*poseStack.rotate(builder.getPositionMatrix());
+            *///?} else {
+            poseStack.mulPose(builder.getPositionMatrix());
+            //?}
         //?} else
         //poseStack.mulPoseMatrix(convertToMojangIfNeeded(builder.getPositionMatrix()));
 
