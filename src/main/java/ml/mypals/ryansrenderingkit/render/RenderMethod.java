@@ -43,7 +43,7 @@ public record RenderMethod(
     public static final RenderMethod LINES = new RenderMethod(
             //? if >= 1.21.5 {
             SEE_THROUGH_LINES,
-            /*? if <1.21.11 {*//*RenderType.*//*?} else {*/RenderTypes. /*?}*/LINES,
+            /*? if <1.21.11 {*//*RenderType.*//*?} else {*/RyansRenderingKitRenderTypes. /*?}*/LINES,
             //?} else if >1.21.1 {
             /*CoreShaders.RENDERTYPE_LINES,
             *///?} else

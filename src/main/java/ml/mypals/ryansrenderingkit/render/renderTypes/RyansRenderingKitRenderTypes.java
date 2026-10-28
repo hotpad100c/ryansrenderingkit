@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 /*import net.minecraft.client.renderer.RenderStateShard;
 import static net.minecraft.client.renderer.RenderStateShard.VIEW_OFFSET_Z_LAYERING;
 *///?} else {
+import net.minecraft.client.renderer.rendertype.LayeringTransform;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 //?}
@@ -180,6 +181,9 @@ public class RyansRenderingKitRenderTypes {
     private static final RenderPipeline lineStrip = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "line_strip"))
             .withCull(false)
+            //? if >=26.3 {
+            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+            //?}
             //? if <26.2 {
             /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.DEBUG_LINE_STRIP)
             *///?} else {
@@ -191,6 +195,24 @@ public class RyansRenderingKitRenderTypes {
     public static final RenderType LINE_STRIP =
             RenderType.create("line_strip",
                     RenderSetup.builder(lineStrip).createRenderSetup());
+
+    private static final RenderPipeline lines = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
+            .withLocation(Identifier.fromNamespaceAndPath(MOD_ID, "lines"))
+            .withCull(false)
+            //? if >=26.3 {
+            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+            //?}
+            //? if <26.2 {
+            /*.withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.LINES)
+            *///?} else {
+            .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH)
+            .withPrimitiveTopology(PrimitiveTopology.LINES)
+            //?}
+            .build());
+
+    public static final RenderType LINES =
+            RenderType.create("lines",
+                    RenderSetup.builder(lines).setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING).createRenderSetup());
     //?} else {
     /*public static final RenderType.CompositeRenderType SEE_THROUGH_LINE_STRIP =
             RenderType.create(
